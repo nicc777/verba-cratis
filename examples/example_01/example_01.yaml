@@ -17,6 +17,14 @@ deployment:
       echo "Successfully completed unit tests for deployment ${build-variable:current_deployment_name}"
 
 
+# Provide some default parameter values for helper functions
+functionParameterValues:
+  get_username:                             # The function get_username() will get the following defined named parameters passed in
+  - ParameterName: convert_case             # Name of parameter
+    ParameterValueType: str                 # Type. The ParameterValue will be cast to this type. Supported types: bool, string, int, float
+    ParameterValue: UPPER                   # The actual value to pass to the parameter, which will be cast to the type specified
+
+
 # Define global variables that can be referenced in tasks by ${ref:globalVariables.variableName}. If a correspondingly named variable is in the deployment profile profileGlobalVariableOverrides, that value will be used instead
 globalVariables:
   awsRegion: eu-central-1
@@ -42,28 +50,42 @@ tasks:
     changeSetIfExists: true                                                         # If the named stack already exist, automatically create a change set?
     preDeploymentScript: |
       echo "Starting on task ${build-variable:current_task_name}"
-      python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
     postDeploymentScript: |
-      echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template}"
-    taskDependsOn: None     
+      python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
+      sleep 60
+      echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template} with ${exports:dynamoDbTable.initialRecordCount} initial records"
+    taskDependsOn: None
+    taskExports:                                                                    # Task exports are processed after CloudFormation deployment but before postDeploymentScript
+      tableArn: ${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'} 
+      initialRecordCount: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" --profile nicc777 | jq '.Count'}  
   lambdaFunction:
     template: examples/example_01/cloudformation/lambda_function.yaml
     deployFromS3: true
     stackName: example-01-002
+    functionParameterValuesOverrides:                                               # Parameter overrides for helper functions
+      get_username:
+      - ParameterName: convert_case
+        ParameterValueType: str
+        ParameterValue: LOWER
     templateParameters:
     - ParameterName: FunctionName
-      ParameterValue: acfop-example-01
+      ParameterValue: acfop-example-01-${func:get_username()}
     - ParameterName: FunctionZipFile
       ParameterValue: ${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip
     - ParameterName: DeploymentVersion                                              # We add this parameter (and also as a Lambda Environment Variable) to force CHange Sets for code changes, even if nothing else in the template changes
       ParameterValue: ${build-variable:build_uuid}
+    - ParameterName: TableArn
+      ParameterValue: ${exports:dynamoDbTable.tableArn}                             # Technically this can be done by a CloudFormation template export/import, but this is just for demonstration purposes.
     changeSetIfExists: true
     preDeploymentScript: |
+      export AWS_DEFAULT_REGION=${ref:globalVariables.awsRegion}
       echo "Starting on task ${build-variable:current_task_name}"
       examples/example_01/lambda_function_src/build_and_package.sh --output_file="/tmp/example-01-lambda.zip"
       aws s3 cp /tmp/example-01-lambda.zip s3://${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip
     postDeploymentScript: |
       python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
-      echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template}"
-    taskDependsOn: dynamoDbTable     
+      echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template} with initial record count set to ${exports:dynamoDbTable.initialRecordCount}. Task completed at ${exports:lambdaFunction.finalFinishTimestamp}"
+    taskDependsOn: dynamoDbTable    
+    taskExports:
+      finalFinishTimestamp: ${shell:date}  
   
