@@ -1,0 +1,69 @@
+# Define deployments - when the deployment script runs, you need to supply a profile name and environment. 
+deployment:
+  sandbox-full-live:                  # A unique name for this profile
+    unitTestProfile: false            # If this is a profile to use for unit tests, set to true
+    tasks:                            # List of tasks to include in this deployment profile
+    - lambdaFunction                  # Task must be defined under tasks (any task with dependency tasks will also run those tasks)
+    globalVariableOverrides:          # Overrides globalVariables
+      logFilename: deployment-${build-variable:build_uuid}-testing.log
+      logLevel: debug
+    templateParametersOverrides:      # Overrides tasks.*.templateParameters
+      tableName: acfop-test-001-table
+    dependsOnProfile:                 # List of dependant profiles that will be run first. Only of all dependant profiles complete successfully will this profile run
+    - None                            # Run this profile only after the unittest profile completed successfully
+    preDeploymentScript: |
+      echo "Running unit tests on deployment ${build-variable:current_deployment_name}"
+    postDeploymentScript: |
+      echo "Successfully completed unit tests for deployment ${build-variable:current_deployment_name}"
+
+
+# Define global variables that can be referenced in tasks by ${ref:globalVariables.variableName}. If a correspondingly named variable is in the deployment profile profileGlobalVariableOverrides, that value will be used instead
+globalVariables:
+  awsRegion: eu-central-1
+  awsAccountId: ${env:AWS_REGION}
+  cloudFormationS3Bucket: test-deployments-${func:get_username()}-${func:get_aws_account_id()}  # Try to create a unique bucket name
+
+
+# Define the deployment logging options
+logging:
+  logFilename: deployment-${build-variable:build_uuid}.log
+  logLevel: warn
+
+
+# Define tasks, where each task corresponds to the deployment of one CloudFormation template file
+tasks:
+  dynamoDbTable:
+    template: examples/example_01/cloudformation/dynamodb_table.yaml                # The CloudFormation template
+    deployFromS3: true                                                              # If true, first upload the template to S3 and reference the S3 object when deploying to CloudFormation
+    stackName: example-01-001                                                       # The CloudFormation stack name.
+    templateParameters:                                                             # CloudFormation template parameters
+    - ParameterName: TableName
+      ParameterValue: acfop-test-table
+    changeSetIfExists: true                                                         # If the named stack already exist, automatically create a change set?
+    preDeploymentScript: |
+      echo "Starting on task ${build-variable:current_task_name}"
+      python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
+    postDeploymentScript: |
+      echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template}"
+    taskDependsOn: None     
+  lambdaFunction:
+    template: examples/example_01/cloudformation/lambda_function.yaml
+    deployFromS3: true
+    stackName: example-01-002
+    templateParameters:
+    - ParameterName: FunctionName
+      ParameterValue: acfop-example-01
+    - ParameterName: FunctionZipFile
+      ParameterValue: ${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip
+    - ParameterName: DeploymentVersion                                              # We add this parameter (and also as a Lambda Environment Variable) to force CHange Sets for code changes, even if nothing else in the template changes
+      ParameterValue: ${build-variable:build_uuid}
+    changeSetIfExists: true
+    preDeploymentScript: |
+      echo "Starting on task ${build-variable:current_task_name}"
+      examples/example_01/lambda_function_src/build_and_package.sh --output_file="/tmp/example-01-lambda.zip"
+      aws s3 cp /tmp/example-01-lambda.zip s3://${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip
+    postDeploymentScript: |
+      python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
+      echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template}"
+    taskDependsOn: dynamoDbTable     
+  
