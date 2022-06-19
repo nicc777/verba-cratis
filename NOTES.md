@@ -2,12 +2,12 @@
 
 Example String (complex example, with nesting):
 
-> some string with a variable value ${var:var1} and a function that generated the following result: ${func:print_s(message=${var:var1})}
+> some string with a variable value ${var:var1} and a function that generated the following result: ${func:print_s(message="${var:var1}")}
 
 Expecting the following snippets:
 
 * `${var:var1}`
-* `${func:print_s(message=${var:var1})}` which contains a nested snippet:
+* `${func:print_s(message="${var:var1}")}` which contains a nested snippet:
   * `${var:var1}` and this must be resolved first
 
 Very Basic Example:
