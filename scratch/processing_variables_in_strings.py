@@ -18,7 +18,7 @@ s2 = 'some string with a variable value ${var:var1} and a function that generate
 # s2 = 'v ${var:var1} : ${func:print_s(message=${var:var1})}'
 
 strings = list()
-# strings.append(s1)
+strings.append(s1)
 strings.append(s2)
 
 for s in strings:
