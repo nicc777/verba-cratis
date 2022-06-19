@@ -14,7 +14,7 @@ functions['print_s'] = print_s
 
 s1 = 'some string with a variable value ${var:var1} and a function that generated the following result: ${func:print_s()}'
 # s1 = 'v ${var:var1} : ${func:print_s()}'
-s2 = 'some string with a variable value ${var:var1} and a function that generated the following result: ${func:print_s(message=${var:var1})}'
+s2 = 'some string with a variable value ${var:var1} and a function that generated the following result: ${func:print_s(message="${var:var1}")}'
 # s2 = 'v ${var:var1} : ${func:print_s(message=${var:var1})}'
 
 strings = list()
