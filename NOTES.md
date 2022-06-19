@@ -15,3 +15,20 @@ Type "help", "copyright", "credits" or "license" for more information.
 ['${var:var1}', '${func:print_s()}']
 ```
 
+Expanding on this idea, I started experimenting with some code in the file `scratch/processing_variables_in_strings.py` that yielded the following results:
+
+```shell
+$ python3 scratch/processing_variables_in_strings.py 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Experiment
+        Processing: string: some string with a variable value ${var:var1} and a function that generated the following result: ${func:print_s()}
+                snippet=var:var1
+                snippet=func:print_s()
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Experiment
+        Processing: string: some string with a variable value ${var:var1} and a function that generated the following result: ${func:print_s(message=${var:var1})}
+                snippet=var:var1
+                snippet=func:print_s(message=${var:var1})
+```
