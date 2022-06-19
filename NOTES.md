@@ -71,6 +71,9 @@ Therefor the processing map has to resemble something like the following:
     "v ${var:var1} : ${func:print_s(message=${var:var1})}": [
         {
             "${var:var1}": {                                <-- EXECUTE FIRST
+                "Class": "var",
+                "ClassReference": "var1",
+                "Parameters": null,
                 "Checksum": "",
                 "Processed": false,
                 "ResultType": null,
@@ -82,7 +85,18 @@ Therefor the processing map has to resemble something like the following:
             }
         },
         {
-            "${func:print_s(message=\"${var:var1}\")}": {       <-- EXECUTE THIRD
+            "${func:print_s(message=\"${var:var1}\")}": {   <-- EXECUTE THIRD
+                "Class": "func",
+                "ClassReference": "print_s",
+                "Parameters": [                             <-- Functions can have parameters...
+                    {
+                        "ParameterName": "message", 
+                        "ParameterValue": "${var:var1}"     <-- TODO Still need to figure out how I'm going to deal with this, 
+                                                             -- especially when the string contains one or more template variables 
+                                                             -- or contains a string with embedded template variables.
+                                                             -- And how do I get the calculated values back in?
+                    }
+                ],
                 "Checksum": "",
                 "Processed": false,
                 "ResultType": null,
@@ -90,6 +104,9 @@ Therefor the processing map has to resemble something like the following:
                 "Children": [                               <-- So basically children are processed first...
                     {
                         "${var:var1}": {                    <-- EXECUTE SECOND
+                            "Class": "var",
+                            "ClassReference": "var1",
+                            "Parameters": null,
                             "Checksum": "",
                             "Processed": false,
                             "ResultType": null,
