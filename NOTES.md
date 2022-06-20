@@ -143,3 +143,14 @@ A cache for processing can look something like this:
 ```
 
 In the above example, only the first one was resolved.
+
+# Docstrings
+
+References:
+
+* https://peps.python.org/pep-0257/
+* https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+* https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
+* https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-code-block
+* https://github.com/docascode/sphinx-docfx-yaml/blob/master/docs/How_to_Document_Python_API.md
+
