@@ -7,6 +7,34 @@
 """
 
 def variable_snippet_extract(line: str)->list:
+    """Extracts the variables embedded in a string and return as a list
+
+    Each line in the configuration file could contain one or more variable strings that need further processing in 
+    order to replace that variable with the processed value.
+
+    An example (snippet) from one of the example configurations are listed below:
+
+    .. code-block:: yaml
+
+        globalVariables:
+            awsRegion: eu-central-1
+            awsAccountId: ${env:AWS_REGION}
+            cloudFormationS3Bucket: test-deployments-${func:get_username()}-${func:get_aws_account_id()} 
+
+    In the above example, the ``awsAccountId`` string that will be parsed is ``${env:AWS_REGION}`` and will return:
+    ``['env:AWS_REGION']``
+
+    In the above example, the ``cloudFormationS3Bucket`` string that will be parsed is 
+    ``test-deployments-${func:get_username()}-${func:get_aws_account_id()}`` and will return:
+    ``['func:get_username()', 'func:get_aws_account_id()']``
+
+    Args:
+        line (str): The line to be parsed
+
+    Returns:
+        list: All variables extracted from the string
+
+    """
     snippets = list()
     current_snippet = ""
     snippet_started = False
