@@ -18,3 +18,48 @@ The intention is to allow multiple CloudFOrmation templates to be deployed in an
 The idea is to eventually add this project to [PyPI](https://pypi.org/)
 
 At the moment, I am planning the implementation and there will probably be a number of commits happening before I update this README again.
+
+# Testing
+
+## Preparation
+
+The following need to be installed:
+
+* `pip3 install coverage`
+
+All commands in this section assumes that the project root directory is the working directory.
+
+## Basic Unit Tests
+
+Run individual tests, for example:
+
+```shell
+python3 tests/test_utile_parser.py
+```
+
+## Coverage
+
+Run a test with:
+
+```shell
+coverage run tests/test_utile_parser.py
+```
+
+Obtain the coverage with:
+
+```shell
+coverage report
+```
+
+Example output:
+
+```text
+Name                          Stmts   Miss  Cover
+-------------------------------------------------
+src/acfop/__init__.py             0      0   100%
+src/acfop/utils/__init__.py       0      0   100%
+src/acfop/utils/parser.py        29      0   100%
+tests/test_utile_parser.py       33      0   100%
+-------------------------------------------------
+TOTAL                            62      0   100%
+```
