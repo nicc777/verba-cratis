@@ -17,7 +17,7 @@ import unittest
 from acfop.utils.parser import *
 
 
-def mock_get_file_contents(file: str)->str:
+def mock_get_file_contents(file: str)->str: # pragma: no cover
     return """---
 deployment:
   sandbox-full-live:

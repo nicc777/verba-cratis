@@ -8,6 +8,11 @@
 
 import traceback
 from acfop.utils.file_io import get_file_contents
+import yaml
+try:    # pragma: no cover
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError: # pragma: no cover
+    from yaml import Loader, Dumper
 
 
 def variable_snippet_extract(line: str)->list:
@@ -88,7 +93,7 @@ def parse_configuration_file(file_path: str, get_file_contents_function: object=
     configuration = dict()
     try:
         file_content = get_file_contents_function(file=file_path)
-        # TODO Implement python yaml parser
+        configuration = yaml.load(file_content, Loader=Loader)
     except:
         traceback.print_exc()
         raise Exception('Failed to parse configuration')
