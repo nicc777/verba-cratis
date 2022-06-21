@@ -2,6 +2,17 @@
 
 Contributing at the moment is limited to opening new Issues or Pull Requests. There is only one primary reviewer at this stage, and turn-around times may be slow (a couple of days before a reaction should be considered normal).
 
+# Implementation Principles and Guidelines
+
+## Principle: Do not re-invent the wheel
+
+As far as possible make use of third party libraries to fulfil various key functions. Logic in this application is around orchestration of CloudFormation deployment tasks with some additional complexity in that the orchestration must have some limited scripting support (template variables).
+
+Thus far the following Libraries have been selected:
+
+* [PyYAML](https://pyyaml.org/) for YAML parsing
+* [Cerberus](https://docs.python-cerberus.org/en/stable/index.html) for configuration validation
+
 # Source Code Guidelines
 
 ## Shell Scripts
