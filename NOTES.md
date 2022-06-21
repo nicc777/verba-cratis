@@ -154,3 +154,9 @@ References:
 * https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-code-block
 * https://github.com/docascode/sphinx-docfx-yaml/blob/master/docs/How_to_Document_Python_API.md
 
+# Validation with Cerberus
+
+Rules Documentation: https://docs.python-cerberus.org/en/stable/validation-rules.html
+
+At the moment I am rethinking the configuration schema to make parsing with cerberus a little easier and straightforward.
+
