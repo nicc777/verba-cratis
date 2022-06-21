@@ -13,6 +13,32 @@ try:    # pragma: no cover
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError: # pragma: no cover
     from yaml import Loader, Dumper
+from cerberus import Validator
+import json
+
+
+CONFIGURATION_VALIDATION = {
+    'deployment': {
+        'required': True,
+        'type': 'dict'
+    },
+    'functionParameterValues': {
+        'required': True,
+        'type': 'dict'
+    },
+    'globalVariables': {
+        'required': True,
+        'type': 'dict'
+    },
+    'logging': {
+        'required': True,
+        'type': 'dict'
+    },
+    'tasks': {
+        'required': True,
+        'type': 'dict'
+    },
+}
 
 
 def variable_snippet_extract(line: str)->list:
@@ -98,3 +124,16 @@ def parse_configuration_file(file_path: str, get_file_contents_function: object=
         traceback.print_exc()
         raise Exception('Failed to parse configuration')
     return configuration
+
+
+def validate_configuration(configuration: dict, validation_configuration: dict=CONFIGURATION_VALIDATION)->bool:
+    try:
+        v = Validator()
+        validation_result = v.validate(configuration, validation_configuration)
+        if validation_result is False:
+            print('Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
+        else:
+            return True
+    except:
+        traceback.print_exc()
+    return False

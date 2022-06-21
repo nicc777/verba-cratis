@@ -18,7 +18,7 @@ from acfop.utils.parser import *
 
 
 def mock_get_file_contents(file: str)->str: # pragma: no cover
-    return """---
+    config = """---
 deployment:
   sandbox-full-live:
     unitTestProfile: false
@@ -105,6 +105,7 @@ tasks:
     taskExports:
       finalFinishTimestamp: ${shell:date}  
     """
+    return config
 
 
 def mock_get_file_contents_throws_exception(file: str)->str:
@@ -168,6 +169,27 @@ class TestFunctionParseConfigurationFile(unittest.TestCase):    # pragma: no cov
             configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents_throws_exception)
         self.assertTrue('Failed to parse configuration' in str(context.exception))
         self.assertEqual(len(configuration), 0)
+
+
+class TestFunctionValidate_Configuration(unittest.TestCase):    # pragma: no cover
+
+    def test_validate_example1(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_failed_validation(self):
+        configuration = {'Message': 'This config is invalid'}
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_force_exception_with_failed_validation_result(self):
+        configuration = 123
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':
