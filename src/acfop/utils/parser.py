@@ -6,6 +6,10 @@
     https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
+import traceback
+from acfop.utils.file_io import get_file_contents
+
+
 def variable_snippet_extract(line: str)->list:
     """Extracts the variables embedded in a string and return as a list
 
@@ -66,3 +70,26 @@ def variable_snippet_extract(line: str)->list:
                 current_snippet = '{}{}'.format(current_snippet, c)
             i = i+1
     return snippets
+
+
+def parse_configuration_file(file_path: str, get_file_contents_function: object=get_file_contents)->dict:
+    """Parse a configuration file
+
+    Reads the file content from ``file_path`` and attempts to parse it with the YAML parser
+
+    Args:
+        file_path (str): The full path to the configuration file
+        get_file_contents_function (object): A function used mainly for unit testing to mock the File IO functions
+
+    Returns:
+        dict: The parsed configuration, not validated (any valid YAML will be parsed and returned as a dict)
+
+    """
+    configuration = dict()
+    try:
+        file_content = get_file_contents_function(file=file_path)
+        # TODO Implement python yaml parser
+    except:
+        traceback.print_exc()
+        raise Exception('Failed to parse configuration')
+    return configuration

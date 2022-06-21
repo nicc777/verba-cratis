@@ -39,27 +39,8 @@ python3 tests/test_utile_parser.py
 
 ## Coverage
 
-Run a test with:
+Run Tests
 
 ```shell
-coverage run tests/test_utile_parser.py
-```
-
-Obtain the coverage with:
-
-```shell
-coverage report
-```
-
-Example output:
-
-```text
-Name                          Stmts   Miss  Cover
--------------------------------------------------
-src/acfop/__init__.py             0      0   100%
-src/acfop/utils/__init__.py       0      0   100%
-src/acfop/utils/parser.py        29      0   100%
-tests/test_utile_parser.py       33      0   100%
--------------------------------------------------
-TOTAL                            62      0   100%
+sh run_tests.sh
 ```

@@ -57,7 +57,7 @@ tasks:
     taskDependsOn: None
     taskExports:                                                                    # Task exports are processed after CloudFormation deployment but before postDeploymentScript
       tableArn: ${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'} 
-      initialRecordCount: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" --profile nicc777 | jq '.Count'}  
+      initialRecordCount: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" | jq '.Count'}  
   lambdaFunction:
     template: examples/example_01/cloudformation/lambda_function.yaml
     deployFromS3: true
