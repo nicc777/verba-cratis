@@ -18,93 +18,9 @@ from acfop.utils.parser import *
 
 
 def mock_get_file_contents(file: str)->str: # pragma: no cover
-    config = """---
-deployment:
-  sandbox-full-live:
-    unitTestProfile: false
-    tasks:
-    - lambdaFunction
-    globalVariableOverrides:
-      logFilename: deployment-${build-variable:build_uuid}-testing.log
-      logLevel: debug
-    templateParametersOverrides:
-      tableName: acfop-test-001-table
-    dependsOnProfile:
-    - None
-    preDeploymentScript: |
-      echo "Running unit tests on deployment ${build-variable:current_deployment_name}"
-    postDeploymentScript: |
-      echo "Successfully completed unit tests for deployment ${build-variable:current_deployment_name}"
-
-
-functionParameterValues:
-  get_username:
-  - ParameterName: convert_case
-    ParameterValueType: str
-    ParameterValue: UPPER
-
-
-globalVariables:
-  awsRegion: eu-central-1
-  awsAccountId: ${env:AWS_REGION}
-  cloudFormationS3Bucket: test-deployments-${func:get_username()}-${func:get_aws_account_id()}  # Try to create a unique bucket name
-
-
-logging:
-  logFilename: deployment-${build-variable:build_uuid}.log
-  logLevel: warn
-
-
-tasks:
-  dynamoDbTable:
-    template: examples/example_01/cloudformation/dynamodb_table.yaml
-    deployFromS3: true
-    stackName: example-01-001
-    templateParameters:
-    - ParameterName: TableName
-      ParameterValue: acfop-test-table
-    changeSetIfExists: true
-    preDeploymentScript: |
-      echo "Starting on task ${build-variable:current_task_name}"
-    postDeploymentScript: |
-      python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
-      sleep 60
-      echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template} with ${exports:dynamoDbTable.initialRecordCount} initial records"
-    taskDependsOn: None
-    taskExports:
-      tableArn: ${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'} 
-      initialRecordCount: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" | jq '.Count'}  
-  lambdaFunction:
-    template: examples/example_01/cloudformation/lambda_function.yaml
-    deployFromS3: true
-    stackName: example-01-002
-    functionParameterValuesOverrides:
-      get_username:
-      - ParameterName: convert_case
-        ParameterValueType: str
-        ParameterValue: LOWER
-    templateParameters:
-    - ParameterName: FunctionName
-      ParameterValue: acfop-example-01-${func:get_username()}
-    - ParameterName: FunctionZipFile
-      ParameterValue: ${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip
-    - ParameterName: DeploymentVersion
-      ParameterValue: ${build-variable:build_uuid}
-    - ParameterName: TableArn
-      ParameterValue: ${exports:dynamoDbTable.tableArn}
-    changeSetIfExists: true
-    preDeploymentScript: |
-      export AWS_DEFAULT_REGION=${ref:globalVariables.awsRegion}
-      echo "Starting on task ${build-variable:current_task_name}"
-      examples/example_01/lambda_function_src/build_and_package.sh --output_file="/tmp/example-01-lambda.zip"
-      aws s3 cp /tmp/example-01-lambda.zip s3://${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip
-    postDeploymentScript: |
-      python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
-      echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template} with initial record count set to ${exports:dynamoDbTable.initialRecordCount}. Task completed at ${exports:lambdaFunction.finalFinishTimestamp}"
-    taskDependsOn: dynamoDbTable    
-    taskExports:
-      finalFinishTimestamp: ${shell:date}  
-    """
+    config = ""
+    with open('examples/example_01/example_01.yaml', 'r') as f:
+      config = f.read()
     return config
 
 
@@ -154,7 +70,7 @@ class TestFunctionParseConfigurationFile(unittest.TestCase):    # pragma: no cov
         self.assertIsInstance(configuration, dict)
         self.assertTrue(len(configuration) > 0)
         keys = (
-            'deployment',
+            'deployments',
             'functionParameterValues',
             'globalVariables',
             'logging',

@@ -1,20 +1,37 @@
-# Define deployments - when the deployment script runs, you need to supply a profile name and environment. 
-deployment:
-  sandbox-full-live:                  # A unique name for this profile
-    unitTestProfile: false            # If this is a profile to use for unit tests, set to true
-    tasks:                            # List of tasks to include in this deployment profile
-    - lambdaFunction                  # Task must be defined under tasks (any task with dependency tasks will also run those tasks)
-    globalVariableOverrides:          # Overrides globalVariables
-      logFilename: deployment-${build-variable:build_uuid}-testing.log
-      logLevel: debug
-    templateParametersOverrides:      # Overrides tasks.*.templateParameters
-      tableName: acfop-test-001-table
-    dependsOnProfile:                 # List of dependant profiles that will be run first. Only of all dependant profiles complete successfully will this profile run
-    - None                            # Run this profile only after the unittest profile completed successfully
-    preDeploymentScript: |
-      echo "Running unit tests on deployment ${build-variable:current_deployment_name}"
-    postDeploymentScript: |
-      echo "Successfully completed unit tests for deployment ${build-variable:current_deployment_name}"
+# # Define deployments - when the deployment script runs, you need to supply a profile name and environment. 
+# deployment:
+#   sandbox-full-live:                  # A unique name for this profile
+#     unitTestProfile: false            # If this is a profile to use for unit tests, set to true
+#     tasks:                            # List of tasks to include in this deployment profile
+#     - lambdaFunction                  # Task must be defined under tasks (any task with dependency tasks will also run those tasks)
+#     globalVariableOverrides:          # Overrides globalVariables
+#       logFilename: deployment-${build-variable:build_uuid}-testing.log
+#       logLevel: debug
+#     templateParametersOverrides:      # Overrides tasks.*.templateParameters
+#       tableName: acfop-test-001-table
+#     dependsOnProfile:                 # List of dependant profiles that will be run first. Only of all dependant profiles complete successfully will this profile run
+#     - None                            # Run this profile only after the unittest profile completed successfully
+#     preDeploymentScript: |
+#       echo "Running unit tests on deployment ${build-variable:current_deployment_name}"
+#     postDeploymentScript: |
+#       echo "Successfully completed unit tests for deployment ${build-variable:current_deployment_name}"
+
+deployments:
+- name: sandbox-full-live
+  unitTestProfile: false            # If this is a profile to use for unit tests, set to true
+  tasks:                            # List of tasks to include in this deployment profile
+  - lambdaFunction                  # Task must be defined under tasks (any task with dependency tasks will also run those tasks)
+  globalVariableOverrides:          # Overrides globalVariables
+    logFilename: deployment-${build-variable:build_uuid}-testing.log
+    logLevel: debug
+  templateParametersOverrides:      # Overrides tasks.*.templateParameters
+    tableName: acfop-test-001-table
+  dependsOnProfile:                 # List of dependant profiles that will be run first. Only of all dependant profiles complete successfully will this profile run
+  - None                            # Run this profile only after the unittest profile completed successfully
+  preDeploymentScript: |
+    echo "Running unit tests on deployment ${build-variable:current_deployment_name}"
+  postDeploymentScript: |
+    echo "Successfully completed unit tests for deployment ${build-variable:current_deployment_name}"
 
 
 # Provide some default parameter values for helper functions

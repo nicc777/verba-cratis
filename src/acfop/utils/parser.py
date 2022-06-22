@@ -18,9 +18,9 @@ import json
 
 
 CONFIGURATION_VALIDATION = {
-    'deployment': {
+    'deployments': {
         'required': True,
-        'type': 'dict'
+        'type': 'list'
     },
     'functionParameterValues': {
         'required': True,
