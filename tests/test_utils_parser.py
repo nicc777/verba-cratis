@@ -87,7 +87,7 @@ class TestFunctionParseConfigurationFile(unittest.TestCase):    # pragma: no cov
         self.assertEqual(len(configuration), 0)
 
 
-class TestFunctionValidate_Configuration(unittest.TestCase):    # pragma: no cover
+class TestFunctionValidateConfiguration(unittest.TestCase):    # pragma: no cover
 
     def test_validate_example1(self):
         configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
@@ -106,6 +106,22 @@ class TestFunctionValidate_Configuration(unittest.TestCase):    # pragma: no cov
         result = validate_configuration(configuration=configuration)
         self.assertIsInstance(result, bool)
         self.assertFalse(result)
+
+
+class TestFunctionFromConfigurationGetAllTaskNamesAsList(unittest.TestCase):    # pragma: no cover
+
+    def test_validate_example1(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        task_names = from_configuration_get_all_task_names_as_list(configuration=configuration)
+        self.assertIsInstance(task_names, list)
+        self.assertTrue(len(task_names), 2)
+        self.assertTrue('dynamoDbTable' in task_names)
+        self.assertTrue('lambdaFunction' in task_names)
+
+    def test_force_Exception(self):
+        task_names = from_configuration_get_all_task_names_as_list(configuration=123)
+        self.assertIsInstance(task_names, list)
+        self.assertEqual(len(task_names), 0)
 
 
 if __name__ == '__main__':
