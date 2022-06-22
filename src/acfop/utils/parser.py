@@ -24,7 +24,7 @@ CONFIGURATION_VALIDATION = {
     },
     'functionParameterValues': {
         'required': True,
-        'type': 'dict'
+        'type': 'list'
     },
     'globalVariables': {
         'required': True,
