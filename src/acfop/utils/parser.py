@@ -36,7 +36,7 @@ CONFIGURATION_VALIDATION = {
     },
     'tasks': {
         'required': True,
-        'type': 'dict'
+        'type': 'list'
     },
 }
 
