@@ -18,11 +18,11 @@ deployments:
 
 # Provide some default parameter values for helper functions
 functionParameterValues:
-- name: get_username                        # The function get_username() will get the following defined named parameters passed in
+- name: get_username          # The function get_username() will get the following defined named parameters passed in
   parameters:
-  - ParameterName: convert_case             # Name of parameter
-    ParameterValueType: str                 # Type. The ParameterValue will be cast to this type. Supported types: bool, string, int, float
-    ParameterValue: UPPER                   # The actual value to pass to the parameter, which will be cast to the type specified
+  - name: convert_case        # Name of parameter
+    type: str                 # Type. The ParameterValue will be cast to this type. Supported types: bool, str, int, float
+    value: UPPER              # The actual value to pass to the parameter, which will be cast to the type specified
 
 
 # Define global variables that can be referenced in tasks by ${ref:globalVariables.variableName}. If a correspondingly named variable is in the deployment profile profileGlobalVariableOverrides, that value will be used instead

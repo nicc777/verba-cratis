@@ -23,15 +23,15 @@ CONFIGURATION_SCHEMA = {
         'type': 'list'
     },
     'functionParameterValues': {
-        'required': True,
+        'required': False,
         'type': 'list'
     },
     'globalVariables': {
-        'required': True,
+        'required': False,
         'type': 'dict'
     },
     'logging': {
-        'required': True,
+        'required': False,
         'type': 'dict'
     },
     'tasks': {
@@ -73,6 +73,33 @@ DEPLOYMENT_SCHEMA = {
     },
     'postDeploymentScript': {
         'required': False,
+        'type': 'string',
+    },
+}
+
+FUNCTION_DEFINITION_SCHEMA = {
+    'name': {
+        'required': True,
+        'type': 'string',
+    },
+    'parameters': {
+        'required': True,
+        'type': 'list',
+    },
+}
+
+FUNCTION_PARAMETERS_SCHEMA = {
+    'name': {
+        'required': True,
+        'type': 'string',
+    },
+    'type': {
+        'required': True,
+        'type': 'string',
+        'regex': '^bool|str|int|float$',
+    },
+    'value': {
+        'required': True,
         'type': 'string',
     },
 }
@@ -168,6 +195,9 @@ def validate_configuration(
     validation_configuration: dict={
         'CONFIGURATION_SCHEMA': CONFIGURATION_SCHEMA,
         'DEPLOYMENT_SCHEMA': DEPLOYMENT_SCHEMA,
+        'FUNCTION_DEFINITION_SCHEMA': FUNCTION_DEFINITION_SCHEMA,
+        'FUNCTION_PARAMETERS_SCHEMA': FUNCTION_PARAMETERS_SCHEMA,
+
     }
 )->bool:
     try:
@@ -181,6 +211,17 @@ def validate_configuration(
             if validation_result is False:
                 print('Deployment Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
                 return False
+        if 'functionParameterValues' in configuration:
+            for function_parameter in configuration['functionParameterValues']:
+                validation_result = v.validate(function_parameter, validation_configuration['FUNCTION_DEFINITION_SCHEMA'])
+                if validation_result is False:
+                    print('Deployment Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
+                    return False
+                for param in function_parameter['parameters']:
+                    sub_validation_result = v.validate(param, validation_configuration['FUNCTION_PARAMETERS_SCHEMA'])
+                    if sub_validation_result is False:
+                        print('Deployment Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
+                        return False
     except:
         traceback.print_exc()
         return False
