@@ -17,7 +17,7 @@ from cerberus import Validator
 import json
 
 
-CONFIGURATION_VALIDATION = {
+CONFIGURATION_SCHEMA = {
     'deployments': {
         'required': True,
         'type': 'list'
@@ -37,6 +37,43 @@ CONFIGURATION_VALIDATION = {
     'tasks': {
         'required': True,
         'type': 'list'
+    },
+}
+
+DEPLOYMENT_SCHEMA = {
+    'name': {
+        'required': True,
+        'type': 'string',
+    },
+    'unitTestProfile': {
+        'required': False,
+        'type': 'boolean',
+    },
+    'tasks': {
+        'required': True,
+        'type': 'list',
+        'minlength': 1,
+
+    },
+    'globalVariableOverrides': {
+        'required': False,
+        'type': 'dict',
+    },
+    'templateParametersOverrides': {
+        'required': False,
+        'type': 'dict',
+    },
+    'dependsOnProfile': {
+        'required': False,
+        'type': 'list',
+    },
+    'preDeploymentScript': {
+        'required': False,
+        'type': 'string',
+    },
+    'postDeploymentScript': {
+        'required': False,
+        'type': 'string',
     },
 }
 
@@ -126,14 +163,25 @@ def parse_configuration_file(file_path: str, get_file_contents_function: object=
     return configuration
 
 
-def validate_configuration(configuration: dict, validation_configuration: dict=CONFIGURATION_VALIDATION)->bool:
+def validate_configuration(
+    configuration: dict, 
+    validation_configuration: dict={
+        'CONFIGURATION_SCHEMA': CONFIGURATION_SCHEMA,
+        'DEPLOYMENT_SCHEMA': DEPLOYMENT_SCHEMA,
+    }
+)->bool:
     try:
         v = Validator()
-        validation_result = v.validate(configuration, validation_configuration)
+        validation_result = v.validate(configuration, validation_configuration['CONFIGURATION_SCHEMA'])
         if validation_result is False:
             print('Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
-        else:
-            return True
+            return False
+        for deployment in configuration['deployments']:
+            validation_result = v.validate(deployment, validation_configuration['DEPLOYMENT_SCHEMA'])
+            if validation_result is False:
+                print('Deployment Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
+                return False
     except:
         traceback.print_exc()
-    return False
+        return False
+    return True
