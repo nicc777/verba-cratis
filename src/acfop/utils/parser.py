@@ -217,6 +217,16 @@ def parse_configuration_file(file_path: str, get_file_contents_function: object=
     return configuration
 
 
+def from_configuration_get_all_task_names_as_list(configuration: dict)->list:
+    task_names = list()
+    try:
+        for task in configuration['tasks']:
+            task_names.append(task['name'])
+    except:
+        traceback.print_exc()
+    return task_names
+
+
 def validate_configuration(
     configuration: dict, 
     validation_configuration: dict={
@@ -234,11 +244,16 @@ def validate_configuration(
         if validation_result is False:
             print('Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
             return False
+        task_names = from_configuration_get_all_task_names_as_list(configuration=configuration)
         for deployment in configuration['deployments']:
             validation_result = v.validate(deployment, validation_configuration['DEPLOYMENT_SCHEMA'])
             if validation_result is False:
                 print('Deployment Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
                 return False
+            for deployment_task_name in deployment['tasks']:
+                if deployment_task_name not in task_names:
+                    print('ERROR: Task name "{}" in deployment "{}" was not found in task definition'.format(deployment_task_name, deployment['name']))
+                    return False
         if 'functionParameterValues' in configuration:
             for function_parameter in configuration['functionParameterValues']:
                 validation_result = v.validate(function_parameter, validation_configuration['FUNCTION_DEFINITION_SCHEMA'])
