@@ -160,3 +160,4 @@ Rules Documentation: https://docs.python-cerberus.org/en/stable/validation-rules
 
 At the moment I am rethinking the configuration schema to make parsing with cerberus a little easier and straightforward.
 
+Breaking up schema validation in smaller sections - basically a validation schema per "level". This should allow changes in any section of the schema to be a little easier with less impact on testing and other code bits.
