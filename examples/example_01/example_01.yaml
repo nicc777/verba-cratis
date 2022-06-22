@@ -34,8 +34,12 @@ globalVariables:
 
 # Define the deployment logging options
 logging:
-  logFilename: deployment-${build-variable:build_uuid}.log
-  logLevel: warn
+  filename: deployment-${build-variable:build_uuid}.log
+  level: warn
+  handlers:
+  - name: FileHandler
+  - name: StreamHandler
+  format: '%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d %(message)s'
 
 
 # Define tasks, where each task corresponds to the deployment of one CloudFormation template file

@@ -104,6 +104,33 @@ FUNCTION_PARAMETERS_SCHEMA = {
     },
 }
 
+LOGGING_SCHEMA = {
+    'filename': {
+        'required': False,
+        'type': 'string',
+    },
+    'level': {
+        'required': False,
+        'type': 'string',
+        'regex': '^warn|info|error|debug$',
+    },
+    'format': {
+        'required': False,
+        'type': 'string',
+    },
+    'handlers': {
+        'required': True,
+        'type': 'list',
+    },
+}
+
+LOGGING_HANDLER_SCHEMA = {
+    'name': {
+        'required': True,
+        'type': 'string',
+        'regex': '^StreamHandler|FileHandler|TimedRotatingFileHandler|SocketHandler|DatagramHandler|SysLogHandler&',
+    }
+}
 
 def variable_snippet_extract(line: str)->list:
     """Extracts the variables embedded in a string and return as a list
@@ -197,7 +224,8 @@ def validate_configuration(
         'DEPLOYMENT_SCHEMA': DEPLOYMENT_SCHEMA,
         'FUNCTION_DEFINITION_SCHEMA': FUNCTION_DEFINITION_SCHEMA,
         'FUNCTION_PARAMETERS_SCHEMA': FUNCTION_PARAMETERS_SCHEMA,
-
+        'LOGGING_SCHEMA': LOGGING_SCHEMA,
+        'LOGGING_HANDLER_SCHEMA': LOGGING_HANDLER_SCHEMA,
     }
 )->bool:
     try:
@@ -222,6 +250,16 @@ def validate_configuration(
                     if sub_validation_result is False:
                         print('Deployment Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
                         return False
+        if 'logging' in configuration:
+            validation_result = v.validate(configuration['logging'], validation_configuration['LOGGING_SCHEMA'])
+            if validation_result is False:
+                print('Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
+                return False
+            for handler in configuration['logging']['handlers']:
+                sub_validation_result = v.validate(handler, validation_configuration['LOGGING_HANDLER_SCHEMA'])
+                if sub_validation_result is False:
+                    print('Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
+                    return False
     except:
         traceback.print_exc()
         return False
