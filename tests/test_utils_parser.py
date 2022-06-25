@@ -134,6 +134,58 @@ class TestFunctionValidateConfiguration(unittest.TestCase):    # pragma: no cove
         self.assertIsInstance(result, bool)
         self.assertFalse(result)
 
+    def test_force_fail_function_parameter_values_invalid_parameters_invalid_type(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        configuration['functionParameterValues'] = [
+            {
+                'name': 'name1',
+                'parameters': 123
+            },
+        ]
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_force_fail_function_parameter_values_invalid_parameters_invalid_value(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        configuration['functionParameterValues'] = [
+            {
+                'name': 'name1',
+                'parameters': [dict(),]
+            },
+        ]
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_force_fail_logging(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        configuration['logging'] = dict()
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_force_fail_logging_invalid_handler(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        configuration['logging']['handlers'] = [dict(),]
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_invalid_tasks(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        configuration['tasks'] = list()
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_invalid_tasks_invalid_name(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        configuration['tasks'][0]['name'] = 123
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
 
 class TestFunctionFromConfigurationGetAllTaskNamesAsList(unittest.TestCase):    # pragma: no cover
 
