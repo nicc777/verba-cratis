@@ -127,6 +127,13 @@ class TestFunctionValidateConfiguration(unittest.TestCase):    # pragma: no cove
         self.assertIsInstance(result, bool)
         self.assertFalse(result)
 
+    def test_force_fail_function_parameter_values(self):
+        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        configuration['functionParameterValues'] = [dict(),]
+        result = validate_configuration(configuration=configuration)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
 
 class TestFunctionFromConfigurationGetAllTaskNamesAsList(unittest.TestCase):    # pragma: no cover
 
