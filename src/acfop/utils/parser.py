@@ -133,6 +133,10 @@ LOGGING_HANDLER_SCHEMA = {
         'required': True,
         'type': 'string',
         'regex': '^StreamHandler|FileHandler|TimedRotatingFileHandler|SocketHandler|DatagramHandler|SysLogHandler&',
+    },
+    'parameters': {
+        'required': False,
+        'type': 'list',
     }
 }
 
