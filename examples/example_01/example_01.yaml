@@ -14,6 +14,8 @@ deployments:
     echo "Running unit tests on deployment ${build-variable:current_deployment_name}"
   postDeploymentScript: |
     echo "Successfully completed unit tests for deployment ${build-variable:current_deployment_name}"
+  deployFromS3:                     # Bucket will be created if it does not exist. If the bucket creation fails, the deployment stops (typical reasons may include permissions and a bucket with this name already existing)
+    bucketName: my-deployments
 
 
 # Provide some default parameter values for helper functions
@@ -29,7 +31,6 @@ functionParameterValues:
 globalVariables:
   awsRegion: eu-central-1
   awsAccountId: ${env:AWS_REGION}
-  cloudFormationS3Bucket: test-deployments-${func:get_username()}-${func:get_aws_account_id()}  # Try to create a unique bucket name
 
 
 # Define the deployment logging options
@@ -45,9 +46,9 @@ logging:
 # Define tasks, where each task corresponds to the deployment of one CloudFormation template file
 tasks:
 - name: dynamoDbTable
-  template: examples/example_01/cloudformation/dynamodb_table.yaml                # The CloudFormation template
-  deployFromS3: true                                                              # If true, first upload the template to S3 and reference the S3 object when deploying to CloudFormation
-  stackName: example-01-001                                                       # The CloudFormation stack name.
+  template: 
+    sourceFile: examples/example_01/cloudformation/dynamodb_table.yaml            # The CloudFormation template
+    stackName: example-01-001                                                     # The CloudFormation stack name.
   templateParameters:                                                             # CloudFormation template parameters
   - ParameterName: TableName
     ParameterValue: acfop-test-table
@@ -63,9 +64,9 @@ tasks:
     tableArn: ${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'} 
     initialRecordCount: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" | jq '.Count'}  
 - name: lambdaFunction
-  template: examples/example_01/cloudformation/lambda_function.yaml
-  deployFromS3: true  # TODO Move to deployment level...
-  stackName: example-01-002
+  template: 
+    sourceFile: examples/example_01/cloudformation/lambda_function.yaml
+    stackName: example-01-002
   functionParameterValuesOverrides:                                               # Parameter overrides for helper functions
   - FunctionName: get_username
     ParameterName: convert_case
@@ -85,10 +86,11 @@ tasks:
     export AWS_DEFAULT_REGION=${ref:globalVariables.awsRegion}
     echo "Starting on task ${build-variable:current_task_name}"
     examples/example_01/lambda_function_src/build_and_package.sh --output_file="/tmp/example-01-lambda.zip"
-    aws s3 cp /tmp/example-01-lambda.zip s3://${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip
   postDeploymentScript: |
     python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
     echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template} with initial record count set to ${exports:dynamoDbTable.initialRecordCount}. Task completed at ${exports:lambdaFunction.finalFinishTimestamp}"
+  extraBucketArtifacts:                                                           # List extra files that need to be copied to the S3 deployment bucket. Processed after preDeploymentScript, but before the cloudformation deployment.
+  - /tmp/example-01-lambda.zip                                                    # The Lambda ZIP file created during the preDeploymentScript
   taskDependsOn: 
   - dynamoDbTable    
   taskExports:

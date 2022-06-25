@@ -138,12 +138,8 @@ TASKS_SCHEMA = {
         'type': 'string'
     },
     'template': {
-        'required': True,
-        'type': 'string'
-    },
-    'stackName': {
-        'required': True,
-        'type': 'string'
+        'required': False,                  # DEFAULT: Empty dictionary. If no template is supplied, only the preDeploymentScript and postDeploymentScript are run, otherwise the order is preDeploymentScript, cloudformation deployment and then postDeploymentScript
+        'type': 'dict'
     },
     'functionParameterValuesOverrides': {   # DEFAULT: Empty list()
         'required': False,
@@ -172,7 +168,11 @@ TASKS_SCHEMA = {
     'taskExports': {                        # DEFAULT: Empty list()
         'required': False,
         'type': 'list'
-    }
+    },
+    'extraBucketArtifacts': {               # DEFAULT: Empty list()
+        'required': False,
+        'type': 'list'
+    },
 }
 
 def variable_snippet_extract(line: str)->list:
