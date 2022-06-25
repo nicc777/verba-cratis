@@ -64,13 +64,13 @@ tasks:
     initialRecordCount: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" | jq '.Count'}  
 - name: lambdaFunction
   template: examples/example_01/cloudformation/lambda_function.yaml
-  deployFromS3: true
+  deployFromS3: true  # TODO Move to deployment level...
   stackName: example-01-002
   functionParameterValuesOverrides:                                               # Parameter overrides for helper functions
-    get_username:
-    - ParameterName: convert_case
-      ParameterValueType: str
-      ParameterValue: LOWER
+  - FunctionName: get_username
+    ParameterName: convert_case
+    ParameterValueType: str
+    ParameterValue: LOWER
   templateParameters:
   - ParameterName: FunctionName
     ParameterValue: acfop-example-01-${func:get_username()}
@@ -89,7 +89,9 @@ tasks:
   postDeploymentScript: |
     python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
     echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template} with initial record count set to ${exports:dynamoDbTable.initialRecordCount}. Task completed at ${exports:lambdaFunction.finalFinishTimestamp}"
-  taskDependsOn: dynamoDbTable    
+  taskDependsOn: 
+  - dynamoDbTable    
   taskExports:
-    finalFinishTimestamp: ${shell:date}  
+  - ExportName: finalFinishTimestamp
+    ExportValue: ${shell:date}  
   

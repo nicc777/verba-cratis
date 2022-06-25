@@ -132,6 +132,49 @@ LOGGING_HANDLER_SCHEMA = {
     }
 }
 
+TASKS_SCHEMA = {
+    'name': {
+        'required': True,
+        'type': 'string'
+    },
+    'template': {
+        'required': True,
+        'type': 'string'
+    },
+    'stackName': {
+        'required': True,
+        'type': 'string'
+    },
+    'functionParameterValuesOverrides': {   # DEFAULT: Empty list()
+        'required': False,
+        'type': 'list'
+    },
+    'templateParameters': {                 # DEFAULT: Empty list()
+        'required': False,
+        'type': 'list'
+    },
+    'changeSetIfExists': {                  # DEFAULT: False (skip) and only a warning message will be produced in the log
+        'required': False,
+        'type': 'boolean'
+    },
+    'preDeploymentScript': {                # DEFAULT: None
+        'required': False,
+        'type': 'string'
+    },
+    'postDeploymentScript': {               # DEFAULT: None
+        'required': False,
+        'type': 'string'
+    },
+    'taskDependsOn': {                      # DEFAULT: Empty list()
+        'required': False,
+        'type': 'list'
+    },
+    'taskExports': {                        # DEFAULT: Empty list()
+        'required': False,
+        'type': 'list'
+    }
+}
+
 def variable_snippet_extract(line: str)->list:
     """Extracts the variables embedded in a string and return as a list
 
