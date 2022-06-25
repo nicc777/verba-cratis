@@ -75,6 +75,10 @@ DEPLOYMENT_SCHEMA = {
         'required': False,
         'type': 'string',
     },
+    'deployFromS3': {
+        'required': False,
+        'type': 'dict',
+    },
 }
 
 FUNCTION_DEFINITION_SCHEMA = {
