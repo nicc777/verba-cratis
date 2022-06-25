@@ -20,7 +20,7 @@ TOTAL                           111      8    93%
 Next Up tasks
 
 * ~~Add Validation for Tasks~~
-* Add unit tests for task validation
+* ~~Add unit tests for task validation~~
 * Configure default logging
 * Create basic logging unit test with test handlers
 * Allow for logging override from configuration
