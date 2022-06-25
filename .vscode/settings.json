@@ -1,9 +1,11 @@
 {
     "cSpell.words": [
         "acfop",
+        "boto",
         "Coetzee",
         "datafor",
-        "Docstrings"
+        "Docstrings",
+        "levelname"
     ],
     "python.testing.unittestArgs": [
         "-v",
