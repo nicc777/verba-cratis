@@ -10,6 +10,7 @@
 import traceback
 import logging
 import logging.handlers
+import socket
 
 
 def get_logging_file_handler(
@@ -59,11 +60,53 @@ def get_logging_stream_handler(
     return None
 
 
+def get_logging_datagram_handler(
+    host: str='localhost',
+    port: int=514,
+    level=logging.INFO,
+    formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+)->logging.FileHandler:
+    try:
+        h = logging.handlers.DatagramHandler(host=host, port=port)
+        h.setLevel(level)    
+        h.setFormatter(formatter)
+        return h
+    except:
+        traceback.print_exc()
+    return None
+
+
+def get_logging_syslog_handler(
+    host: str='localhost',
+    port: int=514,
+    socktype: object=socket.SOCK_DGRAM,
+    level=logging.INFO,
+    formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+)->logging.FileHandler:
+    try:
+        h = logging.handlers.SysLogHandler(
+            address=(
+                host,
+                port
+            ),
+            facility=LOG_USER,
+            socktype=socktype
+        )
+        h.setLevel(level)    
+        h.setFormatter(formatter)
+        return h
+    except:
+        traceback.print_exc()
+    return None
+
+
 def get_logger(
     level=logging.INFO,
     include_logging_file_handler: bool=False,
     include_logging_stream_handler: bool=True,
     include_logging_timed_rotating_file_handler: bool=False,
+    include_logging_datagram_handler: bool=False,
+    include_logging_syslog_handler: bool=False,
     extra_parameters: dict=dict()
 ):
     logger = logging.getLogger()
@@ -116,8 +159,34 @@ def get_logger(
             logger.addHandler(h)
             qty_handlers_included += 1
 
-        if qty_handlers_included == 0:
-            logger.addHandler(get_logging_stream_handler())
+    if include_logging_datagram_handler is True and 'host' in extra_parameters and 'port' in extra_parameters:
+        h = get_logging_datagram_handler(
+            host=extra_parameters['host'],
+            port=extra_parameters['port'],
+            level=level,
+            formatter=formatter
+        )
+        if h is not None:
+            logger.addHandler(h)
+            qty_handlers_included += 1
+
+    if include_logging_syslog_handler is True and 'host' in extra_parameters and 'port' in extra_parameters:
+        socktype = socket.SOCK_DGRAM
+        if 'socktype' in extra_parameters:
+            socktype = extra_parameters['socktype']
+        h = get_logging_datagram_handler(
+            host=extra_parameters['host'],
+            port=extra_parameters['port'],
+            socktype=socktype,
+            level=level,
+            formatter=formatter
+        )
+        if h is not None:
+            logger.addHandler(h)
+            qty_handlers_included += 1
+
+    if qty_handlers_included == 0:
+        logger.addHandler(get_logging_stream_handler())
     
     logger.setLevel(level)
     return logger

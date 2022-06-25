@@ -4,8 +4,11 @@
         "boto",
         "Coetzee",
         "datafor",
+        "datagram",
+        "DGRAM",
         "Docstrings",
-        "levelname"
+        "levelname",
+        "socktype"
     ],
     "python.testing.unittestArgs": [
         "-v",
