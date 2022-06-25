@@ -283,6 +283,7 @@ def validate_configuration(
         'FUNCTION_PARAMETERS_SCHEMA': FUNCTION_PARAMETERS_SCHEMA,
         'LOGGING_SCHEMA': LOGGING_SCHEMA,
         'LOGGING_HANDLER_SCHEMA': LOGGING_HANDLER_SCHEMA,
+        'TASKS_SCHEMA': TASKS_SCHEMA,
     }
 )->bool:
     try:
@@ -322,6 +323,11 @@ def validate_configuration(
                 if sub_validation_result is False:
                     print('Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
                     return False
+        for task in configuration['tasks']:
+            validation_result = v.validate(task, validation_configuration['TASKS_SCHEMA'])
+            if validation_result is False:
+                print('Configuration Validation Errors: {}'.format(json.dumps(v.errors, default=str)))
+                return False
     except:
         traceback.print_exc()
         return False

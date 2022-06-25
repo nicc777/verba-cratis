@@ -12,6 +12,7 @@ deployments:
   - None                            # Run this profile only after the unittest profile completed successfully
   preDeploymentScript: |
     echo "Running unit tests on deployment ${build-variable:current_deployment_name}"
+    echo "You can also perform other tasks here such as AWS EKS kubectl config download, AWS ECR login (required for pushing container images) etc."
   postDeploymentScript: |
     echo "Successfully completed unit tests for deployment ${build-variable:current_deployment_name}"
   deployFromS3:                     # Bucket will be created if it does not exist. If the bucket creation fails, the deployment stops (typical reasons may include permissions and a bucket with this name already existing)
@@ -59,10 +60,11 @@ tasks:
     python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py
     sleep 60
     echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template} with ${exports:dynamoDbTable.initialRecordCount} initial records"
-  taskDependsOn: None
   taskExports:                                                                    # Task exports are processed after CloudFormation deployment but before postDeploymentScript
-    tableArn: ${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'} 
-    initialRecordCount: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" | jq '.Count'}  
+  - ExportName: tableArn
+    ExportValue: ${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'} 
+  - ExportName: initialRecordCount
+    ExportValue: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" | jq '.Count'}  
 - name: lambdaFunction
   template: 
     sourceFile: examples/example_01/cloudformation/lambda_function.yaml
