@@ -161,3 +161,163 @@ Rules Documentation: https://docs.python-cerberus.org/en/stable/validation-rules
 At the moment I am rethinking the configuration schema to make parsing with cerberus a little easier and straightforward.
 
 Breaking up schema validation in smaller sections - basically a validation schema per "level". This should allow changes in any section of the schema to be a little easier with less impact on testing and other code bits.
+
+# Current Configuration Example in JSON:
+
+Configuration:
+
+```json
+{
+  "deployments": [
+    {
+      "name": "sandbox-full-live",
+      "unitTestProfile": false,
+      "tasks": [
+        "lambdaFunction"
+      ],
+      "globalVariableOverrides": {
+        "logFilename": "deployment-${build-variable:build_uuid}-testing.log",
+        "logLevel": "debug"
+      },
+      "templateParametersOverrides": {
+        "tableName": "acfop-test-001-table"
+      },
+      "dependsOnProfile": [
+        "None"
+      ],
+      "preDeploymentScript": "echo \"Running unit tests on deployment ${build-variable:current_deployment_name}\"\necho \"You can also perform other tasks here such as AWS EKS kubectl config download, AWS ECR login (required for pushing container images) etc.\"\n",
+      "postDeploymentScript": "echo \"Successfully completed unit tests for deployment ${build-variable:current_deployment_name}\"\n",
+      "deployFromS3": {
+        "bucketName": "my-deployments"
+      }
+    }
+  ],
+  "functionParameterValues": [
+    {
+      "name": "get_username",
+      "parameters": [
+        {
+          "name": "convert_case",
+          "type": "str",
+          "value": "UPPER"
+        }
+      ]
+    }
+  ],
+  "globalVariables": {
+    "awsRegion": "eu-central-1",
+    "awsAccountId": "${env:AWS_REGION}"
+  },
+  "logging": {
+    "filename": "deployment-${build-variable:build_uuid}.log",
+    "level": "warn",
+    "handlers": [
+      {
+        "name": "TimedRotatingFileHandler",
+        "parameters": [
+          {
+            "parameterName": "filename",
+            "parameterType": "string",
+            "parameterValue": "out.log"
+          },
+          {
+            "parameterName": "when",
+            "parameterType": "string",
+            "parameterValue": "H"
+          },
+          {
+            "parameterName": "interval",
+            "parameterType": "int",
+            "parameterValue": 6
+          },
+          {
+            "parameterName": "backupCount",
+            "parameterType": "int",
+            "parameterValue": 120
+          }
+        ]
+      },
+      {
+        "name": "StreamHandler"
+      }
+    ],
+    "format": "%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d %(message)s"
+  },
+  "tasks": [
+    {
+      "name": "dynamoDbTable",
+      "template": {
+        "sourceFile": "examples/example_01/cloudformation/dynamodb_table.yaml",
+        "stackName": "example-01-001"
+      },
+      "templateParameters": [
+        {
+          "ParameterName": "TableName",
+          "ParameterValue": "acfop-test-table"
+        }
+      ],
+      "changeSetIfExists": true,
+      "preDeploymentScript": "echo \"Starting on task ${build-variable:current_task_name}\"\n",
+      "postDeploymentScript": "python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py\nsleep 60\necho \"Successfully deployed template ${ref:tasks.dynamoDbTable.template} with ${exports:dynamoDbTable.initialRecordCount} initial records\"\n",
+      "taskExports": [
+        {
+          "ExportName": "tableArn",
+          "ExportValue": "${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'}"
+        },
+        {
+          "ExportName": "initialRecordCount",
+          "ExportValue": "${shell:aws dynamodb scan --table-name messaging --select \"COUNT\" | jq '.Count'}"
+        }
+      ]
+    },
+    {
+      "name": "lambdaFunction",
+      "template": {
+        "sourceFile": "examples/example_01/cloudformation/lambda_function.yaml",
+        "stackName": "example-01-002"
+      },
+      "functionParameterValuesOverrides": [
+        {
+          "FunctionName": "get_username",
+          "ParameterName": "convert_case",
+          "ParameterValueType": "str",
+          "ParameterValue": "LOWER"
+        }
+      ],
+      "templateParameters": [
+        {
+          "ParameterName": "FunctionName",
+          "ParameterValue": "acfop-example-01-${func:get_username()}"
+        },
+        {
+          "ParameterName": "FunctionZipFile",
+          "ParameterValue": "${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip"
+        },
+        {
+          "ParameterName": "DeploymentVersion",
+          "ParameterValue": "${build-variable:build_uuid}"
+        },
+        {
+          "ParameterName": "TableArn",
+          "ParameterValue": "${exports:dynamoDbTable.tableArn}"
+        }
+      ],
+      "changeSetIfExists": true,
+      "preDeploymentScript": "export AWS_DEFAULT_REGION=${ref:globalVariables.awsRegion}\necho \"Starting on task ${build-variable:current_task_name}\"\nexamples/example_01/lambda_function_src/build_and_package.sh --output_file=\"/tmp/example-01-lambda.zip\"\n",
+      "postDeploymentScript": "python3 examples/example_01/scripts/create_sample_datafor_dynamodb_table.py\necho \"Successfully deployed template ${ref:tasks.dynamoDbTable.template} with initial record count set to ${exports:dynamoDbTable.initialRecordCount}. Task completed at ${exports:lambdaFunction.finalFinishTimestamp}\"\n",
+      "extraBucketArtifacts": [
+        "/tmp/example-01-lambda.zip"
+      ],
+      "taskDependsOn": [
+        "dynamoDbTable"
+      ],
+      "taskExports": [
+        {
+          "ExportName": "finalFinishTimestamp",
+          "ExportValue": "${shell:date}"
+        }
+      ]
+    }
+  ]
+}
+```
