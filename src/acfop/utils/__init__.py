@@ -12,6 +12,41 @@ import logging
 import logging.handlers
 import socket
 import sys
+import copy
+
+
+DEFAULT_LOGGING_HANDLER_CONFIG = {  
+    'StreamHandler': {
+        'level': 'info',
+        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+    },
+    'FileHandler': {
+        'filename': 'acfop.log',
+        'level': 'info',
+        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+    },
+    'TimedRotatingFileHandler': {
+        'filename': 'acfop.log',
+        'when': 'D',
+        'interval': '1',
+        'backupCount': '5',
+        'level': 'info',
+        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+    },
+    'DatagramHandler': {
+        'hostname': 'localhost',
+        'port': '514',
+        'level': 'info',
+        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+    },
+    'SysLogHandler': {
+        'hostname': 'localhost',
+        'port': '514',
+        'socktype': 'SOCK_DGRAM',
+        'level': 'info',
+        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+    },
+}
 
 
 def get_logging_file_handler(
@@ -190,4 +225,105 @@ def get_logger(
     
     logger.setLevel(level)
     return logger
+
+
+def extract_handler_config(handler_config: dict, handler_name: str, extra_parameters: dict=dict())->dict:
+    adapted_extra_parameters = copy.deepcopy(extra_parameters)
+    if 'level' not in extra_parameters:
+        adapted_extra_parameters['level'] = 'info'
+    if 'format' not in extra_parameters:
+        adapted_extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+    try:
+        adapted_extra_parameters[handler_name] = copy.deepcopy(DEFAULT_LOGGING_HANDLER_CONFIG[handler_name])    # Get defaults...
+        if 'parameters' in handler_config:
+            for param_item in handler_config['parameters']:
+                if param_item[parameterName] in adapted_extra_parameters[handler_name]:
+                    ptype = 'string'
+                    if 'parameterType' in param_item:
+                        ptype = param_item['parameterType']
+                    value = 'not-set'
+                    if ptype.lower().startswith('str') is True:
+                        adapted_extra_parameters[handler_name][param_item[parameterName]] = '{}'.format(param_item['parameterValue'])
+                    if ptype.lower().startswith('int') is True:
+                        adapted_extra_parameters[handler_name][param_item[parameterName]] = int('{}'.format(param_item['parameterValue']))
+                    if ptype == 'socket.SOCK_DGRAM':
+                        adapted_extra_parameters[handler_name][param_item[parameterName]] = socket.SOCK_DGRAM
+                    elif ptype == 'socket.SOCK_STREAM':
+                        adapted_extra_parameters[handler_name][param_item[parameterName]] = socket.SOCK_STREAM
+                    if ptype.lower().startswith('logging.'):
+                        logging_type = ptype.lower().split('.')[1]
+                        if logging_type == 'warn':
+                            adapted_extra_parameters[handler_name][param_item[parameterName]] = logging.WARN
+                        if logging_type == 'info':
+                            adapted_extra_parameters[handler_name][param_item[parameterName]] = logging.INFO
+                        if logging_type == 'error':
+                            adapted_extra_parameters[handler_name][param_item[parameterName]] = logging.ERROR
+                        if logging_type == 'debug':
+                            adapted_extra_parameters[handler_name][param_item[parameterName]] = logging.DEBUG
+                    else:
+                        adapted_extra_parameters[handler_name][param_item[parameterName]] = extra_parameters['level']
+                    if param_item[parameterName].lower() =='format':
+                        adapted_extra_parameters[handler_name][param_item[parameterName]] = '{}'.format(param_item['parameterValue'])
+                    else:
+                        adapted_extra_parameters[handler_name][param_item[parameterName]] = extra_parameters['format']
+    except:
+        traceback.print_exc()
+    return adapted_extra_parameters
+
+
+
+def get_logger_from_configuration(configuration: dict)->logging.Logger:
+    if configuration is None:
+        return get_logger()
+    if isinstance(configuration, dict) is False:
+        return get_logger()
+    if 'logging' not in configuration:
+        return get_logger()
+    if 'handlers' not in configuration:
+        return get_logger()
+    if isinstance(configuration['logging']['handlers'], list) is False:
+        return get_logger()
+    if len(configuration['logging']['handlers']) == 0:
+        return get_logger()
+    extra_parameters = dict()
+    extra_parameters['level'] = logging.INFO
+    extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+    include_logging_file_handler=False
+    include_logging_stream_handler=False
+    include_logging_timed_rotating_file_handler=False
+    include_logging_datagram_handler=False
+    include_logging_syslog_handler=False
+    for handler_config in configuration['logging']['handlers']:
+        if 'name' in handler_config:
+            if handler_config['name'] in ('StreamHandler', 'FileHandler', 'TimedRotatingFileHandler', 'DatagramHandler', 'SysLogHandler'):
+                
+                if handler_config['name'] == 'StreamHandler':
+                    include_logging_stream_handler = True
+                if handler_config['name'] == 'FileHandler':
+                    include_logging_file_handler = True
+                if handler_config['name'] == 'TimedRotatingFileHandler':
+                    include_logging_timed_rotating_file_handler = True
+                if handler_config['name'] == 'DatagramHandler':
+                    include_logging_datagram_handler = True
+                if handler_config['name'] == 'SysLogHandler':
+                    include_logging_syslog_handler = True
+
+                extra_parameters[handler_config['name']] = extract_handler_config(
+                    handler_config=handler_config,
+                    handler_name=handler_config['name'],
+                    extra_parameters=extra_parameters
+                )
+    try:
+        get_logger(
+            level=extra_parameters['level'],
+            include_logging_file_handler=include_logging_file_handler,
+            include_logging_stream_handler=include_logging_stream_handler,
+            include_logging_timed_rotating_file_handler=include_logging_timed_rotating_file_handler,
+            include_logging_datagram_handler=include_logging_datagram_handler,
+            include_logging_syslog_handler=include_logging_syslog_handler,
+            extra_parameters=extra_parameters
+        )
+    except:
+        traceback.print_exc()
+        return get_logger()
 
