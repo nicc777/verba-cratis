@@ -36,10 +36,22 @@ class TestFunctionGetTimedRotatingFileHandler(unittest.TestCase):    # pragma: n
     def test_call_get_timed_rotating_file_handler_with_defaults(self):
         result = get_timed_rotating_file_handler(filename='test.log')
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, logging.FileHandler)
+        self.assertIsInstance(result, logging.handlers.TimedRotatingFileHandler)
 
     def test_call_get_timed_rotating_file_handler_with_defaults_force_exception(self):
         result = get_timed_rotating_file_handler(filename=123)
+        self.assertIsNone(result)
+
+
+class TestFunctionGetLoggingStreamHandler(unittest.TestCase):    # pragma: no cover
+
+    def test_call_get_logging_stream_handler_with_defaults(self):
+        result = get_logging_stream_handler()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.StreamHandler)
+
+    def test_call_get_logging_stream_handler_with_defaults_force_exception(self):
+        result = get_logging_stream_handler(level=None)
         self.assertIsNone(result)
 
 

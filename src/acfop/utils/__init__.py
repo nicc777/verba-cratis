@@ -11,6 +11,7 @@ import traceback
 import logging
 import logging.handlers
 import socket
+import sys
 
 
 def get_logging_file_handler(
@@ -49,7 +50,7 @@ def get_timed_rotating_file_handler(    # See: https://docs.python.org/3/library
 def get_logging_stream_handler(
     level=logging.INFO,
     formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-)->logging.FileHandler:
+)->logging.StreamHandler:
     try:
         h = logging.StreamHandler(sys.stdout)
         h.setLevel(level)    
