@@ -66,7 +66,7 @@ def get_logging_datagram_handler(
     port: int=514,
     level=logging.INFO,
     formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-)->logging.FileHandler:
+)->logging.handlers.DatagramHandler:
     try:
         h = logging.handlers.DatagramHandler(host=host, port=port)
         h.setLevel(level)    

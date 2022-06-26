@@ -55,5 +55,17 @@ class TestFunctionGetLoggingStreamHandler(unittest.TestCase):    # pragma: no co
         self.assertIsNone(result)
 
 
+class TestFunctionGetLoggingDatagramHandler(unittest.TestCase):    # pragma: no cover
+
+    def test_call_get_logging_datagram_handler_with_defaults(self):
+        result = get_logging_datagram_handler()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.handlers.DatagramHandler)
+
+    def test_call_get_logging_datagram_handler_with_defaults_force_exception(self):
+        result = get_logging_datagram_handler(level=None)
+        self.assertIsNone(result)
+
+
 if __name__ == '__main__':
     unittest.main()
