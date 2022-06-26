@@ -15,12 +15,20 @@ import unittest
 
 
 from acfop.utils import *
+import logging
+import logging.handlers
+
 
 class TestFunctionGetLoggingFileHandler(unittest.TestCase):    # pragma: no cover
 
     def test_call_get_logging_file_handler_with_defaults(self):
         result = get_logging_file_handler(filename='test.log')
         self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.FileHandler)
+
+    def test_call_get_logging_file_handler_with_defaults_force_exception(self):
+        result = get_logging_file_handler(filename=123)
+        self.assertIsNone(result)
 
 
 if __name__ == '__main__':
