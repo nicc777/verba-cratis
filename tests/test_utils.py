@@ -67,5 +67,17 @@ class TestFunctionGetLoggingDatagramHandler(unittest.TestCase):    # pragma: no 
         self.assertIsNone(result)
 
 
+class TestFunctionGetLoggingSyslogHandler(unittest.TestCase):    # pragma: no cover
+
+    def test_call_get_logging_datagram_handler_with_defaults(self):
+        result = get_logging_syslog_handler()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.handlers.SysLogHandler)
+
+    def test_call_get_logging_datagram_handler_with_defaults_force_exception(self):
+        result = get_logging_syslog_handler(level=None)
+        self.assertIsNone(result)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -83,14 +83,14 @@ def get_logging_syslog_handler(
     socktype: object=socket.SOCK_DGRAM,
     level=logging.INFO,
     formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-)->logging.FileHandler:
+)->logging.handlers.SysLogHandler:
     try:
         h = logging.handlers.SysLogHandler(
             address=(
                 host,
                 port
             ),
-            facility=LOG_USER,
+            facility='LOG_USER',
             socktype=socktype
         )
         h.setLevel(level)    
