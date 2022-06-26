@@ -109,10 +109,9 @@ def get_logger(
     include_logging_datagram_handler: bool=False,
     include_logging_syslog_handler: bool=False,
     extra_parameters: dict=dict()
-):
+)->logging.Logger:
     logger = logging.getLogger()
-    for h in logger.handlers:
-        logger.removeHandler(h)
+    logger.handlers = []
     formatter = logging.Formatter('%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s')
     
     qty_handlers_included = 0
@@ -175,7 +174,7 @@ def get_logger(
         socktype = socket.SOCK_DGRAM
         if 'socktype' in extra_parameters:
             socktype = extra_parameters['socktype']
-        h = get_logging_datagram_handler(
+        h = get_logging_syslog_handler(
             host=extra_parameters['host'],
             port=extra_parameters['port'],
             socktype=socktype,
