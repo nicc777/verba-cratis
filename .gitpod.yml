@@ -1,7 +1,4 @@
 tasks:
-  - name: AWS CLI
-    init: cd ~/ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install && cd $OLDPWD
-    command: cd ~/ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install && cd $OLDPWD
-  - name: Install Python Requirements
-    init: pip3 install -r requirements.txt
-    command: pip3 install -r requirements.txt
+  - name: Prep
+    init: pip3 install -r requirements.txt && cd ~/ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install && cd $OLDPWD
+    command: pip3 install -r requirements.txt && cd ~/ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install && cd $OLDPWD
