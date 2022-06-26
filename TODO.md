@@ -26,6 +26,5 @@ Next Up tasks
 * ~~Allow for logging override from configuration~~
 * Add unit tests for extract_handler_config() and get_logger_from_configuration()
 * Adapt existing get_logger_* functions to the passed in configuration
-* Add unit tests for logging overrides
 
 
