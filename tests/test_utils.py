@@ -186,6 +186,34 @@ class TestFunctionGetLogger(unittest.TestCase):    # pragma: no cover
             qty += 1
         self.assertEqual(qty, 1)
 
+
+class TestGetLoggingLevelFromString(unittest.TestCase):    # pragma: no cover
+
+    def test_call_get_logging_level_from_string_with_info(self):
+        result = get_logging_level_from_string(level='info')
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.INFO)
+
+    def test_call_get_logging_level_from_string_with_warn(self):
+        result = get_logging_level_from_string(level='warn')
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.WARN)
+
+    def test_call_get_logging_level_from_string_with_debug(self):
+        result = get_logging_level_from_string(level='debug')
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.DEBUG)
+
+    def test_call_get_logging_level_from_string_with_error(self):
+        result = get_logging_level_from_string(level='error')
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.ERROR)
+
+    def test_call_get_logging_level_from_string_with_defaults(self):
+        result = get_logging_level_from_string(level=None)
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.INFO)
+
     
 class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
 
