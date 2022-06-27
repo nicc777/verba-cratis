@@ -242,7 +242,7 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         self.extra_parameters['level'] = logging.INFO
         self.extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
 
-    def test_call_extract_handler_config_with_basic_extra_parameters(self):
+    def test_call_extract_handler_config_with_basic_extra_parameters_using_example_config(self):
         configuration = mock_get_file_contents(file='')
         result = extract_handler_config(
             handler_config=configuration['logging']['handlers'][0],
@@ -256,7 +256,7 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         for key in ('filename', 'when', 'interval', 'backupCount'):
             self.assertTrue(key in result['TimedRotatingFileHandler'], 'Key "{}" expected but not present'.format(key))
 
-    def test_call_extract_handler_config_with_no_extra_parameters(self):
+    def test_call_extract_handler_config_with_no_extra_parameters_using_example_config(self):
         configuration = mock_get_file_contents(file='')
         result = extract_handler_config(
             handler_config=configuration['logging']['handlers'][0],
