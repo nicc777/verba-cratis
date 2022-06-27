@@ -287,7 +287,7 @@ def get_logger_from_configuration(configuration: dict)->logging.Logger:
         return get_logger()
     if 'logging' not in configuration:
         return get_logger()
-    if 'handlers' not in configuration:
+    if 'handlers' not in configuration['logging']:
         return get_logger()
     if isinstance(configuration['logging']['handlers'], list) is False:
         return get_logger()
