@@ -237,35 +237,32 @@ def extract_handler_config(handler_config: dict, handler_name: str, extra_parame
         adapted_extra_parameters[handler_name] = copy.deepcopy(DEFAULT_LOGGING_HANDLER_CONFIG[handler_name])    # Get defaults...
         if 'parameters' in handler_config:
             for param_item in handler_config['parameters']:
-                if param_item['parameterName'] in adapted_extra_parameters[handler_name]:
+                parameter_name = param_item['parameterName']
+                if parameter_name in adapted_extra_parameters[handler_name]:
                     ptype = 'string'
                     if 'parameterType' in param_item:
                         ptype = param_item['parameterType']
                     value = 'not-set'
                     if ptype.lower().startswith('str') is True:
-                        adapted_extra_parameters[handler_name][param_item[parameterName]] = '{}'.format(param_item['parameterValue'])
+                        adapted_extra_parameters[handler_name][parameter_name] = '{}'.format(param_item['parameterValue'])
                     if ptype.lower().startswith('int') is True:
-                        adapted_extra_parameters[handler_name][param_item[parameterName]] = int('{}'.format(param_item['parameterValue']))
+                        adapted_extra_parameters[handler_name][parameter_name] = int('{}'.format(param_item['parameterValue']))
                     if ptype == 'socket.SOCK_DGRAM':
-                        adapted_extra_parameters[handler_name][param_item[parameterName]] = socket.SOCK_DGRAM
+                        adapted_extra_parameters[handler_name][parameter_name] = socket.SOCK_DGRAM
                     elif ptype == 'socket.SOCK_STREAM':
-                        adapted_extra_parameters[handler_name][param_item[parameterName]] = socket.SOCK_STREAM
+                        adapted_extra_parameters[handler_name][parameter_name] = socket.SOCK_STREAM
                     if ptype.lower().startswith('logging.'):
                         logging_type = ptype.lower().split('.')[1]
                         if logging_type == 'warn':
-                            adapted_extra_parameters[handler_name][param_item[parameterName]] = logging.WARN
-                        if logging_type == 'info':
-                            adapted_extra_parameters[handler_name][param_item[parameterName]] = logging.INFO
-                        if logging_type == 'error':
-                            adapted_extra_parameters[handler_name][param_item[parameterName]] = logging.ERROR
-                        if logging_type == 'debug':
-                            adapted_extra_parameters[handler_name][param_item[parameterName]] = logging.DEBUG
-                    else:
-                        adapted_extra_parameters[handler_name][param_item[parameterName]] = extra_parameters['level']
-                    if param_item[parameterName].lower() =='format':
-                        adapted_extra_parameters[handler_name][param_item[parameterName]] = '{}'.format(param_item['parameterValue'])
-                    else:
-                        adapted_extra_parameters[handler_name][param_item[parameterName]] = extra_parameters['format']
+                            adapted_extra_parameters[handler_name][parameter_name] = logging.WARN
+                        elif logging_type == 'info':
+                            adapted_extra_parameters[handler_name][parameter_name] = logging.INFO
+                        elif logging_type == 'error':
+                            adapted_extra_parameters[handler_name][parameter_name] = logging.ERROR
+                        elif logging_type == 'debug':
+                            adapted_extra_parameters[handler_name][parameter_name] = logging.DEBUG
+                        else:
+                            adapted_extra_parameters[handler_name][parameter_name] = extra_parameters['level']
     except:
         traceback.print_exc()
     return adapted_extra_parameters
