@@ -20,6 +20,21 @@ import logging.handlers
 import socket
 
 
+import yaml
+from yaml import load, dump
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
+
+def mock_get_file_contents(file: str)->str: # pragma: no cover
+    config = ""
+    with open('examples/example_01/example_01.yaml', 'r') as f:
+      config = f.read()
+    return yaml.load(config, Loader=Loader)
+
+
 class TestFunctionGetLoggingFileHandler(unittest.TestCase):    # pragma: no cover
 
     def test_call_get_logging_file_handler_with_defaults(self):
@@ -172,7 +187,41 @@ class TestFunctionGetLogger(unittest.TestCase):    # pragma: no cover
         self.assertEqual(qty, 1)
 
     
+class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
 
+    def setUp(self):
+        self.extra_parameters = dict()
+        self.extra_parameters['level'] = logging.INFO
+        self.extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+
+    def test_call_extract_handler_config_with_basic_extra_parameters(self):
+        configuration = mock_get_file_contents(file='')
+        result = extract_handler_config(
+            handler_config=configuration['logging']['handlers'][0],
+            handler_name='TimedRotatingFileHandler',
+            extra_parameters=self.extra_parameters
+        )
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        for key in ('level', 'format', 'TimedRotatingFileHandler',):
+            self.assertTrue(key in result, 'Key "{}" expected but not present'.format(key))
+        for key in ('filename', 'when', 'interval', 'backupCount'):
+            self.assertTrue(key in result['TimedRotatingFileHandler'], 'Key "{}" expected but not present'.format(key))
+
+    def test_call_extract_handler_config_with_no_extra_parameters(self):
+        configuration = mock_get_file_contents(file='')
+        result = extract_handler_config(
+            handler_config=configuration['logging']['handlers'][0],
+            handler_name='TimedRotatingFileHandler',
+            extra_parameters=dict()
+        )
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        for key in ('level', 'format', 'TimedRotatingFileHandler',):
+            self.assertTrue(key in result, 'Key "{}" expected but not present'.format(key))
+        for key in ('filename', 'when', 'interval', 'backupCount'):
+            self.assertTrue(key in result['TimedRotatingFileHandler'], 'Key "{}" expected but not present'.format(key))
+        
 
 if __name__ == '__main__':
     unittest.main()

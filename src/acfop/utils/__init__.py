@@ -237,7 +237,7 @@ def extract_handler_config(handler_config: dict, handler_name: str, extra_parame
         adapted_extra_parameters[handler_name] = copy.deepcopy(DEFAULT_LOGGING_HANDLER_CONFIG[handler_name])    # Get defaults...
         if 'parameters' in handler_config:
             for param_item in handler_config['parameters']:
-                if param_item[parameterName] in adapted_extra_parameters[handler_name]:
+                if param_item['parameterName'] in adapted_extra_parameters[handler_name]:
                     ptype = 'string'
                     if 'parameterType' in param_item:
                         ptype = param_item['parameterType']
