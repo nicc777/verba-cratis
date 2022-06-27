@@ -253,8 +253,16 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, dict)
         for key in ('level', 'format', 'TimedRotatingFileHandler',):
             self.assertTrue(key in result, 'Key "{}" expected but not present'.format(key))
+        self.assertEqual(result['level'], logging.WARN)
+        self.assertEqual(result['format'], '%(asctime)s %(levelname)s %(message)s')
         for key in ('filename', 'when', 'interval', 'backupCount'):
             self.assertTrue(key in result['TimedRotatingFileHandler'], 'Key "{}" expected but not present'.format(key))
+        self.assertEqual(result['TimedRotatingFileHandler']['level'], logging.DEBUG)
+        self.assertEqual(result['TimedRotatingFileHandler']['format'], '%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d - %(message)s')
+        self.assertEqual(result['TimedRotatingFileHandler']['filename'], 'out.log')
+        self.assertEqual(result['TimedRotatingFileHandler']['when'], 'H')
+        self.assertEqual(result['TimedRotatingFileHandler']['interval'], 6)
+        self.assertEqual(result['TimedRotatingFileHandler']['backupCount'], 120)
 
     def test_call_extract_handler_config_with_no_extra_parameters_using_example_config(self):
         configuration = mock_get_file_contents(file='')
@@ -267,8 +275,16 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, dict)
         for key in ('level', 'format', 'TimedRotatingFileHandler',):
             self.assertTrue(key in result, 'Key "{}" expected but not present'.format(key))
+        self.assertEqual(result['level'], logging.INFO)
+        self.assertEqual(result['format'], '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s')
         for key in ('filename', 'when', 'interval', 'backupCount'):
             self.assertTrue(key in result['TimedRotatingFileHandler'], 'Key "{}" expected but not present'.format(key))
+        self.assertEqual(result['TimedRotatingFileHandler']['level'], logging.DEBUG)
+        self.assertEqual(result['TimedRotatingFileHandler']['format'], '%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d - %(message)s')
+        self.assertEqual(result['TimedRotatingFileHandler']['filename'], 'out.log')
+        self.assertEqual(result['TimedRotatingFileHandler']['when'], 'H')
+        self.assertEqual(result['TimedRotatingFileHandler']['interval'], 6)
+        self.assertEqual(result['TimedRotatingFileHandler']['backupCount'], 120)
         
 
 if __name__ == '__main__':

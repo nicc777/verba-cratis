@@ -250,11 +250,13 @@ def get_logging_level_from_string(level: str):
 def extract_handler_config(handler_config: dict, handler_name: str, extra_parameters: dict=dict())->dict:
     adapted_extra_parameters = copy.deepcopy(extra_parameters)
     if 'level' not in extra_parameters:
-        adapted_extra_parameters['level'] = 'info'
-    default_logging_level = get_logging_level_from_string(level=adapted_extra_parameters['level'])
+        adapted_extra_parameters['level'] = get_logging_level_from_string(level='info')
+    else:
+        adapted_extra_parameters['level'] = get_logging_level_from_string(level=extra_parameters['level'])
     if 'format' not in extra_parameters:
         adapted_extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
-    default_logging_level = adapted_extra_parameters['format']
+    else:
+        adapted_extra_parameters['format'] = extra_parameters['format']
     try:
         adapted_extra_parameters[handler_name] = copy.deepcopy(DEFAULT_LOGGING_HANDLER_CONFIG[handler_name])    # Get defaults...
         if 'parameters' in handler_config:
