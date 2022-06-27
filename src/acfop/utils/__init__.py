@@ -296,8 +296,12 @@ def get_logger_from_configuration(configuration: dict)->logging.Logger:
     if len(configuration['logging']['handlers']) == 0:
         return get_logger()
     extra_parameters = dict()
-    extra_parameters['level'] = logging.INFO
+    extra_parameters['level'] = 'info'
     extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+    if 'level' in configuration:
+        extra_parameters['level'] = configuration['level']
+    if 'format' in configuration:
+        extra_parameters['level'] = configuration['format']
     include_logging_file_handler=False
     include_logging_stream_handler=False
     include_logging_timed_rotating_file_handler=False
