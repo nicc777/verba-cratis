@@ -8,11 +8,11 @@ Current coverage:
 Name                          Stmts   Miss  Cover   Missing
 -----------------------------------------------------------
 src/acfop/__init__.py             0      0   100%
-src/acfop/utils/__init__.py     180     78    57%   231-271, 276-328
+src/acfop/utils/__init__.py     192     49    74%   273-276, 279-280, 286-342
 src/acfop/utils/file_io.py       12      0   100%
 src/acfop/utils/parser.py       105      0   100%
 -----------------------------------------------------------
-TOTAL                           297     78    74%
+TOTAL                           309     49    84%
 ```
 
 ## Other Tasks
