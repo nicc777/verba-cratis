@@ -214,6 +214,26 @@ class TestGetLoggingLevelFromString(unittest.TestCase):    # pragma: no cover
         self.assertIsNotNone(result)
         self.assertEqual(result, logging.INFO)
 
+    def test_call_get_logging_level_from_string_with_logging_dot_info(self):
+        result = get_logging_level_from_string(level='logging.info')
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.INFO)
+
+    def test_call_get_logging_level_from_string_with_logging_dot_warn(self):
+        result = get_logging_level_from_string(level='logging.warn')
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.WARN)
+
+    def test_call_get_logging_level_from_string_with_logging_dot_debug(self):
+        result = get_logging_level_from_string(level='logging.debug')
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.DEBUG)
+
+    def test_call_get_logging_level_from_string_with_logging_dot_error(self):
+        result = get_logging_level_from_string(level='logging.error')
+        self.assertIsNotNone(result)
+        self.assertEqual(result, logging.ERROR)
+
     
 class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
 
