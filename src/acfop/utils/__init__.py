@@ -259,20 +259,21 @@ def extract_handler_config(handler_config: dict, handler_name: str, extra_parame
         adapted_extra_parameters[handler_name] = copy.deepcopy(DEFAULT_LOGGING_HANDLER_CONFIG[handler_name])    # Get defaults...
         if 'parameters' in handler_config:
             for param_item in handler_config['parameters']:
-                parameter_name = param_item['parameterName']
-                if parameter_name in adapted_extra_parameters[handler_name]:
-                    ptype = 'string'
-                    if 'parameterType' in param_item:
-                        ptype = param_item['parameterType']
-                    value = 'not-set'
-                    if ptype.lower().startswith('str') is True:
-                        adapted_extra_parameters[handler_name][parameter_name] = '{}'.format(param_item['parameterValue'])
-                    if ptype.lower().startswith('int') is True:
-                        adapted_extra_parameters[handler_name][parameter_name] = int('{}'.format(param_item['parameterValue']))
-                    if ptype == 'socket.SOCK_DGRAM':
-                        adapted_extra_parameters[handler_name][parameter_name] = socket.SOCK_DGRAM
-                    elif ptype == 'socket.SOCK_STREAM':
-                        adapted_extra_parameters[handler_name][parameter_name] = socket.SOCK_STREAM
+                if 'parameterName' in param_item and 'parameterValue' in param_item and 'parameterType' in param_item:
+                    parameter_name = param_item['parameterName']
+                    parameter_value = param_item['parameterValue']
+                    parameter_type = param_item['parameterType']
+                    if parameter_name in adapted_extra_parameters[handler_name] and parameter_name != 'level':
+                        if parameter_type.lower().startswith('str') is True:
+                            adapted_extra_parameters[handler_name][parameter_name] = '{}'.format(parameter_value)
+                        elif parameter_type.lower().startswith('int') is True:
+                            adapted_extra_parameters[handler_name][parameter_name] = int('{}'.format(parameter_value))
+                        elif parameter_type == 'socket.SOCK_DGRAM':
+                            adapted_extra_parameters[handler_name][parameter_name] = socket.SOCK_DGRAM
+                        elif parameter_type == 'socket.SOCK_STREAM':
+                            adapted_extra_parameters[handler_name][parameter_name] = socket.SOCK_STREAM
+                    if parameter_name in adapted_extra_parameters[handler_name] and parameter_name == 'level':
+                        adapted_extra_parameters[handler_name][parameter_name] = get_logging_level_from_string(level=parameter_value)
     except:
         traceback.print_exc()
     return adapted_extra_parameters
