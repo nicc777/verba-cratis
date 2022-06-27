@@ -239,7 +239,7 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
         self.extra_parameters = dict()
-        self.extra_parameters['level'] = logging.INFO
+        self.extra_parameters['level'] = 'warn'
         self.extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
 
     def test_call_extract_handler_config_with_basic_extra_parameters_using_example_config(self):
@@ -254,7 +254,7 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         for key in ('level', 'format', 'TimedRotatingFileHandler',):
             self.assertTrue(key in result, 'Key "{}" expected but not present'.format(key))
         self.assertEqual(result['level'], logging.WARN)
-        self.assertEqual(result['format'], '%(asctime)s %(levelname)s %(message)s')
+        self.assertEqual(result['format'], '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s')
         for key in ('filename', 'when', 'interval', 'backupCount'):
             self.assertTrue(key in result['TimedRotatingFileHandler'], 'Key "{}" expected but not present'.format(key))
         self.assertEqual(result['TimedRotatingFileHandler']['level'], logging.DEBUG)
