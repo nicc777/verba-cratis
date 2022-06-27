@@ -227,12 +227,34 @@ def get_logger(
     return logger
 
 
+def get_logging_level_from_string(level: str):
+    try:
+        accepted_levels = ('warn', 'info', 'error', 'debug')
+        working_level = level
+        if level.lower().startswith('logging.'):
+            working_level = level.lower().split('.')[1]
+        if working_level in accepted_levels:
+            if working_level.startswith('warn'):
+                return logging.WARN
+            if working_level.startswith('info'):
+                return logging.INFO
+            if working_level.startswith('err'):
+                return logging.ERROR
+            if working_level.startswith('deb'):
+                return logging.DEBUG
+    except:
+        traceback.print_exc()
+    return logging.INFO
+
+
 def extract_handler_config(handler_config: dict, handler_name: str, extra_parameters: dict=dict())->dict:
     adapted_extra_parameters = copy.deepcopy(extra_parameters)
     if 'level' not in extra_parameters:
         adapted_extra_parameters['level'] = 'info'
+    default_logging_level = get_logging_level_from_string(level=adapted_extra_parameters['level'])
     if 'format' not in extra_parameters:
         adapted_extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+    default_logging_level = adapted_extra_parameters['format']
     try:
         adapted_extra_parameters[handler_name] = copy.deepcopy(DEFAULT_LOGGING_HANDLER_CONFIG[handler_name])    # Get defaults...
         if 'parameters' in handler_config:
@@ -251,18 +273,6 @@ def extract_handler_config(handler_config: dict, handler_name: str, extra_parame
                         adapted_extra_parameters[handler_name][parameter_name] = socket.SOCK_DGRAM
                     elif ptype == 'socket.SOCK_STREAM':
                         adapted_extra_parameters[handler_name][parameter_name] = socket.SOCK_STREAM
-                    if ptype.lower().startswith('logging.'):
-                        logging_type = ptype.lower().split('.')[1]
-                        if logging_type == 'warn':
-                            adapted_extra_parameters[handler_name][parameter_name] = logging.WARN
-                        elif logging_type == 'info':
-                            adapted_extra_parameters[handler_name][parameter_name] = logging.INFO
-                        elif logging_type == 'error':
-                            adapted_extra_parameters[handler_name][parameter_name] = logging.ERROR
-                        elif logging_type == 'debug':
-                            adapted_extra_parameters[handler_name][parameter_name] = logging.DEBUG
-                        else:
-                            adapted_extra_parameters[handler_name][parameter_name] = extra_parameters['level']
     except:
         traceback.print_exc()
     return adapted_extra_parameters
