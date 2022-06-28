@@ -402,6 +402,16 @@ class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no
         self.assertIsNotNone(result)
         self.assertIsInstance(result, logging.Logger)
 
+    def test_get_logger_from_configuration_using_none_configuration(self):
+        result = get_logger_from_configuration(configuration=None)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.Logger)
+
+    def test_get_logger_from_configuration_using_invalid_configuration_type(self):
+        result = get_logger_from_configuration(configuration=123)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.Logger)
+
 
 if __name__ == '__main__':
     unittest.main()
