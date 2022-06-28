@@ -443,6 +443,18 @@ class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no
         self.assertIsNotNone(result)
         self.assertIsInstance(result, logging.Logger)
 
+    def test_get_logger_from_configuration_using_configuration_with_no_logging_section_empty_handlers(self):
+        configuration = mock_get_file_contents(file='')
+        configuration['logging'] = {
+            "filename": "deployment-${build-variable:build_uuid}.log",
+            "level": "warn",
+            "format": "%(asctime)s %(levelname)s %(message)s",
+            "handlers": list()
+        }
+        result = get_logger_from_configuration(configuration=configuration)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.Logger)
+
 
 if __name__ == '__main__':
     unittest.main()
