@@ -420,7 +420,7 @@ class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no
         self.assertIsNotNone(result)
         self.assertIsInstance(result, logging.Logger)
 
-    def test_get_logger_from_configuration_using_configuration_with_no_logging_section_no_handlers(self):
+    def test_get_logger_from_configuration_using_configuration_with_logging_section_no_handlers(self):
         configuration = mock_get_file_contents(file='')
         configuration['logging'] = {
             "filename": "deployment-${build-variable:build_uuid}.log",
@@ -431,7 +431,7 @@ class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no
         self.assertIsNotNone(result)
         self.assertIsInstance(result, logging.Logger)
 
-    def test_get_logger_from_configuration_using_configuration_with_no_logging_section_invalid_handlers(self):
+    def test_get_logger_from_configuration_using_configuration_with_logging_section_invalid_handlers(self):
         configuration = mock_get_file_contents(file='')
         configuration['logging'] = {
             "filename": "deployment-${build-variable:build_uuid}.log",
@@ -443,7 +443,7 @@ class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no
         self.assertIsNotNone(result)
         self.assertIsInstance(result, logging.Logger)
 
-    def test_get_logger_from_configuration_using_configuration_with_no_logging_section_empty_handlers(self):
+    def test_get_logger_from_configuration_using_configuration_with_logging_section_empty_handlers(self):
         configuration = mock_get_file_contents(file='')
         configuration['logging'] = {
             "filename": "deployment-${build-variable:build_uuid}.log",
@@ -451,6 +451,29 @@ class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no
             "format": "%(asctime)s %(levelname)s %(message)s",
             "handlers": list()
         }
+        result = get_logger_from_configuration(configuration=configuration)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.Logger)
+
+    def test_get_logger_from_configuration_using_configuration_with_logging_section_with_all_handlers_configured(self):
+        configuration = mock_get_file_contents(file='')
+        configuration['logging']['handlers'] = [
+            {
+                "name": "StreamHandler",
+            },
+            {
+                "name": "FileHandler"
+            },
+            {
+                "name": "TimedRotatingFileHandler"
+            },
+            {
+                "name": "DatagramHandler"
+            },
+            {
+                "name": "SysLogHandler"
+            },
+        ]
         result = get_logger_from_configuration(configuration=configuration)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, logging.Logger)
