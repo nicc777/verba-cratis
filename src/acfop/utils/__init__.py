@@ -28,8 +28,8 @@ DEFAULT_LOGGING_HANDLER_CONFIG = {
     'TimedRotatingFileHandler': {
         'filename': 'acfop.log',
         'when': 'D',
-        'interval': '1',
-        'backupCount': '5',
+        'interval': 1,
+        'backupCount': 5,
         'level': logging.INFO,
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
