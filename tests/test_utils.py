@@ -285,6 +285,36 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         self.assertEqual(result['TimedRotatingFileHandler']['when'], 'H')
         self.assertEqual(result['TimedRotatingFileHandler']['interval'], 6)
         self.assertEqual(result['TimedRotatingFileHandler']['backupCount'], 120)
+
+    def test_call_extract_handler_config_extra_parameters_using_example_config_socket_dgram(self):
+        configuration = mock_get_file_contents(file='')
+        configuration['logging'] = {
+            "filename": "deployment-${build-variable:build_uuid}.log",
+            "level": "warn",
+            "format": "%(asctime)s %(levelname)s %(message)s",
+            "handlers": [
+            {
+                "name": "TimedRotatingFileHandler",
+                "parameters": [
+                {
+                    "parameterName": "socktype",
+                    "parameterType": "socket.SOCK_DGRAM",
+                    "parameterValue": "SOCK_DGRAM"
+                },
+                ]
+            },
+            {
+                "name": "SysLogHandler"
+            }
+            ]
+        }
+        result = extract_handler_config(
+            handler_config=configuration['logging']['handlers'][0],
+            handler_name='SysLogHandler',
+            extra_parameters=self.extra_parameters
+        )
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
         
 
 if __name__ == '__main__':
