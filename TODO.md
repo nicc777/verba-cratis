@@ -26,5 +26,7 @@ Next Up tasks
 * ~~Allow for logging override from configuration~~
 * Add unit tests for extract_handler_config() and get_logger_from_configuration()
 * Adapt existing get_logger_* functions to the passed in configuration
+* Create unique build UUID during init
+* Process Variables in logging configuration strings, like `filename` (see example 1)
 
 
