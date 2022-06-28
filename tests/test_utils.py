@@ -315,6 +315,17 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         )
         self.assertIsNotNone(result)
         self.assertIsInstance(result, dict)
+        for key in ('level', 'format', 'SysLogHandler',):
+            self.assertTrue(key in result, 'Key "{}" expected but not present'.format(key))
+        self.assertEqual(result['level'], logging.WARN)
+        self.assertEqual(result['format'], '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s')
+        for key in ('host', 'port', 'socktype'):
+            self.assertTrue(key in result['SysLogHandler'], 'Key "{}" expected but not present'.format(key))
+        self.assertEqual(result['SysLogHandler']['level'], logging.INFO)
+        self.assertEqual(result['SysLogHandler']['format'], '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s')
+        self.assertEqual(result['SysLogHandler']['host'], 'localhost')
+        self.assertEqual(result['SysLogHandler']['port'], '514')
+        self.assertEqual(result['SysLogHandler']['socktype'], socket.SOCK_DGRAM)
         
 
 if __name__ == '__main__':

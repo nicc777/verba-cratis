@@ -17,12 +17,12 @@ import copy
 
 DEFAULT_LOGGING_HANDLER_CONFIG = {  
     'StreamHandler': {
-        'level': 'info',
+        'level': logging.INFO,
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
     'FileHandler': {
         'filename': 'acfop.log',
-        'level': 'info',
+        'level': logging.INFO,
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
     'TimedRotatingFileHandler': {
@@ -30,20 +30,20 @@ DEFAULT_LOGGING_HANDLER_CONFIG = {
         'when': 'D',
         'interval': '1',
         'backupCount': '5',
-        'level': 'info',
+        'level': logging.INFO,
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
     'DatagramHandler': {
-        'hostname': 'localhost',
+        'host': 'localhost',
         'port': '514',
-        'level': 'info',
+        'level': logging.INFO,
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
     'SysLogHandler': {
-        'hostname': 'localhost',
+        'host': 'localhost',
         'port': '514',
         'socktype': 'SOCK_DGRAM',
-        'level': 'info',
+        'level': logging.INFO,
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
 }
