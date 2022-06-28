@@ -14,6 +14,10 @@ class Variable:
 
     """
         TODO If the classification is something like "shell", then each time the value is retrieved the shell script must be executed
+
+        TODO Add support for "ref" classification - requires a configuration to variable reference processing function
+
+        TODO Ass support for "exports" classification - requires a process to add exports after CloudFormation template deployment
     """
     def __init__(self, id: str, initial_value: object=None, value_type: object=str, classification: str='build-variable'):
         self.id = id
