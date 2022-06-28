@@ -5,3 +5,10 @@
     called LICENSE), or alternatively view the license text at 
     https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
+
+import hashlib
+import uuid
+
+
+BUILD_ID = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
+

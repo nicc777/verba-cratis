@@ -25,7 +25,7 @@ Next Up tasks
 * ~~Create basic logging unit test with test handlers~~
 * ~~Allow for logging override from configuration~~
 * ~~Add unit tests for extract_handler_config() and get_logger_from_configuration()~~
-* Adapt existing get_logger_* functions to the passed in configuration (REFACTOR)
+* ~~Adapt existing get_logger_* functions to the passed in configuration (REFACTOR)~~
 * Create unique build UUID during init
 * Process Variables in logging configuration strings, like `filename` (see example 1)
 
