@@ -36,7 +36,7 @@ globalVariables:
 
 # Define the deployment logging options
 logging:
-  filename: deployment-${build-variable:build_uuid}.log
+  filename: deployment-${build-variable:build_id}.log
   level: warn
   format: '%(asctime)s %(levelname)s %(message)s'
   handlers:
