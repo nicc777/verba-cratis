@@ -412,6 +412,14 @@ class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no
         self.assertIsNotNone(result)
         self.assertIsInstance(result, logging.Logger)
 
+    def test_get_logger_from_configuration_using_configuration_with_no_logging_section(self):
+        configuration = mock_get_file_contents(file='')
+        configuration.pop('logging', None)        
+        self.assertFalse('logging' in configuration) 
+        result = get_logger_from_configuration(configuration=configuration)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.Logger)
+
 
 if __name__ == '__main__':
     unittest.main()
