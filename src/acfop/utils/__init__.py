@@ -42,7 +42,7 @@ DEFAULT_LOGGING_HANDLER_CONFIG = {
     'SysLogHandler': {
         'host': 'localhost',
         'port': '514',
-        'socktype': 'SOCK_DGRAM',
+        'socktype': socket.SOCK_DGRAM,
         'level': logging.INFO,
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
