@@ -8,14 +8,16 @@
 
 from acfop.utils import get_logger
 from acfop import BUILD_ID
+from acfop.models.runtime import Variable, VariableStateStore
 
 
 def main()->dict:
-    build_id = BUILD_ID
+    state_store = VariableStateStore()
+    state_store.add_variable(var=Variable(id='BuildId', initial_value=BUILD_ID, value_type=str))
     logger = get_logger()
-    logger.info('Started with build ID {}'.format(build_id))
+    logger.info('Started with build ID {}'.format(state_store.get_variable_value(id='BuildId')))
     result = dict()
-    result['BuildId'] = build_id
+    result['BuildId'] = state_store.get_variable_value(id='BuildId')
     return result
 
 
