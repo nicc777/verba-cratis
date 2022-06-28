@@ -7,12 +7,13 @@ Current coverage:
 ```text
 Name                          Stmts   Miss  Cover   Missing
 -----------------------------------------------------------
-src/acfop/__init__.py             0      0   100%
+src/acfop/__init__.py             3      0   100%
+src/acfop/acfop.py                9      0   100%
 src/acfop/utils/__init__.py     192      0   100%
 src/acfop/utils/file_io.py       12      0   100%
 src/acfop/utils/parser.py       105      0   100%
 -----------------------------------------------------------
-TOTAL                           309      0   100%
+TOTAL                           321      0   100%
 ```
 
 ## Other Tasks
@@ -26,7 +27,8 @@ Next Up tasks
 * ~~Allow for logging override from configuration~~
 * ~~Add unit tests for extract_handler_config() and get_logger_from_configuration()~~
 * ~~Adapt existing get_logger_* functions to the passed in configuration (REFACTOR)~~
-* Create unique build UUID during init
+* ~~Create unique build UUID during init~~
+* Add command line arguments parsing - and add a command line argument for the location of the configuration file
 * Process Variables in logging configuration strings, like `filename` (see example 1)
 
 
