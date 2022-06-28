@@ -326,6 +326,47 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         self.assertEqual(result['SysLogHandler']['host'], 'localhost')
         self.assertEqual(result['SysLogHandler']['port'], '514')
         self.assertEqual(result['SysLogHandler']['socktype'], socket.SOCK_DGRAM)
+
+    def test_call_extract_handler_config_extra_parameters_using_example_config_socket_stream(self):
+        configuration = mock_get_file_contents(file='')
+        configuration['logging'] = {
+            "filename": "deployment-${build-variable:build_uuid}.log",
+            "level": "warn",
+            "format": "%(asctime)s %(levelname)s %(message)s",
+            "handlers": [
+            {
+                "name": "TimedRotatingFileHandler",
+                "parameters": [
+                {
+                    "parameterName": "socktype",
+                    "parameterType": "socket.SOCK_STREAM",
+                    "parameterValue": "SOCK_STREAM"
+                },
+                ]
+            },
+            {
+                "name": "SysLogHandler"
+            }
+            ]
+        }
+        result = extract_handler_config(
+            handler_config=configuration['logging']['handlers'][0],
+            handler_name='SysLogHandler',
+            extra_parameters=self.extra_parameters
+        )
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        for key in ('level', 'format', 'SysLogHandler',):
+            self.assertTrue(key in result, 'Key "{}" expected but not present'.format(key))
+        self.assertEqual(result['level'], logging.WARN)
+        self.assertEqual(result['format'], '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s')
+        for key in ('host', 'port', 'socktype'):
+            self.assertTrue(key in result['SysLogHandler'], 'Key "{}" expected but not present'.format(key))
+        self.assertEqual(result['SysLogHandler']['level'], logging.INFO)
+        self.assertEqual(result['SysLogHandler']['format'], '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s')
+        self.assertEqual(result['SysLogHandler']['host'], 'localhost')
+        self.assertEqual(result['SysLogHandler']['port'], '514')
+        self.assertEqual(result['SysLogHandler']['socktype'], socket.SOCK_STREAM)
         
 
 if __name__ == '__main__':
