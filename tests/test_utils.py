@@ -387,7 +387,21 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         self.assertEqual(result['SysLogHandler']['host'], 'localhost')
         self.assertEqual(result['SysLogHandler']['port'], '514')
         self.assertEqual(result['SysLogHandler']['socktype'], socket.SOCK_DGRAM)
-        
+
+
+class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        self.extra_parameters = dict()
+        self.extra_parameters['level'] = 'warn'
+        self.extra_parameters['format'] = '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+    
+    def test_get_logger_from_configuration_using_example_config(self):
+        configuration = mock_get_file_contents(file='')
+        result = get_logger_from_configuration(configuration=configuration)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, logging.Logger)
+
 
 if __name__ == '__main__':
     unittest.main()
