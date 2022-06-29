@@ -9,6 +9,7 @@
 
 import traceback
 from acfop.utils import get_logger
+from acfop.utils.parser import variable_snippet_extract
 import subprocess, shlex
 import hashlib
 import tempfile
@@ -96,16 +97,30 @@ class VariableStateStore:
                 return self.variables[classification][id].get_value(logger=self.logger)
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
-    def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False):
+    def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
+        if iteration_number > VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
+            raise Exception('Maximum embedded variable parsing depth exceeded')
         if skip_embedded_variable_processing is True:
             return self._gvv(id=id, classification=classification, logger=logger)
         final_value = None
-        iteration_number = 0
-        while iteration_number < VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
-            value = self._gvv(id=id, classification=classification, logger=logger)
-            # TODO Process embedded variable references in value, for example a value containing ${ref:CCC}
+        next_iteration_number = iteration_number + 1
+        value = self._gvv(id=id, classification=classification, logger=logger)
 
-            final_value = value
+        snippets = variable_snippet_extract(line=value)
+        if len(snippets) > 0:
+            for snippet in snippets:
+                snippet_cs = hashlib.sha256(str(snippet).encode(('utf-8'))).hexdigest()
+                snippet_place_holder_string = '{}{}{}{}'.format(
+                    '$', '{', snippet, '}'
+                )
+                value = value.replace(snippet_place_holder_string, snippet_cs)
+                next_classification, next_id = snippet.split(':', 1)
+                value = value.replace(
+                    snippet_cs,
+                    self.get_variable_value(id=next_id, classification=next_classification, skip_embedded_variable_processing=skip_embedded_variable_processing, iteration_number=next_iteration_number)
+                )
+        final_value = value
+
         return final_value
         
 
