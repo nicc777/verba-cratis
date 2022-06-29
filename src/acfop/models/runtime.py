@@ -27,9 +27,11 @@ VALID_CLASSIFICATIONS = (
 class Variable:
 
     """
-        TODO Add support for "ref" classification - requires a configuration to variable reference processing function
+        External Dependencies:
+        
+            TODO Add support for "ref" classification - requires a configuration to variable reference processing function
 
-        TODO Ass support for "exports" classification - requires a process to add exports after CloudFormation template deployment
+            TODO Ass support for "exports" classification - requires a process to add exports after CloudFormation template deployment
     """
     def __init__(self, id: str, initial_value: object=None, value_type: object=str, classification: str='build-variable'):
         if classification not in VALID_CLASSIFICATIONS:
