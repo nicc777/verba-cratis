@@ -28,7 +28,7 @@ class Variable:
 
     """
         External Dependencies:
-        
+
             TODO Add support for "ref" classification - requires a configuration to variable reference processing function
 
             TODO Ass support for "exports" classification - requires a process to add exports after CloudFormation template deployment
@@ -89,6 +89,7 @@ class VariableStateStore:
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
     def get_variable_value(self, id: str, classification: str='build-variable')->Variable:
+        # TODO Process embedded variable references in value, for example a value containing ${ref:CCC}
         if classification in self.variables:
             if id in self.variables[classification]:
                 return self.variables[classification][id].get_value(logger=self.logger)
