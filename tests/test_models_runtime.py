@@ -46,6 +46,13 @@ class TestClassVariable(unittest.TestCase):    # pragma: no cover
         result2 = int(Variable(id='var1', initial_value=cmd, classification='shell').get_value())
         self.assertIsInstance(result2, int)
         self.assertTrue(result2 > 0)
+        cmd2 = """files=`find . -type f`
+qty=`echo $files | wc -l`
+echo $qty
+        """
+        result3 = int(Variable(id='var2', initial_value=cmd2, classification='shell').get_value())
+        self.assertIsInstance(result2, int)
+        self.assertTrue(result2 > 0)
         with self.assertRaises(Exception) as context:
             Variable(id='var1', initial_value='some value', classification='other').get_value()
         self.assertTrue('Classification "other" not yet supported' in str(context.exception))
