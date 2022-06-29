@@ -20,8 +20,10 @@ VALID_CLASSIFICATIONS = (
     'ref',
     'exports',
     'shell',
+    # 'func',   # TODO add support for function calls
     'other',    # When using Variable.get_value(), this type will force an exception
 )
+VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH = 3
 
 
 class Variable:
@@ -88,12 +90,23 @@ class VariableStateStore:
                 return self.variables[classification][id]
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
-    def get_variable_value(self, id: str, classification: str='build-variable')->Variable:
-        # TODO Process embedded variable references in value, for example a value containing ${ref:CCC}
+    def _gvv(self, id: str, classification: str='build-variable'):
         if classification in self.variables:
             if id in self.variables[classification]:
                 return self.variables[classification][id].get_value(logger=self.logger)
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
+
+    def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False):
+        if skip_embedded_variable_processing is True:
+            return self._gvv(id=id, classification=classification, logger=logger)
+        final_value = None
+        iteration_number = 0
+        while iteration_number < VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
+            value = self._gvv(id=id, classification=classification, logger=logger)
+            # TODO Process embedded variable references in value, for example a value containing ${ref:CCC}
+
+            final_value = value
+        return final_value
         
 
 
