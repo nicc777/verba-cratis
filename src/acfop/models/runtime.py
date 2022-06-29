@@ -65,66 +65,31 @@ class Variable:
 class VariableStateStore:
 
     def __init__(self, logger=get_logger()):
-        self.build_variables = dict()
-        self.ref_variables = dict()
-        self.exports_variables = dict()
-        self.shell_variables = dict()
-        self.other_variables = dict()
+        self.variables = dict()
+        self.variables['build-variable'] = dict()
+        self.variables['ref'] = dict()
+        self.variables['exports'] = dict()
+        self.variables['shell'] = dict()
+        self.variables['other'] = dict()
         self.logger = logger
 
     def add_variable(self, var: Variable):
         self.logger.info('Added variable id "{}" with classification "{}"'.format(var.id, var.classification))
-        if var.classification == 'build-variable':
-            self.build_variables[var.id] = var
-            return
-        if var.classification == 'ref':
-            self.ref_variables[var.id] = var
-            return
-        if var.classification == 'exports':
-            self.exports_variables[var.id] = var
-            return
-        if var.classification == 'shell':
-            self.shell_variables[var.id] = var
-            return
-        if var.classification == 'other':
-            self.other_variables[var.id] = var
+        if var.classification in self.variables:
+            self.variables[var.classification][var.id] = var
             return
         raise Exception('Variable classification "{}" is not supported'.format(var.classification))
 
     def get_variable(self, id: str, classification: str='build-variable')->Variable:
-        if classification == 'build-variable':
-            if id in self.build_variables:
-                return self.build_variables[id]
-        elif classification == 'ref':
-            if id in self.ref_variables:
-                return self.ref_variables[id]
-        elif classification == 'exports':
-            if id in self.exports_variables:
-                return self.exports_variables[id]
-        elif classification == 'shell':
-            if id in self.shell_variables:
-                return self.shell_variables[id]
-        elif classification == 'other':
-            if id in self.other_variables:
-                return self.other_variables[id]
+        if classification in self.variables:
+            if id in self.variables[classification]:
+                return self.variables[classification][id]
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
     def get_variable_value(self, id: str, classification: str='build-variable')->Variable:
-        if classification == 'build-variable':
-            if id in self.build_variables:
-                return self.build_variables[id].get_value(logger=self.logger)
-        elif classification == 'ref':
-            if id in self.ref_variables:
-                return self.ref_variables[id].get_value(logger=self.logger)
-        elif classification == 'exports':
-            if id in self.exports_variables:
-                return self.exports_variables[id].get_value(logger=self.logger)
-        elif classification == 'shell':
-            if id in self.shell_variables:
-                return self.shell_variables[id].get_value(logger=self.logger)
-        elif classification == 'other':
-            if id in self.other_variables:
-                return self.other_variables[id].get_value(logger=self.logger)
+        if classification in self.variables:
+            if id in self.variables[classification]:
+                return self.variables[classification][id].get_value(logger=self.logger)
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
         
 
