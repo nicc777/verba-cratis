@@ -50,6 +50,11 @@ class TestClassVariable(unittest.TestCase):    # pragma: no cover
             Variable(id='var1', initial_value='some value', classification='other').get_value()
         self.assertTrue('Classification "other" not yet supported' in str(context.exception))
 
+    def test_class_to_string(self):
+        result = str(Variable(id='var1', initial_value='test'))
+        self.assertEqual(result, 'Variable: id=var1 classification=build-variable >> value as string: test')
+
+
 
 if __name__ == '__main__':
     unittest.main()

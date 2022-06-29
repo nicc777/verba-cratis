@@ -59,7 +59,7 @@ class Variable:
         raise Exception('Classification "{}" not yet supported'.format(self.classification))
 
     def __str__(self):
-        return 'Variable: id={} classification={} >> value as string: {}'.format(self.value)
+        return 'Variable: id={} classification={} >> value as string: {}'.format(self.id, self.classification, self.value)
 
 
 class VariableStateStore:
