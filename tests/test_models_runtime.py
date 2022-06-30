@@ -127,6 +127,11 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
         self.assertIsInstance(result2, Variable)
         self.assertTrue(result2.id == 'print_s(message="${{var:var1}}")')
 
+    def test_class_variable_state_store_ops_get_variable_exception(self):
+        with self.assertRaises(Exception) as context:
+            self.store.get_variable(id='where-am-i', classification='func')
+        self.assertTrue('Variable with id "where-am-i" with classification "func" does not exist' in str(context.exception))
+
 
 if __name__ == '__main__':
     unittest.main()
