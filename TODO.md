@@ -30,6 +30,7 @@ Next Up tasks
 * ~~Add unit tests for extract_handler_config() and get_logger_from_configuration()~~
 * ~~Adapt existing get_logger_* functions to the passed in configuration (REFACTOR)~~
 * ~~Create unique build UUID during init~~
+* Add logic to process a snippet to return a value
 * Add unit tests for `src/acfop/models/runtime.py`
 * Add command line arguments parsing - and add a command line argument for the location of the configuration file
 * Process Variables in logging configuration strings, like `filename` (see example 1)
