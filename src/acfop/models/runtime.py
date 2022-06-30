@@ -22,7 +22,7 @@ VALID_CLASSIFICATIONS = (
     'ref',
     'exports',
     'shell',
-    # 'func',   # TODO add support for function calls
+    'func',     # TODO add support for function calls
     'other',    # When using Variable.get_value(), this type will force an exception
 )
 VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH = 3
@@ -76,6 +76,7 @@ class VariableStateStore:
         self.variables['ref'] = dict()
         self.variables['exports'] = dict()
         self.variables['shell'] = dict()
+        self.variables['func'] = dict()
         self.variables['other'] = dict()
         self.logger = logger
 

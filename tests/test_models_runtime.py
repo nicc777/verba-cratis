@@ -64,10 +64,40 @@ echo $qty
 
 class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
 
+    def setUp(self):
+        self.classifications = (
+            'build-variable',
+            'ref',
+            'exports',
+            'shell',
+            'func',
+            'other',
+        )
+
     def test_class_variable_state_store_init_defaults(self):
         result = VariableStateStore()
         self.assertIsNotNone(result)
         self.assertIsInstance(result, VariableStateStore)
+        self.assertIsNotNone(result.variables)
+        self.assertIsInstance(result.variables, dict)
+        self.assertTrue(len(result.variables) == len(self.classifications))
+        for key in self.classifications:
+            self.assertTrue(key in result.variables, 'Expecting key "{}" but not found'.format(key))
+
+    def test_class_variable_state_store_add_variable(self):
+        store = VariableStateStore()
+        v1 = Variable(id='ref:var1', initial_value='', classification='ref')
+        v2 = Variable(id='func:print_s(message="${{var:var1}}")', initial_value='', classification='func')
+        store.add_variable(var=v1)
+        store.add_variable(var=v2)
+        self.assertIsNotNone(store)
+        self.assertTrue(len(store.variables['ref']) == 1)
+        self.assertTrue(len(store.variables['func']) == 1)
+        self.assertTrue(len(store.variables['build-variable']) == 0)
+        self.assertTrue(len(store.variables['exports']) == 0)
+        self.assertTrue(len(store.variables['shell']) == 0)
+        self.assertTrue(len(store.variables['other']) == 0)
+        
 
 
 if __name__ == '__main__':
