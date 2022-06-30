@@ -106,7 +106,26 @@ class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
         with self.assertRaises(Exception) as context:
             store.add_variable(var=v1)
         self.assertTrue('Variable classification "not-going-to-work" is not supported' in str(context.exception))
-        
+
+
+class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        self.store = VariableStateStore()
+        v1 = Variable(id='var1', initial_value='', classification='ref')
+        v2 = Variable(id='print_s(message="${{var:var1}}")', initial_value='', classification='func')
+        self.store.add_variable(var=v1)
+        self.store.add_variable(var=v2)
+
+    def test_class_variable_state_store_ops_get_variable(self):
+        result1 = self.store.get_variable(id='var1', classification='ref')
+        self.assertIsNotNone(result1)
+        self.assertIsInstance(result1, Variable)
+        self.assertTrue(result1.id == 'var1')
+        result2 = self.store.get_variable(id='print_s(message="${{var:var1}}")', classification='func')
+        self.assertIsNotNone(result2)
+        self.assertIsInstance(result2, Variable)
+        self.assertTrue(result2.id == 'print_s(message="${{var:var1}}")')
 
 
 if __name__ == '__main__':
