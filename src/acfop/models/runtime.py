@@ -62,6 +62,9 @@ class Variable:
             logger.info('[{}] Command: {}'.format(self.value_checksum, self.value))
             logger.info('[{}] Command Result: {}'.format(self.value_checksum, result))
             return result
+        elif self.classification == 'func':
+            # TODO implement function calling
+            return 'function-not-executed'
         raise Exception('Classification "{}" not yet supported'.format(self.classification))
 
     def __str__(self):
@@ -104,7 +107,7 @@ class VariableStateStore:
 
     def _process_snippet(self, snippet:str)->str:
         result = None
-        logger.info('Processing Snippet: {}'.format(snippet))
+        self.logger.info('Processing Snippet: {}'.format(snippet))
         
         # TODO - process snippets
         result = self._random_string(N=7)
@@ -113,6 +116,7 @@ class VariableStateStore:
         return result
 
     def _extract_snippets(self, value: str, level: int=0, current_snippets: dict=dict())->dict:
+        self.logger.debug('level {}: processing value: {}'.format(level, value))
         new_snippets = dict()
         new_snippets[level] = list()
         if level > VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
@@ -121,21 +125,26 @@ class VariableStateStore:
             snippets = variable_snippet_extract(line=value)
             next_level_snippets = dict()
             for snippet in snippets:
-                next_level_snippets = _extract_snippets(self, value=snippet, level=level+1)
+                self.logger.debug('extracting next level snippet: {}'.format(snippet))
+                next_level_snippets = self._extract_snippets(value=snippet, level=level+1)
                 new_snippets[level].append(snippet)
             for deeper_level, snippet_collection in next_level_snippets.items():
+                if deeper_level not in new_snippets:
+                    new_snippets[deeper_level] = list()
                 new_snippets[deeper_level].append(snippet_collection)
         except:
-            self.logger('EXCEPTION: {}'.format(traceback.format_exc()))
+            self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
         return new_snippets
 
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
-        if skip_embedded_variable_processing is True:
-            return self._gvv(id=id, classification=classification)
-
+        line = self.get_variable(id=id, classification=classification).value
+        self.logger.debug('line={}'.format(line))
         value = self._gvv(id=id, classification=classification)
+        self.logger.debug('Initial Value: {}'.format(value))
+        if skip_embedded_variable_processing is True:
+            return value      
         final_value = value
-        snippets = self._extract_snippets(value='{}'.format(value))
+        snippets = self._extract_snippets(value='{}'.format(line))
         self.logger.debug('snippets={}'.format(snippets))
         snippets_levels = list(snippets.keys())
         snippets_levels.sort(reverse=True)
@@ -143,8 +152,10 @@ class VariableStateStore:
         for snippet_level in  snippets_levels:
             snippets_collection = snippets[snippet_level]
             self.logger.debug('Processing level {}'.format(snippet_level))
+            self.logger.debug('snippets_collection={}'.format(snippets_collection))
             for snippet in snippets_collection:
-                processed_value = _process_snippet(snippet=snippet)
+                self.logger.debug('Final processing for snippet: {}'.format(snippet))
+                processed_value = self._process_snippet(snippet=snippet)
                 final_value = final_value.replace(snippet, processed_value)
 
 

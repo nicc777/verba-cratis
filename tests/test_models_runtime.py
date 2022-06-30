@@ -113,7 +113,7 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
     def setUp(self):
         self.store = VariableStateStore()
         v1 = Variable(id='aa', initial_value='var1', classification='ref')
-        v2 = Variable(id='bb', initial_value='print_s(message="${{var:var1}}")', classification='func')
+        v2 = Variable(id='bb', initial_value='print_s(message="${}var:var1{}")'.format('{', '}'), classification='func')
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
 
@@ -144,6 +144,11 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
         self.assertTrue(result, 'var1')
+
+    def test_class_variable_state_store_ops_get_variable_value_bb(self):
+        result = self.store.get_variable_value(id='bb', classification='func', skip_embedded_variable_processing=False)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
 
 
 if __name__ == '__main__':

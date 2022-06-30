@@ -137,7 +137,7 @@ def get_logging_syslog_handler(
 
 
 def get_logger(
-    level=logging.INFO,
+    level=logging.DEBUG,    # TODO at some stage, make the default INFO
     include_logging_file_handler: bool=False,
     include_logging_stream_handler: bool=True,
     include_logging_timed_rotating_file_handler: bool=False,
