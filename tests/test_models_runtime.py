@@ -19,7 +19,7 @@ from acfop.models.runtime import *
 
 class TestClassVariable(unittest.TestCase):    # pragma: no cover
 
-    def test_class_init_defaults(self):
+    def test_class_variable_init_defaults(self):
         result = Variable(id='var1')
         self.assertIsNotNone(result)
         self.assertIsInstance(result, Variable)
@@ -28,17 +28,17 @@ class TestClassVariable(unittest.TestCase):    # pragma: no cover
         self.assertEqual(result.value_type, str)
         self.assertEqual(result.classification, 'build-variable')
 
-    def test_class_init_invalid_classification(self):
+    def test_class_variable_init_invalid_classification(self):
         with self.assertRaises(Exception) as context:
             Variable(id='var1', classification='invalid')
         self.assertTrue('Invalid Classification' in str(context.exception))
 
-    def test_class_init_invalid_value_and_value_type_mismatch(self):
+    def test_class_variable_init_invalid_value_and_value_type_mismatch(self):
         with self.assertRaises(Exception) as context:
             Variable(id='var1', initial_value=123, value_type=str)
         self.assertTrue('Initial value must match value_type or None' in str(context.exception))
 
-    def test_class_method_get_value(self):
+    def test_class_variable_method_get_value(self):
         for cf in ('build-variable', 'ref', 'exports'):
             result = Variable(id='var1', initial_value='test', classification=cf)
             self.assertEqual(result.get_value(), 'test', 'failed to fet value for classification {}'.format(cf))
@@ -57,10 +57,17 @@ echo $qty
             Variable(id='var1', initial_value='some value', classification='other').get_value()
         self.assertTrue('Classification "other" not yet supported' in str(context.exception))
 
-    def test_class_to_string(self):
+    def test_class_variable_to_string(self):
         result = str(Variable(id='var1', initial_value='test'))
         self.assertEqual(result, 'Variable: id=var1 classification=build-variable >> value as string: test')
 
+
+class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
+
+    def test_class_variable_state_store_init_defaults(self):
+        result = VariableStateStore()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, VariableStateStore)
 
 
 if __name__ == '__main__':
