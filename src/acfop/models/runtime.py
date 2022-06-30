@@ -14,6 +14,7 @@ import subprocess, shlex
 import hashlib
 import tempfile
 import os
+import random, string   # TODO temporary use - remove later
 
 
 VALID_CLASSIFICATIONS = (
@@ -97,10 +98,16 @@ class VariableStateStore:
                 return self.variables[classification][id].get_value(logger=self.logger)
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
+    def _random_string(self, chars=string.ascii_uppercase + string.digits, N=10)->str:  # TODO  remove after temporary use is done.
+        return ''.join(random.choice(chars) for _ in range(N))
+
     def _process_snippet(self, snippet:str)->str:
         result = None
         logger.info('Processing Snippet: {}'.format(snippet))
+        
         # TODO - process snippets
+        result = self._random_string(N=7)
+
         self.logger.debug('result={}'.format(result))
         return result
 
@@ -124,12 +131,19 @@ class VariableStateStore:
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
         if skip_embedded_variable_processing is True:
             return self._gvv(id=id, classification=classification, logger=logger)
-        final_value = None
 
         value = self._gvv(id=id, classification=classification, logger=logger)
         final_value = value
-        snippets = self._extract_snippets(self, value='{}'.format(value))
+        snippets = self._extract_snippets(value='{}'.format(value))
         self.logger.debug('snippets={}'.format(snippets))
+        snippets_levels = list(snippets.keys())
+        snippets_levels.sort(reverse=True)
+        logger.debug('snippets_levels={}'.format(snippets_levels))
+        for snippet_level, snippets_collection in  snippets_levels.items():
+            logger.debug('Processing level {}'.format(snippet_level))
+            for snippet in snippets_collection:
+                processed_value = _process_snippet(snippet=snippet)
+                final_value = final_value.replace(snippet, processed_value)
 
 
         # snippets = variable_snippet_extract(line=value)
