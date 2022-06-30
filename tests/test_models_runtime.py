@@ -97,6 +97,15 @@ class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
         self.assertTrue(len(store.variables['exports']) == 0)
         self.assertTrue(len(store.variables['shell']) == 0)
         self.assertTrue(len(store.variables['other']) == 0)
+
+    def test_class_variable_state_store_add_variable_force_exception(self):
+        store = VariableStateStore()
+        invalid_classification = 'not-going-to-work'
+        v1 = Variable(id='ref:var1', initial_value='', classification='ref')
+        v1.classification = invalid_classification
+        with self.assertRaises(Exception) as context:
+            store.add_variable(var=v1)
+        self.assertTrue('Variable classification "not-going-to-work" is not supported' in str(context.exception))
         
 
 
