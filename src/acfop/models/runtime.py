@@ -130,17 +130,18 @@ class VariableStateStore:
 
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
         if skip_embedded_variable_processing is True:
-            return self._gvv(id=id, classification=classification, logger=logger)
+            return self._gvv(id=id, classification=classification)
 
-        value = self._gvv(id=id, classification=classification, logger=logger)
+        value = self._gvv(id=id, classification=classification)
         final_value = value
         snippets = self._extract_snippets(value='{}'.format(value))
         self.logger.debug('snippets={}'.format(snippets))
         snippets_levels = list(snippets.keys())
         snippets_levels.sort(reverse=True)
-        logger.debug('snippets_levels={}'.format(snippets_levels))
-        for snippet_level, snippets_collection in  snippets_levels.items():
-            logger.debug('Processing level {}'.format(snippet_level))
+        self.logger.debug('snippets_levels={}'.format(snippets_levels))
+        for snippet_level in  snippets_levels:
+            snippets_collection = snippets[snippet_level]
+            self.logger.debug('Processing level {}'.format(snippet_level))
             for snippet in snippets_collection:
                 processed_value = _process_snippet(snippet=snippet)
                 final_value = final_value.replace(snippet, processed_value)
@@ -161,6 +162,7 @@ class VariableStateStore:
         #         )
         # final_value = value
 
+        self.logger.info('final_value={}'.format(final_value))
         return final_value
         
 
