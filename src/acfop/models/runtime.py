@@ -97,29 +97,55 @@ class VariableStateStore:
                 return self.variables[classification][id].get_value(logger=self.logger)
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
-    def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
-        if iteration_number > VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
+    def _process_snippet(self, snippet:str)->str:
+        result = None
+        logger.info('Processing Snippet: {}'.format(snippet))
+        # TODO - process snippets
+        self.logger.debug('result={}'.format(result))
+        return result
+
+    def _extract_snippets(self, value: str, level: int=0, current_snippets: dict=dict())->dict:
+        new_snippets = dict()
+        new_snippets[level] = list()
+        if level > VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
             raise Exception('Maximum embedded variable parsing depth exceeded')
+        try:
+            snippets = variable_snippet_extract(line=value)
+            next_level_snippets = dict()
+            for snippet in snippets:
+                next_level_snippets = _extract_snippets(self, value=snippet, level=level+1)
+                new_snippets[level].append(snippet)
+            for deeper_level, snippet_collection in next_level_snippets.items():
+                new_snippets[deeper_level].append(snippet_collection)
+        except:
+            self.logger('EXCEPTION: {}'.format(traceback.format_exc()))
+        return new_snippets
+
+    def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
         if skip_embedded_variable_processing is True:
             return self._gvv(id=id, classification=classification, logger=logger)
         final_value = None
-        next_iteration_number = iteration_number + 1
-        value = self._gvv(id=id, classification=classification, logger=logger)
 
-        snippets = variable_snippet_extract(line=value)
-        if len(snippets) > 0:
-            for snippet in snippets:
-                snippet_cs = hashlib.sha256(str(snippet).encode(('utf-8'))).hexdigest()
-                snippet_place_holder_string = '{}{}{}{}'.format(
-                    '$', '{', snippet, '}'
-                )
-                value = value.replace(snippet_place_holder_string, snippet_cs)
-                next_classification, next_id = snippet.split(':', 1)
-                value = value.replace(
-                    snippet_cs,
-                    self.get_variable_value(id=next_id, classification=next_classification, skip_embedded_variable_processing=skip_embedded_variable_processing, iteration_number=next_iteration_number)
-                )
+        value = self._gvv(id=id, classification=classification, logger=logger)
         final_value = value
+        snippets = self._extract_snippets(self, value='{}'.format(value))
+        self.logger.debug('snippets={}'.format(snippets))
+
+
+        # snippets = variable_snippet_extract(line=value)
+        # if len(snippets) > 0:
+        #     for snippet in snippets:
+        #         snippet_cs = hashlib.sha256(str(snippet).encode(('utf-8'))).hexdigest()
+        #         snippet_place_holder_string = '{}{}{}{}'.format(
+        #             '$', '{', snippet, '}'
+        #         )
+        #         value = value.replace(snippet_place_holder_string, snippet_cs)
+        #         next_classification, next_id = snippet.split(':', 1)
+        #         value = value.replace(
+        #             snippet_cs,
+        #             self.get_variable_value(id=next_id, classification=next_classification, skip_embedded_variable_processing=skip_embedded_variable_processing, iteration_number=next_iteration_number)
+        #         )
+        # final_value = value
 
         return final_value
         
