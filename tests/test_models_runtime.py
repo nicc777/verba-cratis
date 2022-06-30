@@ -112,25 +112,38 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
 
     def setUp(self):
         self.store = VariableStateStore()
-        v1 = Variable(id='var1', initial_value='', classification='ref')
-        v2 = Variable(id='print_s(message="${{var:var1}}")', initial_value='', classification='func')
+        v1 = Variable(id='aa', initial_value='var1', classification='ref')
+        v2 = Variable(id='bb', initial_value='print_s(message="${{var:var1}}")', classification='func')
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
 
     def test_class_variable_state_store_ops_get_variable(self):
-        result1 = self.store.get_variable(id='var1', classification='ref')
+        result1 = self.store.get_variable(id='aa', classification='ref')
         self.assertIsNotNone(result1)
         self.assertIsInstance(result1, Variable)
-        self.assertTrue(result1.id == 'var1')
-        result2 = self.store.get_variable(id='print_s(message="${{var:var1}}")', classification='func')
+        self.assertTrue(result1.id == 'aa')
+        result2 = self.store.get_variable(id='bb', classification='func')
         self.assertIsNotNone(result2)
         self.assertIsInstance(result2, Variable)
-        self.assertTrue(result2.id == 'print_s(message="${{var:var1}}")')
+        self.assertTrue(result2.id == 'bb')
 
     def test_class_variable_state_store_ops_get_variable_exception(self):
         with self.assertRaises(Exception) as context:
             self.store.get_variable(id='where-am-i', classification='func')
         self.assertTrue('Variable with id "where-am-i" with classification "func" does not exist' in str(context.exception))
+
+
+    def test_class_variable_state_store_ops_get_variable_value_aa_no_processing(self):
+        result = self.store.get_variable_value(id='aa', classification='ref', skip_embedded_variable_processing=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue(result, 'var1')
+
+    def test_class_variable_state_store_ops_get_variable_value_aa(self):
+        result = self.store.get_variable_value(id='aa', classification='ref', skip_embedded_variable_processing=False)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue(result, 'var1')
 
 
 if __name__ == '__main__':
