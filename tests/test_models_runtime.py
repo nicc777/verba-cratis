@@ -43,19 +43,16 @@ class TestClassVariable(unittest.TestCase):    # pragma: no cover
             result = Variable(id='var1', initial_value='test', classification=cf)
             self.assertEqual(result.get_value(), 'test', 'failed to fet value for classification {}'.format(cf))
         cmd = "find . -type f | awk -F\/ '{print $1}' | wc -l"
-        result2 = int(Variable(id='var1', initial_value=cmd, classification='shell').get_value())
-        self.assertIsInstance(result2, int)
-        self.assertTrue(result2 > 0)
+        result2 = Variable(id='var1', initial_value=cmd, classification='shell').get_value()
+        self.assertIsInstance(result2, str)
+        self.assertEqual(cmd, result2)
         cmd2 = """files=`find . -type f`
 qty=`echo $files | wc -l`
 echo $qty
         """
-        result3 = int(Variable(id='var2', initial_value=cmd2, classification='shell').get_value())
-        self.assertIsInstance(result2, int)
-        self.assertTrue(result2 > 0)
-        with self.assertRaises(Exception) as context:
-            Variable(id='var1', initial_value='some value', classification='other').get_value()
-        self.assertTrue('Classification "other" not yet supported' in str(context.exception))
+        result3 = Variable(id='var2', initial_value=cmd2, classification='shell').get_value()
+        self.assertIsInstance(result2, str)
+        self.assertEqual(cmd, result2)
 
     def test_class_variable_to_string(self):
         result = str(Variable(id='var1', initial_value='test'))
@@ -122,7 +119,7 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
 qty=`echo $files | wc -l`
 echo $qty
         """
-        v4 = Variable(id='cc', initial_value=cmd1, classification='shell')
+        v4 = Variable(id='dd', initial_value=cmd2, classification='shell')
 
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
@@ -164,6 +161,12 @@ echo $qty
 
     def test_class_variable_state_store_ops_get_variable_value_cc(self):
         result = int(self.store.get_variable_value(id='cc', classification='shell', skip_embedded_variable_processing=False))
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, int)
+        self.assertTrue(result > 0)
+
+    def test_class_variable_state_store_ops_get_variable_value_dd(self):
+        result = int(self.store.get_variable_value(id='dd', classification='shell', skip_embedded_variable_processing=False))
         self.assertIsNotNone(result)
         self.assertIsInstance(result, int)
         self.assertTrue(result > 0)
