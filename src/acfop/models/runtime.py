@@ -150,7 +150,7 @@ class VariableStateStore:
         line = self.get_variable(id=id, classification=classification).value
         self.logger.debug('line={}'.format(line))
         if skip_embedded_variable_processing is True:
-            return value      
+            return line      
         final_value = None
         
         snippets = self._extract_snippets(value='{}'.format(line))
@@ -183,14 +183,16 @@ class VariableStateStore:
                 self.logger.debug('snippets_levels={}'.format(snippets_levels))
 
         snippets_collection = snippets[0]
-        self.logger.debug('Processing level {}'.format(snippet_level))
         self.logger.debug('snippets_collection={}'.format(snippets_collection))
-        for snippet in snippets_collection:
-            self.logger.debug('Final processing for snippet: {}'.format(snippet))
-            classification, value = snippet.split(':', 1)
-            processed_value = self._process_snippet(value=value, classification=classification)
-            final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
-            self.logger.debug('final_value={}'.format(final_value))
+        if len(snippets_collection) > 0:
+            for snippet in snippets_collection:
+                self.logger.debug('Final processing for snippet: {}'.format(snippet))
+                classification, value = snippet.split(':', 1)
+                processed_value = self._process_snippet(value=value, classification=classification)
+                final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+                self.logger.debug('final_value={}'.format(final_value))
+        else:
+            final_value = line
 
 
 
