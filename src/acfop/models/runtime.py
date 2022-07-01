@@ -50,22 +50,25 @@ class Variable:
         self.value_checksum = hashlib.sha256(str(initial_value).encode(('utf-8'))).hexdigest()
 
     def get_value(self, logger=get_logger()):
-        if self.classification in ('build-variable', 'ref', 'exports'):
-            return self.value
-        elif self.classification == 'shell':
-            td = tempfile.gettempdir()
-            fn = '{}{}{}'.format(td, os.sep, self.value_checksum)
-            logger.debug('Created temp file {}'.format(fn))
-            with open(fn, 'w') as f:
-                f.write(self.value)
-            result = subprocess.run(['/bin/sh', fn], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            logger.info('[{}] Command: {}'.format(self.value_checksum, self.value))
-            logger.info('[{}] Command Result: {}'.format(self.value_checksum, result))
-            return result
-        elif self.classification == 'func':
-            # TODO implement function calling
-            return 'function-not-executed'
-        raise Exception('Classification "{}" not yet supported'.format(self.classification))
+        return self.value
+
+    # def get_value(self, logger=get_logger()):
+    #     if self.classification in ('build-variable', 'ref', 'exports'):
+    #         return self.value
+    #     elif self.classification == 'shell':
+    #         td = tempfile.gettempdir()
+    #         fn = '{}{}{}'.format(td, os.sep, self.value_checksum)
+    #         logger.debug('Created temp file {}'.format(fn))
+    #         with open(fn, 'w') as f:
+    #             f.write(self.value)
+    #         result = subprocess.run(['/bin/sh', fn], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    #         logger.info('[{}] Command: {}'.format(self.value_checksum, self.value))
+    #         logger.info('[{}] Command Result: {}'.format(self.value_checksum, result))
+    #         return result
+    #     elif self.classification == 'func':
+    #         # TODO implement function calling
+    #         return 'function-not-executed'
+    #     raise Exception('Classification "{}" not yet supported'.format(self.classification))
 
     def __str__(self):
         return 'Variable: id={} classification={} >> value as string: {}'.format(self.id, self.classification, self.value)
@@ -97,11 +100,33 @@ class VariableStateStore:
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
     def _gvv(self, id: str, classification: str='build-variable'):
+        variable = None
         if classification in self.variables:
             if id in self.variables[classification]:
-                return self.variables[classification][id].get_value(logger=self.logger)
-        raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
+                # variable = self.variables[classification][id].get_value(logger=self.logger)
+                variable = self.variables[classification][id]
+        if variable is None:
+            raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
+        if variable.classification in ('build-variable', 'ref', 'exports'):
+            return variable.value
+        elif variable.classification == 'shell':
+            td = tempfile.gettempdir()
+            fn = '{}{}{}'.format(td, os.sep, variable.value_checksum)
+            logger.debug('Created temp file {}'.format(fn))
+            with open(fn, 'w') as f:
+                f.write(variable.value)
+            result = subprocess.run(['/bin/sh', fn], stdout=subprocess.PIPE).stdout.decode('utf-8')
+            logger.info('[{}] Command: {}'.format(variable.value_checksum, variable.value))
+            logger.info('[{}] Command Result: {}'.format(variable.value_checksum, result))
+            return result
+        elif variable.classification == 'func':
+            # TODO implement function calling
+            return 'function-not-executed'
+        raise Exception('Classification "{}" not yet supported'.format(self.classification))
+
+
+        
     def _random_string(self, chars=string.ascii_uppercase + string.digits, N=10)->str:  # TODO  remove after temporary use is done.
         return ''.join(random.choice(chars) for _ in range(N))
 
@@ -145,7 +170,7 @@ class VariableStateStore:
         self.logger.debug('Initial Value: {}'.format(value))
         if skip_embedded_variable_processing is True:
             return value      
-        final_value = value
+        final_value = line
         snippets = self._extract_snippets(value='{}'.format(line))
         self.logger.debug('snippets={}'.format(snippets))
         snippets_levels = list(snippets.keys())
@@ -158,7 +183,8 @@ class VariableStateStore:
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
                 processed_value = self._process_snippet(snippet=snippet)
-                final_value = final_value.replace(snippet, '{}'.format(processed_value))
+                final_value = final_value.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+                self.logger.debug('INTERIM final_value={}'.format(final_value))
 
 
         # snippets = variable_snippet_extract(line=value)
