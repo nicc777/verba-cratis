@@ -10,12 +10,12 @@ Name                           Stmts   Miss  Cover   Missing
 src/acfop/__init__.py              3      0   100%
 src/acfop/acfop.py                11      0   100%
 src/acfop/models/__init__.py       0      0   100%
-src/acfop/models/runtime.py      106     15    86%   100, 103, 106-113, 119, 124-125, 127-129, 147-148
+src/acfop/models/runtime.py      128      5    96%   119, 122, 129, 143-144
 src/acfop/utils/__init__.py      192      0   100%
 src/acfop/utils/file_io.py        12      0   100%
-src/acfop/utils/parser.py        105      0   100%
+src/acfop/utils/parser.py        106      0   100%
 ------------------------------------------------------------
-TOTAL                            429     15    97%
+TOTAL                            452      5    99%
 ```
 
 ## Other Tasks
