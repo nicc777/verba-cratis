@@ -115,7 +115,7 @@ class VariableStateStore:
         self.logger.debug('result={}'.format(result))
         return result
 
-    def _extract_snippets(self, value: str, level: int=0, current_snippets: dict=dict())->dict:
+    def _extract_snippets(self, value: str, level: int=0)->dict:
         self.logger.debug('level {}: processing value: {}'.format(level, value))
         new_snippets = dict()
         new_snippets[level] = list()
@@ -123,15 +123,17 @@ class VariableStateStore:
             raise Exception('Maximum embedded variable parsing depth exceeded')
         try:
             snippets = variable_snippet_extract(line=value)
+            self.logger.debug('snippets={}'.format(snippets))
             next_level_snippets = dict()
             for snippet in snippets:
                 self.logger.debug('extracting next level snippet: {}'.format(snippet))
                 next_level_snippets = self._extract_snippets(value=snippet, level=level+1)
                 new_snippets[level].append(snippet)
             for deeper_level, snippet_collection in next_level_snippets.items():
-                if deeper_level not in new_snippets:
-                    new_snippets[deeper_level] = list()
-                new_snippets[deeper_level].append(snippet_collection)
+                if len(snippet_collection) > 0:
+                    if deeper_level not in new_snippets:
+                        new_snippets[deeper_level] = list()
+                    new_snippets[deeper_level] = snippet_collection
         except:
             self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
         return new_snippets
@@ -156,7 +158,7 @@ class VariableStateStore:
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
                 processed_value = self._process_snippet(snippet=snippet)
-                final_value = final_value.replace(snippet, processed_value)
+                final_value = final_value.replace(snippet, '{}'.format(processed_value))
 
 
         # snippets = variable_snippet_extract(line=value)

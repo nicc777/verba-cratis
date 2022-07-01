@@ -113,7 +113,7 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
     def setUp(self):
         self.store = VariableStateStore()
         v1 = Variable(id='aa', initial_value='var1', classification='ref')
-        v2 = Variable(id='bb', initial_value='print_s(message="${}var:var1{}")'.format('{', '}'), classification='func')
+        v2 = Variable(id='bb', initial_value='${}func:print_s(message="${}var:var1{}"){}'.format('{', '{', '}', '}'), classification='func')
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
 
