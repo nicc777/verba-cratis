@@ -52,24 +52,6 @@ class Variable:
     def get_value(self, logger=get_logger()):
         return self.value
 
-    # def get_value(self, logger=get_logger()):
-    #     if self.classification in ('build-variable', 'ref', 'exports'):
-    #         return self.value
-    #     elif self.classification == 'shell':
-    #         td = tempfile.gettempdir()
-    #         fn = '{}{}{}'.format(td, os.sep, self.value_checksum)
-    #         logger.debug('Created temp file {}'.format(fn))
-    #         with open(fn, 'w') as f:
-    #             f.write(self.value)
-    #         result = subprocess.run(['/bin/sh', fn], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    #         logger.info('[{}] Command: {}'.format(self.value_checksum, self.value))
-    #         logger.info('[{}] Command Result: {}'.format(self.value_checksum, result))
-    #         return result
-    #     elif self.classification == 'func':
-    #         # TODO implement function calling
-    #         return 'function-not-executed'
-    #     raise Exception('Classification "{}" not yet supported'.format(self.classification))
-
     def __str__(self):
         return 'Variable: id={} classification={} >> value as string: {}'.format(self.id, self.classification, self.value)
 
@@ -164,14 +146,8 @@ class VariableStateStore:
             self.logger.debug('snippets_collection={}'.format(snippets_collection))
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
-
-                # processed_value = self._process_snippet(snippet=snippet)
-
                 classification, value = snippet.split(':', 1)
                 processed_value = self._process_snippet(value=value, classification=classification)
-                
-
-                
                 line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('line={}'.format(final_value))
                 snippets = self._extract_snippets(value='{}'.format(line))                
@@ -190,57 +166,8 @@ class VariableStateStore:
                 final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('final_value={}'.format(final_value))
         else:
-            # classification, value = line.split(':', 1)
             final_value = self._process_snippet(value=line, classification=classification)
-            # final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
             self.logger.debug('final_value={}'.format(final_value))
-
-
-
-
-
-        # self.logger.debug('snippets={}'.format(snippets))
-        # snippets_levels = list(snippets.keys())
-        # snippets_levels.sort(reverse=True)
-        # self.logger.debug('snippets_levels={}'.format(snippets_levels))
-
-
-
-        # for snippet_level in  snippets_levels:
-        #     snippets_collection = snippets[snippet_level]
-        #     self.logger.debug('Processing level {}'.format(snippet_level))
-        #     self.logger.debug('snippets_collection={}'.format(snippets_collection))
-        #     for snippet in snippets_collection:
-        #         self.logger.debug('Final processing for snippet: {}'.format(snippet))
-        #         processed_value = self._process_snippet(snippet=snippet)
-        #         final_value = final_value.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
-        #         self.logger.debug('INTERIM final_value={}'.format(final_value))
-
-
-
-
-
-
-
-        # snippets = variable_snippet_extract(line=value)
-        # if len(snippets) > 0:
-        #     for snippet in snippets:
-        #         snippet_cs = hashlib.sha256(str(snippet).encode(('utf-8'))).hexdigest()
-        #         snippet_place_holder_string = '{}{}{}{}'.format(
-        #             '$', '{', snippet, '}'
-        #         )
-        #         value = value.replace(snippet_place_holder_string, snippet_cs)
-        #         next_classification, next_id = snippet.split(':', 1)
-        #         value = value.replace(
-        #             snippet_cs,
-        #             self.get_variable_value(id=next_id, classification=next_classification, skip_embedded_variable_processing=skip_embedded_variable_processing, iteration_number=next_iteration_number)
-        #         )
-        # final_value = value
-
         self.logger.info('final_value={}'.format(final_value))
         return final_value
         
-
-
-
-
