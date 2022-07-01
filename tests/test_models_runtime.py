@@ -172,6 +172,28 @@ echo $qty
         self.assertTrue(result > 0)
 
 
+class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
+
+    def test_class_variable_state_store_ops_get_variable_value_exceeding_max_depth_processing(self):
+        value = 'ref:${}ref:${}ref:${}ref:${}ref:${}ref:value{}{}{}{}{}'.format(
+            '{', 
+            '{', 
+            '{', 
+            '{', 
+            '{', 
+            '}', 
+            '}', 
+            '}', 
+            '}', 
+            '}'
+        )
+        v1 = Variable(id='aa', initial_value=value, classification='ref')
+        store = VariableStateStore()
+        store.add_variable(var=v1)
+        with self.assertRaises(Exception) as context:
+            store.get_variable_value(id='aa', classification='ref')
+        self.assertTrue('Maximum embedded variable parsing depth exceeded' in str(context.exception))
+
 
 if __name__ == '__main__':
     unittest.main()

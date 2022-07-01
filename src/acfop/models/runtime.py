@@ -98,7 +98,7 @@ class VariableStateStore:
         elif classification == 'func':
             # TODO implement function calling
             return 'function-not-executed'
-        raise Exception('Classification "{}" not yet supported'.format(classification))
+        raise Exception('Classification "{}" not yet supported'.format(classification)) # pragma: no cover
         
     def _extract_snippets(self, value: str, level: int=0)->dict:
         self.logger.debug('level {}: processing value: {}'.format(level, value))
