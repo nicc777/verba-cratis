@@ -106,19 +106,17 @@ class VariableStateStore:
             td = tempfile.gettempdir()
             value_checksum = hashlib.sha256(str(value).encode(('utf-8'))).hexdigest()
             fn = '{}{}{}'.format(td, os.sep, value_checksum)
-            logger.debug('Created temp file {}'.format(fn))
+            self.logger.debug('Created temp file {}'.format(fn))
             with open(fn, 'w') as f:
                 f.write(value)
             result = subprocess.run(['/bin/sh', fn], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            logger.info('[{}] Command: {}'.format(variable.value_checksum, variable.value))
-            logger.info('[{}] Command Result: {}'.format(variable.value_checksum, result))
+            self.logger.info('[{}] Command: {}'.format(value_checksum, value))
+            self.logger.info('[{}] Command Result: {}'.format(value_checksum, result))
             return result
         elif classification == 'func':
             # TODO implement function calling
             return 'function-not-executed'
         raise Exception('Classification "{}" not yet supported'.format(classification))
-
-
         
     def _random_string(self, chars=string.ascii_uppercase + string.digits, N=10)->str:  # TODO  remove after temporary use is done.
         return ''.join(random.choice(chars) for _ in range(N))
@@ -192,7 +190,10 @@ class VariableStateStore:
                 final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('final_value={}'.format(final_value))
         else:
-            final_value = line
+            # classification, value = line.split(':', 1)
+            final_value = self._process_snippet(value=line, classification=classification)
+            # final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+            self.logger.debug('final_value={}'.format(final_value))
 
 
 
