@@ -114,8 +114,20 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
         self.store = VariableStateStore()
         v1 = Variable(id='aa', initial_value='var1', classification='ref')
         v2 = Variable(id='bb', initial_value='${}func:print_s(message="${}ref:var1{}"){}'.format('{', '{', '}', '}'), classification='func')
+
+        cmd1 = "find . -type f | awk -F\/ '{print $1}' | wc -l"
+        v3 = Variable(id='cc', initial_value=cmd1, classification='shell')
+
+        cmd2 = """files=`find . -type f`
+qty=`echo $files | wc -l`
+echo $qty
+        """
+        v4 = Variable(id='cc', initial_value=cmd1, classification='shell')
+
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
+        self.store.add_variable(var=v3)
+        self.store.add_variable(var=v4)
 
     def test_class_variable_state_store_ops_get_variable(self):
         result1 = self.store.get_variable(id='aa', classification='ref')
@@ -149,6 +161,13 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
         result = self.store.get_variable_value(id='bb', classification='func', skip_embedded_variable_processing=False)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
+
+    def test_class_variable_state_store_ops_get_variable_value_cc(self):
+        result = int(self.store.get_variable_value(id='cc', classification='shell', skip_embedded_variable_processing=False))
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, int)
+        self.assertTrue(result > 0)
+
 
 
 if __name__ == '__main__':

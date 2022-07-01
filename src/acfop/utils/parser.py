@@ -225,6 +225,8 @@ def variable_snippet_extract(line: str)->list:
                 if line[i+1] == '{':
                     snippet_started = True
                     i = i+2 # Skip the next character
+                else:
+                    i = i+1
             else:
                 i = i+1
         else:
