@@ -100,9 +100,6 @@ class VariableStateStore:
             return 'function-not-executed'
         raise Exception('Classification "{}" not yet supported'.format(classification))
         
-    def _random_string(self, chars=string.ascii_uppercase + string.digits, N=10)->str:  # TODO  remove after temporary use is done.
-        return ''.join(random.choice(chars) for _ in range(N))
-
     def _extract_snippets(self, value: str, level: int=0)->dict:
         self.logger.debug('level {}: processing value: {}'.format(level, value))
         new_snippets = dict()
