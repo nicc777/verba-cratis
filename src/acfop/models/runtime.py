@@ -170,21 +170,64 @@ class VariableStateStore:
         self.logger.debug('Initial Value: {}'.format(value))
         if skip_embedded_variable_processing is True:
             return value      
-        final_value = line
+        final_value = None
+        
         snippets = self._extract_snippets(value='{}'.format(line))
         self.logger.debug('snippets={}'.format(snippets))
         snippets_levels = list(snippets.keys())
         snippets_levels.sort(reverse=True)
         self.logger.debug('snippets_levels={}'.format(snippets_levels))
-        for snippet_level in  snippets_levels:
+
+        while len(snippets_levels) > 1:
+            snippet_level = snippets_levels[0]
             snippets_collection = snippets[snippet_level]
             self.logger.debug('Processing level {}'.format(snippet_level))
             self.logger.debug('snippets_collection={}'.format(snippets_collection))
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
                 processed_value = self._process_snippet(snippet=snippet)
-                final_value = final_value.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
-                self.logger.debug('INTERIM final_value={}'.format(final_value))
+                line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+                self.logger.debug('line={}'.format(final_value))
+                snippets = self._extract_snippets(value='{}'.format(line))                
+                self.logger.debug('snippets={}'.format(snippets))
+                snippets_levels = list(snippets.keys())
+                snippets_levels.sort(reverse=True)
+                self.logger.debug('snippets_levels={}'.format(snippets_levels))
+
+        snippets_collection = snippets[0]
+        self.logger.debug('Processing level {}'.format(snippet_level))
+        self.logger.debug('snippets_collection={}'.format(snippets_collection))
+        for snippet in snippets_collection:
+            self.logger.debug('Final processing for snippet: {}'.format(snippet))
+            processed_value = self._process_snippet(snippet=snippet)
+            final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+            self.logger.debug('final_value={}'.format(final_value))
+
+
+
+
+
+        # self.logger.debug('snippets={}'.format(snippets))
+        # snippets_levels = list(snippets.keys())
+        # snippets_levels.sort(reverse=True)
+        # self.logger.debug('snippets_levels={}'.format(snippets_levels))
+
+
+
+        # for snippet_level in  snippets_levels:
+        #     snippets_collection = snippets[snippet_level]
+        #     self.logger.debug('Processing level {}'.format(snippet_level))
+        #     self.logger.debug('snippets_collection={}'.format(snippets_collection))
+        #     for snippet in snippets_collection:
+        #         self.logger.debug('Final processing for snippet: {}'.format(snippet))
+        #         processed_value = self._process_snippet(snippet=snippet)
+        #         final_value = final_value.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+        #         self.logger.debug('INTERIM final_value={}'.format(final_value))
+
+
+
+
+
 
 
         # snippets = variable_snippet_extract(line=value)
