@@ -99,46 +99,29 @@ class VariableStateStore:
                 return self.variables[classification][id]
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
-    def _gvv(self, id: str, classification: str='build-variable'):
-        variable = None
-        if classification in self.variables:
-            if id in self.variables[classification]:
-                # variable = self.variables[classification][id].get_value(logger=self.logger)
-                variable = self.variables[classification][id]
-        if variable is None:
-            raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
-
-        if variable.classification in ('build-variable', 'ref', 'exports'):
-            return variable.value
-        elif variable.classification == 'shell':
+    def _process_snippet(self, value: str, classification: str='build-variable'):
+        if classification in ('build-variable', 'ref', 'exports'):
+            return value
+        elif classification == 'shell':
             td = tempfile.gettempdir()
-            fn = '{}{}{}'.format(td, os.sep, variable.value_checksum)
+            value_checksum = hashlib.sha256(str(value).encode(('utf-8'))).hexdigest()
+            fn = '{}{}{}'.format(td, os.sep, value_checksum)
             logger.debug('Created temp file {}'.format(fn))
             with open(fn, 'w') as f:
-                f.write(variable.value)
+                f.write(value)
             result = subprocess.run(['/bin/sh', fn], stdout=subprocess.PIPE).stdout.decode('utf-8')
             logger.info('[{}] Command: {}'.format(variable.value_checksum, variable.value))
             logger.info('[{}] Command Result: {}'.format(variable.value_checksum, result))
             return result
-        elif variable.classification == 'func':
+        elif classification == 'func':
             # TODO implement function calling
             return 'function-not-executed'
-        raise Exception('Classification "{}" not yet supported'.format(self.classification))
+        raise Exception('Classification "{}" not yet supported'.format(classification))
 
 
         
     def _random_string(self, chars=string.ascii_uppercase + string.digits, N=10)->str:  # TODO  remove after temporary use is done.
         return ''.join(random.choice(chars) for _ in range(N))
-
-    def _process_snippet(self, snippet:str)->str:
-        result = None
-        self.logger.info('Processing Snippet: {}'.format(snippet))
-        
-        # TODO - process snippets
-        result = self._random_string(N=7)
-
-        self.logger.debug('result={}'.format(result))
-        return result
 
     def _extract_snippets(self, value: str, level: int=0)->dict:
         self.logger.debug('level {}: processing value: {}'.format(level, value))
@@ -166,8 +149,6 @@ class VariableStateStore:
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
         line = self.get_variable(id=id, classification=classification).value
         self.logger.debug('line={}'.format(line))
-        value = self._gvv(id=id, classification=classification)
-        self.logger.debug('Initial Value: {}'.format(value))
         if skip_embedded_variable_processing is True:
             return value      
         final_value = None
@@ -185,7 +166,14 @@ class VariableStateStore:
             self.logger.debug('snippets_collection={}'.format(snippets_collection))
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
-                processed_value = self._process_snippet(snippet=snippet)
+
+                # processed_value = self._process_snippet(snippet=snippet)
+
+                classification, value = snippet.split(':', 1)
+                processed_value = self._process_snippet(value=value, classification=classification)
+                
+
+                
                 line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('line={}'.format(final_value))
                 snippets = self._extract_snippets(value='{}'.format(line))                
@@ -199,7 +187,8 @@ class VariableStateStore:
         self.logger.debug('snippets_collection={}'.format(snippets_collection))
         for snippet in snippets_collection:
             self.logger.debug('Final processing for snippet: {}'.format(snippet))
-            processed_value = self._process_snippet(snippet=snippet)
+            classification, value = snippet.split(':', 1)
+            processed_value = self._process_snippet(value=value, classification=classification)
             final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
             self.logger.debug('final_value={}'.format(final_value))
 
