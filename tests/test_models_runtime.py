@@ -175,6 +175,7 @@ echo $qty
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
 
     def test_class_variable_state_store_ops_get_variable_value_exceeding_max_depth_processing(self):
+        # 'ref:${ref:${ref:${ref:${ref:${ref:value}}}}}'
         value = 'ref:${}ref:${}ref:${}ref:${}ref:${}ref:value{}{}{}{}{}'.format(
             '{', 
             '{', 

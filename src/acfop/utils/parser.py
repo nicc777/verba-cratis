@@ -221,7 +221,7 @@ def variable_snippet_extract(line: str)->list:
     while(i < line_len):
         c = line[i]
         if snippet_started is False:
-            if line[i] == '$' and i < line_len-2:
+            if c == '$' and i < line_len-2:
                 if line[i+1] == '{':
                     snippet_started = True
                     i = i+2 # Skip the next character
@@ -234,11 +234,12 @@ def variable_snippet_extract(line: str)->list:
                 if line[i+1] == '{':
                     close_bracket_skip_count += 1
                     current_snippet = '{}{}'.format(current_snippet, c)
-            elif line[i] == '}' and close_bracket_skip_count == 0:
+            elif c == '}' and close_bracket_skip_count == 0:
                 snippet_started = False
                 snippets.append(current_snippet)
                 current_snippet = ""
-            elif line[i] == '}' and close_bracket_skip_count > 0:
+                # current_snippet = '{}{}'.format(current_snippet, c)
+            elif c == '}' and close_bracket_skip_count > 0:
                 close_bracket_skip_count -= 1
                 current_snippet = '{}{}'.format(current_snippet, c)
             else:

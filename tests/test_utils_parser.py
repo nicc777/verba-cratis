@@ -36,13 +36,13 @@ class TestFunctionVariableSnippetExtract(unittest.TestCase):    # pragma: no cov
         self.assertTrue(len(result) == 0)
 
     def test_string_with_one_variable(self):
-        line = 'XXX ${var:var1} XXX'
+        line = 'ABC ${var:var1} DEF'
         result = variable_snippet_extract(line=line)
         self.assertTrue(len(result) == 1)
         self.assertEqual('var:var1', result[0])
 
     def test_string_with_two_variables(self):
-        line = 'XXX ${var:var1} XXX ${func:print_s()} XXX'
+        line = 'ABC ${var:var1} DEF ${func:print_s()} XXX'
         result = variable_snippet_extract(line=line)
         self.assertTrue(len(result) == 2)
         self.assertEqual('var:var1', result[0])
@@ -52,7 +52,7 @@ class TestFunctionVariableSnippetExtract(unittest.TestCase):    # pragma: no cov
         """
             NOTE: Even in the case of nested variables, still only the first level variables are extracted.
         """
-        line = 'XXX ${var:var1} XXX ${func:print_s(message="${var:var1}")} XXX'
+        line = 'ABC ${var:var1} DEF ${func:print_s(message="${var:var1}")} GHI'
         result = variable_snippet_extract(line=line)
         self.assertTrue(len(result) == 2)
         self.assertEqual('var:var1', result[0])
