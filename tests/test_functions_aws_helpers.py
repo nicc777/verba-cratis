@@ -33,7 +33,7 @@ class Boto3Mock:    # pragma: no cover
     def __init__(self):
         pass
 
-    def client(service_name: str, region_name: str='eu-central-1'):
+    def client(self, service_name: str, region_name: str='eu-central-1'):
         if service_name == 'sts':
             return StsClientMock()
 
@@ -50,7 +50,7 @@ class TestFunctionGetAwsIdentity(unittest.TestCase):    # pragma: no cover
         self.assertTrue('UserId' in result, 'result contained "{}"'.format(result))
         self.assertFalse('Account' in result, 'result contained "{}"'.format(result))
         self.assertFalse('Arn' in result, 'result contained "{}"'.format(result))
-        self.assertEqual(result, 'AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
+        self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
 
 
 if __name__ == '__main__':
