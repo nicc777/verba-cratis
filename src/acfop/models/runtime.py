@@ -82,7 +82,7 @@ class VariableStateStore:
                 return self.variables[classification][id]
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
-    def _process_snippet(self, value: str, classification: str='build-variable'):
+    def _process_snippet(self, value: str, classification: str='build-variable', function_fixed_parameters: dict=dict()):
         if classification in ('build-variable', 'ref', 'exports'):
             return value
         elif classification == 'shell':
@@ -97,6 +97,7 @@ class VariableStateStore:
             self.logger.info('[{}] Command Result: {}'.format(value_checksum, result))
             return result
         elif classification == 'func':
+            # Note: Initial parameters is in function_fixed_parameters
             # TODO implement function calling
             return 'function-not-executed'
         raise Exception('Classification "{}" not yet supported'.format(classification)) # pragma: no cover
@@ -125,7 +126,8 @@ class VariableStateStore:
         return new_snippets
 
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
-        line = self.get_variable(id=id, classification=classification).value
+        variable = self.get_variable(id=id, classification=classification)
+        line = variable.value
         self.logger.debug('line={}'.format(line))
         if skip_embedded_variable_processing is True:
             return line      
@@ -145,7 +147,7 @@ class VariableStateStore:
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
                 classification, value = snippet.split(':', 1)
-                processed_value = self._process_snippet(value=value, classification=classification)
+                processed_value = self._process_snippet(value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
                 line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('line={}'.format(final_value))
                 snippets = self._extract_snippets(value='{}'.format(line))                
