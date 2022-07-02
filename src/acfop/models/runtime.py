@@ -106,21 +106,21 @@ class VariableStateStore:
         new_snippets[level] = list()
         if level > VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
             raise Exception('Maximum embedded variable parsing depth exceeded')
-        try:
-            snippets = variable_snippet_extract(line=value)
-            self.logger.debug('snippets={}'.format(snippets))
-            next_level_snippets = dict()
-            for snippet in snippets:
-                self.logger.debug('extracting next level snippet: {}'.format(snippet))
-                next_level_snippets = self._extract_snippets(value=snippet, level=level+1)
-                new_snippets[level].append(snippet)
+        
+        snippets = variable_snippet_extract(line=value)
+        self.logger.debug('snippets={}'.format(snippets))
+        next_level_snippets = dict()
+        for snippet in snippets:
+            new_snippets[level].append(snippet)
+        for snippet in snippets:
+            self.logger.debug('extracting next level snippet: {}'.format(snippet))
+            next_level_snippets = self._extract_snippets(value=snippet, level=level+1)
             for deeper_level, snippet_collection in next_level_snippets.items():
                 if len(snippet_collection) > 0:
                     if deeper_level not in new_snippets:
                         new_snippets[deeper_level] = list()
                     new_snippets[deeper_level] = snippet_collection
-        except:
-            self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
+        
         return new_snippets
 
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
