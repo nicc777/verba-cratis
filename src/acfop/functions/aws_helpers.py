@@ -6,6 +6,7 @@ from acfop.utils import get_logger
 
 def get_aws_identity(
     boto3_clazz: object=boto3,
+    region: str='eu-central-1',
     logger=get_logger(),
     include_account_if_available: bool=False,
     include_arn_if_available: bool=False,
@@ -42,6 +43,7 @@ def get_aws_identity(
 
     Args:
         boto3_clazz (boto3): The boto3 class. This parameter will only be set during unit testing and has no other real relevance
+        region (str): The AWS region to target, if applicable. This parameter will be set by the deployer
         logger (logging.Logger): The logger function to call for logging events. This parameter will be set by the deployer
         include_account_if_available(bool): USER_PARAMETER: Boolean to indicate if the Account ID must be included
         include_arn_if_available(bool): USER_PARAMETER: Boolean to indicate if the Account ID must be included
@@ -53,6 +55,7 @@ def get_aws_identity(
     """
     result = ''
     try:
+        client = get_client(client_name='sts', region=region, boto3_clazz=boto3_clazz)
         response = client.get_caller_identity()
         if 'UserId' in response:
             result = 'UserId={}'.format(response['UserId'])
