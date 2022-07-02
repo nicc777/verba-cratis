@@ -37,7 +37,7 @@ class Variable:
 
             TODO Ass support for "exports" classification - requires a process to add exports after CloudFormation template deployment
     """
-    def __init__(self, id: str, initial_value: object=None, value_type: object=str, classification: str='build-variable'):
+    def __init__(self, id: str, initial_value: object=None, value_type: object=str, classification: str='build-variable', extra_parameters: dict=dict()):
         if classification not in VALID_CLASSIFICATIONS:
             raise Exception('Invalid Classification')
         if initial_value is not None:
@@ -48,6 +48,7 @@ class Variable:
         self.value_type = value_type
         self.classification = classification
         self.value_checksum = hashlib.sha256(str(initial_value).encode(('utf-8'))).hexdigest()
+        self.extra_parameters = extra_parameters    # Used for Functions only
 
     def get_value(self, logger=get_logger()):
         return self.value
