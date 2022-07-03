@@ -38,6 +38,22 @@ class Boto3Mock:    # pragma: no cover
             return StsClientMock()
 
 
+class StsClientRaiseExceptionMock:    # pragma: no cover
+
+    def get_caller_identity(self)->dict:
+        raise Exception('An Error')
+
+
+class Boto3ExceptionMock:    # pragma: no cover
+
+    def __init__(self):
+        pass
+
+    def client(self, service_name: str, region_name: str='eu-central-1'):
+        if service_name == 'sts':
+            return StsClientRaiseExceptionMock()
+
+
 class TestFunctionGetAwsIdentity(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
@@ -69,6 +85,12 @@ class TestFunctionGetAwsIdentity(unittest.TestCase):    # pragma: no cover
         self.assertTrue('Account' in result, 'result contained "{}"'.format(result))
         self.assertTrue('Arn' in result, 'result contained "{}"'.format(result))
         self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC|Account=123456789012|Arn=arn:aws:iam::214483558614:user/my-user', 'result contained "{}"'.format(result))
+
+    def test_call_get_aws_identity_force_exception(self):
+        result = get_aws_identity(boto3_clazz=Boto3ExceptionMock())
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, '')
 
 
 if __name__ == '__main__':
