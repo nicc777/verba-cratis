@@ -52,6 +52,15 @@ class TestFunctionGetAwsIdentity(unittest.TestCase):    # pragma: no cover
         self.assertFalse('Arn' in result, 'result contained "{}"'.format(result))
         self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
 
+    def test_call_get_aws_identity_account_and_default_separator(self):
+        result = get_aws_identity(boto3_clazz=self.boto3_clazz, include_account_if_available=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue('UserId' in result, 'result contained "{}"'.format(result))
+        self.assertTrue('Account' in result, 'result contained "{}"'.format(result))
+        self.assertFalse('Arn' in result, 'result contained "{}"'.format(result))
+        self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC,Account=123456789012', 'result contained "{}"'.format(result))
+
 
 if __name__ == '__main__':
     unittest.main()
