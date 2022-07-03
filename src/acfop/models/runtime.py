@@ -105,6 +105,7 @@ class VariableStateStore:
 
             if '(' in value:
                 function_name = value.split('(')[0]
+                function_name = function_name.split(':')[1]
                 self.logger.debug('function_name={}'.format(function_name))
                 if function_name not in FUNCTIONS:
                     raise Exception('Function "{}" is not a recognized function.'.format(function_name))

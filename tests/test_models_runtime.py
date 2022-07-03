@@ -121,12 +121,14 @@ echo $qty
         """
         v4 = Variable(id='dd', initial_value=cmd2, classification='shell')
         v5 = Variable(id='ee', initial_value='${}func:get_aws_identity{}'.format('{', '{', '}', '}'), classification='func')
+        v6 = Variable(id='ff', initial_value='${}func:get_aws_identity(){}'.format('{', '{', '}', '}'), classification='func')
 
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
         self.store.add_variable(var=v3)
         self.store.add_variable(var=v4)
         self.store.add_variable(var=v5)
+        self.store.add_variable(var=v6)
 
     def test_class_variable_state_store_ops_get_variable(self):
         result1 = self.store.get_variable(id='aa', classification='ref')
@@ -165,6 +167,11 @@ echo $qty
         with self.assertRaises(Exception) as context:
             self.store.get_variable_value(id='ee', classification='func', skip_embedded_variable_processing=False)
         self.assertTrue('Value does not appear to contain a function call' in str(context.exception))
+
+    def test_class_variable_state_store_ops_get_variable_value_ff_expect_success(self):
+        result = self.store.get_variable_value(id='ff', classification='func', skip_embedded_variable_processing=False)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
 
     def test_class_variable_state_store_ops_get_variable_value_cc(self):
         result = int(self.store.get_variable_value(id='cc', classification='shell', skip_embedded_variable_processing=False))
