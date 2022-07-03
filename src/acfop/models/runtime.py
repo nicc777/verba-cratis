@@ -10,6 +10,7 @@
 import traceback
 from acfop.utils import get_logger
 from acfop.utils.parser import variable_snippet_extract
+from acfop.functions import user_function_factory
 import subprocess, shlex
 import hashlib
 import tempfile
@@ -26,6 +27,7 @@ VALID_CLASSIFICATIONS = (
     'other',    # When using Variable.get_value(), this type will force an exception
 )
 VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH = 3
+FUNCTIONS = user_function_factory()
 
 
 class Variable:
@@ -83,6 +85,7 @@ class VariableStateStore:
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
     def _process_snippet(self, value: str, classification: str='build-variable', function_fixed_parameters: dict=dict()):
+        self.logger.debug('value={}'.format(value))
         if classification in ('build-variable', 'ref', 'exports'):
             return value
         elif classification == 'shell':
@@ -99,6 +102,14 @@ class VariableStateStore:
         elif classification == 'func':
             # Note: Initial parameters is in function_fixed_parameters
             # TODO implement function calling
+
+            if '(' in value:
+                function_name = value.split('(')[0]
+                self.logger.debug('function_name={}'.format(function_name))
+                if function_name not in FUNCTIONS:
+                    raise Exception('Function "{}" is not a recognized function.'.format(function_name))
+            else:
+                raise Exception('Value does not appear to contain a function call')
             return 'function-not-executed'
         raise Exception('Classification "{}" not yet supported'.format(classification)) # pragma: no cover
         

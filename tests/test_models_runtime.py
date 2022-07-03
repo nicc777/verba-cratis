@@ -154,10 +154,10 @@ echo $qty
         self.assertIsInstance(result, str)
         self.assertTrue(result, 'var1')
 
-    def test_class_variable_state_store_ops_get_variable_value_bb(self):
-        result = self.store.get_variable_value(id='bb', classification='func', skip_embedded_variable_processing=False)
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, str)
+    def test_class_variable_state_store_ops_get_variable_value_bb_expect_exception(self):
+        with self.assertRaises(Exception) as context:
+            self.store.get_variable_value(id='bb', classification='func', skip_embedded_variable_processing=False)
+        self.assertTrue('Function "print_s" is not a recognized function.' in str(context.exception))
 
     def test_class_variable_state_store_ops_get_variable_value_cc(self):
         result = int(self.store.get_variable_value(id='cc', classification='shell', skip_embedded_variable_processing=False))
