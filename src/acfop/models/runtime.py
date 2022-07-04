@@ -75,6 +75,7 @@ class VariableStateStore:
         self.logger.info('Added variable id "{}" with classification "{}"'.format(var.id, var.classification))
         if var.classification in self.variables:
             self.variables[var.classification][var.id] = var
+            self.logger.debug('added variable: {}'.format(str(self.variables[var.classification][var.id])))
             return
         raise Exception('Variable classification "{}" is not supported'.format(var.classification))
 
