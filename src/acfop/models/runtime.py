@@ -85,6 +85,17 @@ class VariableStateStore:
                 return self.variables[classification][id]
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
+    def _get_function_parameters(self, function_name: str, function_fixed_parameters: dict=dict())->dict:
+        parameters = dict()
+        self.logger.debug('function_fixed_parameters={}'.format(function_fixed_parameters))
+        function_default_parameters = FUNCTIONS[function_name]['fixed_parameters']
+        self.logger.debug('function_default_parameters={}'.format(function_default_parameters))
+        for k, v in function_default_parameters.items():
+            parameters[k] = v
+        for k, v in function_fixed_parameters.items():
+            parameters[k] = v
+        return parameters
+
     def _process_snippet(self, value: str, classification: str='build-variable', function_fixed_parameters: dict=dict()):
         self.logger.debug('value={}'.format(value))
         if classification in ('build-variable', 'ref', 'exports'):
@@ -111,6 +122,8 @@ class VariableStateStore:
                 self.logger.debug('function_name={}'.format(function_name))
                 if function_name not in FUNCTIONS:
                     raise Exception('Function "{}" is not a recognized function.'.format(function_name))
+                parameters = self._get_function_parameters(function_name=function_name, function_fixed_parameters=function_fixed_parameters)
+                self.logger.debug('parameters={}'.format(parameters))
             else:
                 raise Exception('Value does not appear to contain a function call')
             return 'function-not-executed'
@@ -176,11 +189,11 @@ class VariableStateStore:
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
                 classification, value = snippet.split(':', 1)
-                processed_value = self._process_snippet(value=value, classification=classification)
+                processed_value = self._process_snippet(value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
                 final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('final_value={}'.format(final_value))
         else:
-            final_value = self._process_snippet(value=line, classification=classification)
+            final_value = self._process_snippet(value=line, classification=classification, function_fixed_parameters=variable.extra_parameters)
             self.logger.debug('final_value={}'.format(final_value))
         self.logger.info('final_value={}'.format(final_value))
         return final_value
