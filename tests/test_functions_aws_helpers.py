@@ -6,8 +6,6 @@
     https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
-from tests.mocks import *
-
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../src")
