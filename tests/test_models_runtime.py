@@ -6,8 +6,6 @@
     https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
-from tests.mocks import *
-
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../src")
@@ -15,8 +13,27 @@ print('sys.path={}'.format(sys.path))
 
 import unittest
 
-
 from acfop.models.runtime import *
+
+
+class StsClientMock:    # pragma: no cover
+
+    def get_caller_identity(self)->dict:
+        return {
+            "UserId": "AIDACCCCCCCCCCCCCCCCC",
+            "Account": "123456789012",
+            "Arn": "arn:aws:iam::214483558614:user/my-user",
+        }
+
+
+class Boto3Mock:    # pragma: no cover
+
+    def __init__(self):
+        pass
+
+    def client(self, service_name: str, region_name: str='eu-central-1'):
+        if service_name == 'sts':
+            return StsClientMock()
 
 
 class TestClassVariable(unittest.TestCase):    # pragma: no cover

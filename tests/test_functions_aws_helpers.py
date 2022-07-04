@@ -20,6 +20,42 @@ from acfop.functions.aws_helpers import get_aws_identity
 from acfop.utils import *
 
 
+class StsClientMock:    # pragma: no cover
+
+    def get_caller_identity(self)->dict:
+        return {
+            "UserId": "AIDACCCCCCCCCCCCCCCCC",
+            "Account": "123456789012",
+            "Arn": "arn:aws:iam::214483558614:user/my-user",
+        }
+
+
+class Boto3Mock:    # pragma: no cover
+
+    def __init__(self):
+        pass
+
+    def client(self, service_name: str, region_name: str='eu-central-1'):
+        if service_name == 'sts':
+            return StsClientMock()
+
+
+class StsClientRaiseExceptionMock:    # pragma: no cover
+
+    def get_caller_identity(self)->dict:
+        raise Exception('An Error')
+
+
+class Boto3ExceptionMock:    # pragma: no cover
+
+    def __init__(self):
+        pass
+
+    def client(self, service_name: str, region_name: str='eu-central-1'):
+        if service_name == 'sts':
+            return StsClientRaiseExceptionMock()
+
+
 class TestFunctionGetAwsIdentity(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
