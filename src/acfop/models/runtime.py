@@ -112,6 +112,7 @@ class VariableStateStore:
             self.logger.info('[{}] Command Result: {}'.format(value_checksum, result))
             return result
         elif classification == 'func':
+            function_exec_result = ''
             # Note: Initial parameters is in function_fixed_parameters
             # TODO implement function calling
 
@@ -124,9 +125,13 @@ class VariableStateStore:
                     raise Exception('Function "{}" is not a recognized function.'.format(function_name))
                 parameters = self._get_function_parameters(function_name=function_name, function_fixed_parameters=function_fixed_parameters)
                 self.logger.debug('parameters={}'.format(parameters))
+                try:
+                    function_exec_result = FUNCTIONS[function_name]['f'](**parameters)
+                except:
+                    self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
             else:
                 raise Exception('Value does not appear to contain a function call')
-            return 'function-not-executed'
+            return function_exec_result
         raise Exception('Classification "{}" not yet supported'.format(classification)) # pragma: no cover
         
     def _extract_snippets(self, value: str, level: int=0)->dict:
