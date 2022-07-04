@@ -113,9 +113,6 @@ class VariableStateStore:
             return result
         elif classification == 'func':
             function_exec_result = ''
-            # Note: Initial parameters is in function_fixed_parameters
-            # TODO implement function calling
-
             if '(' in value:
                 function_name = value.split('(')[0]
                 if ':' in function_name:
@@ -124,6 +121,9 @@ class VariableStateStore:
                 if function_name not in FUNCTIONS:
                     raise Exception('Function "{}" is not a recognized function.'.format(function_name))
                 parameters = self._get_function_parameters(function_name=function_name, function_fixed_parameters=function_fixed_parameters)
+                # TODO Still need to extract the parameters from the Variable inside the braces: get_aws_identity(include_account_if_available=hh)
+                #                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                # TODO Fix the Variable replacement............................................................................................^^
                 self.logger.debug('parameters={}'.format(parameters))
                 try:
                     function_exec_result = FUNCTIONS[function_name]['f'](**parameters)
