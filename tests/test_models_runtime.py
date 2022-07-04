@@ -210,7 +210,6 @@ echo $qty
         self.assertIsInstance(result, int)
         self.assertTrue(result > 0)
 
-    @unittest.skip("Function processing not yet implemented, so this will fail")    # TODO re-activate test
     def test_class_variable_state_store_ops_get_variable_value_gg(self):
         result = self.store.get_variable_value(id='gg', classification='func')
         self.assertIsNotNone(result)
@@ -223,7 +222,6 @@ echo $qty
         self.assertIsInstance(result, bool)
         self.assertTrue(result)
 
-    @unittest.skip("Function processing not yet implemented, so this will fail")    # TODO re-activate test
     def test_class_variable_state_store_ops_get_variable_value_ii(self):
         result = self.store.get_variable_value(id='i', classification='func')
         self.assertIsNotNone(result)
