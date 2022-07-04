@@ -6,6 +6,8 @@
     https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
+from tests.mocks import *
+
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../src")
@@ -122,9 +124,9 @@ echo $qty
         v4 = Variable(id='dd', initial_value=cmd2, classification='shell')
         v5 = Variable(id='ee', initial_value='${}func:get_aws_identity{}'.format('{', '{', '}', '}'), classification='func')
         v6 = Variable(id='ff', initial_value='${}func:get_aws_identity(){}'.format('{', '{', '}', '}'), classification='func')
-        v7 = Variable(id='gg', initial_value='${}func:get_aws_identity(include_account_if_available=True){}'.format('{', '}'), classification='func')
+        v7 = Variable(id='gg', initial_value='${}func:get_aws_identity(include_account_if_available=True){}'.format('{', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
         v8 = Variable(id='hh', initial_value=True, classification='build-variable', value_type=bool)
-        v9 = Variable(id='ii', initial_value='${}func:get_aws_identity(include_account_if_available=${}ref:hh{}){}'.format('{', '{', '}', '}'), classification='func')
+        v9 = Variable(id='ii', initial_value='${}func:get_aws_identity(include_account_if_available=${}ref:hh{}){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
 
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
@@ -190,6 +192,13 @@ echo $qty
         self.assertIsNotNone(result)
         self.assertIsInstance(result, int)
         self.assertTrue(result > 0)
+
+    @unittest.skip("Function processing not yet implemented, so this will fail")    # TODO re-activate test
+    def test_class_variable_state_store_ops_get_variable_value_gg(self):
+        result = self.store.get_variable_value(id='gg', classification='func')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
 
 
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
