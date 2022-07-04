@@ -217,6 +217,19 @@ echo $qty
         self.assertIsInstance(result, str)
         self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
 
+    def test_class_variable_state_store_ops_get_variable_value_hh(self):
+        result = self.store.get_variable_value(id='hh', classification='build-variable')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    @unittest.skip("Function processing not yet implemented, so this will fail")    # TODO re-activate test
+    def test_class_variable_state_store_ops_get_variable_value_ii(self):
+        result = self.store.get_variable_value(id='i', classification='func')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC,Account=123456789012', 'result contained "{}"'.format(result))
+
 
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
 
