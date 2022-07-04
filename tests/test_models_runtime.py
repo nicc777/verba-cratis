@@ -122,6 +122,9 @@ echo $qty
         v4 = Variable(id='dd', initial_value=cmd2, classification='shell')
         v5 = Variable(id='ee', initial_value='${}func:get_aws_identity{}'.format('{', '{', '}', '}'), classification='func')
         v6 = Variable(id='ff', initial_value='${}func:get_aws_identity(){}'.format('{', '{', '}', '}'), classification='func')
+        v7 = Variable(id='gg', initial_value='${}func:get_aws_identity(include_account_if_available=True){}'.format('{', '}'), classification='func')
+        v8 = Variable(id='hh', initial_value=True, classification='build-variable', value_type=bool)
+        v9 = Variable(id='ii', initial_value='${}func:get_aws_identity(include_account_if_available=${}ref:hh{}){}'.format('{', '{', '}', '}'), classification='func')
 
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
@@ -129,6 +132,9 @@ echo $qty
         self.store.add_variable(var=v4)
         self.store.add_variable(var=v5)
         self.store.add_variable(var=v6)
+        self.store.add_variable(var=v7)
+        self.store.add_variable(var=v8)
+        self.store.add_variable(var=v9)
 
     def test_class_variable_state_store_ops_get_variable(self):
         result1 = self.store.get_variable(id='aa', classification='ref')
