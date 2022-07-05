@@ -9,6 +9,7 @@
         "datagram",
         "DGRAM",
         "Docstrings",
+        "funccall",
         "levelname",
         "socktype"
     ],

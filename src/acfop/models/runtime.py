@@ -15,10 +15,12 @@ import subprocess, shlex
 import hashlib
 import tempfile
 import os
+import re
+import ast
 import random, string   # TODO temporary use - remove later
 
 
-VALID_CLASSIFICATIONS = (
+VALID_CLASSIFICATIONS = (   # TODO add env variable type
     'build-variable',
     'ref',
     'exports',
@@ -85,7 +87,7 @@ class VariableStateStore:
                 return self.variables[classification][id]
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
-    def _get_function_parameters(self, function_name: str, function_fixed_parameters: dict=dict())->dict:
+    def _get_function_parameters(self, function_name: str, function_fixed_parameters: dict=dict(), template_parameters: dict=dict())->dict:
         parameters = dict()
         self.logger.debug('function_fixed_parameters={}'.format(function_fixed_parameters))
         function_default_parameters = FUNCTIONS[function_name]['fixed_parameters']
@@ -94,11 +96,36 @@ class VariableStateStore:
             parameters[k] = v
         for k, v in function_fixed_parameters.items():
             parameters[k] = v
+        for k, v in template_parameters.items():
+            parameters[k] = v
+        return parameters
+
+    def _extract_function_parameters(self, value: str)->dict:
+        # value: value = 'get_aws_identity(include_account_if_available="hh", blabla=True, something="1,2")'
+        parameters = dict()
+        try:
+            value = value.strip()
+            value = value.partition('(')[2].rpartition(')')[0]  # 'include_account_if_available="hh", blabla=True, something="1,2"'
+            self.logger.debug('value={}'.format(value))
+
+            # Following 5 line from https://stackoverflow.com/questions/49723047/parsing-a-string-as-a-python-argument-list
+            args = 'f({})'.format(value)
+            tree = ast.parse(args)
+            funccall = tree.body[0].value
+            args = [ast.literal_eval(arg) for arg in funccall.args]
+            kwargs = {arg.arg: ast.literal_eval(arg.value) for arg in funccall.keywords}
+
+            # For now, we only support kwargs... 
+            parameters = kwargs
+
+        except:
+            self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
+        self.logger.debug('parameters={}'.format(parameters))
         return parameters
 
     def _process_snippet(self, value: str, classification: str='build-variable', function_fixed_parameters: dict=dict()):
         self.logger.debug('value={}'.format(value))
-        if classification in ('build-variable', 'ref', 'exports'):
+        if classification in ('build-variable', 'ref', 'exports'):  # TODO add support for env
             return value
         elif classification == 'shell':
             td = tempfile.gettempdir()
@@ -120,10 +147,13 @@ class VariableStateStore:
                 self.logger.debug('function_name={}'.format(function_name))
                 if function_name not in FUNCTIONS:
                     raise Exception('Function "{}" is not a recognized function.'.format(function_name))
-                parameters = self._get_function_parameters(function_name=function_name, function_fixed_parameters=function_fixed_parameters)
-                # TODO Still need to extract the parameters from the Variable inside the braces: get_aws_identity(include_account_if_available=hh)
-                #                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                # TODO Fix the Variable replacement............................................................................................^^
+                parameters = self._get_function_parameters(
+                    function_name=function_name,
+                    function_fixed_parameters=function_fixed_parameters,
+                    template_parameters=self._extract_function_parameters(value=value)
+                )
+                #                                      get_aws_identity(include_account_if_available=hh)
+                # TODO Fix the Variable replacement..................................................^^
                 self.logger.debug('parameters={}'.format(parameters))
                 try:
                     function_exec_result = FUNCTIONS[function_name]['f'](**parameters)
