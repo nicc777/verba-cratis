@@ -321,3 +321,27 @@ Configuration:
   ]
 }
 ```
+
+# Extracting function parameters from a string
+
+Reference: https://stackoverflow.com/questions/49723047/parsing-a-string-as-a-python-argument-list
+
+Example:
+
+```python
+import ast
+def parse_args(args):
+    args = 'f({})'.format(args)
+    tree = ast.parse(args)
+    funccall = tree.body[0].value
+    args = [ast.literal_eval(arg) for arg in funccall.args]
+    kwargs = {arg.arg: ast.literal_eval(arg.value) for arg in funccall.keywords}
+    return args, kwargs
+
+
+value = 'get_aws_identity(include_account_if_available=True, blabla=123, something="1,2")'
+value = value.partition('(')[2].rpartition(')')[0]
+parse_args(value)
+```
+
+The result: `([], {'include_account_if_available': True, 'blabla': 123, 'something': '1,2'})`
