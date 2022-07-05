@@ -129,7 +129,7 @@ class VariableStateStore:
         if classification == 'ref':     # FIXME this is not working
             return variable.value
         if classification in ('build-variable', 'exports'):  # TODO add support for env
-            return value
+            return variable.value
         elif classification == 'shell':
             td = tempfile.gettempdir()
             value_checksum = hashlib.sha256(str(value).encode(('utf-8'))).hexdigest()
@@ -211,8 +211,14 @@ class VariableStateStore:
             self.logger.debug('snippets_collection={}'.format(snippets_collection))
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
+
+                next_id = snippet.split(':')[1]
+                next_classification = snippet.split(':')[0]
+                self.logger.debug('next_id={}   next_classification={}'.format(next_id, next_classification))
+                next_variable = self.get_variable_value(id=next_id, classification=next_classification)
+
                 classification, value = snippet.split(':', 1)
-                processed_value = self._process_snippet(variable=variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
+                processed_value = self._process_snippet(variable=next_variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
                 line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('line={}'.format(final_value))
                 snippets = self._extract_snippets(value='{}'.format(line))                
