@@ -123,9 +123,12 @@ class VariableStateStore:
         self.logger.debug('parameters={}'.format(parameters))
         return parameters
 
-    def _process_snippet(self, value: str, classification: str='build-variable', function_fixed_parameters: dict=dict()):
+    def _process_snippet(self, variable: Variable, value: str, classification: str='build-variable', function_fixed_parameters: dict=dict()):
+        self.logger.debug('variable={}'.format(str(variable)))
         self.logger.debug('value={}'.format(value))
-        if classification in ('build-variable', 'ref', 'exports'):  # TODO add support for env
+        if classification == 'ref':     # FIXME this is not working
+            return variable.value
+        if classification in ('build-variable', 'exports'):  # TODO add support for env
             return value
         elif classification == 'shell':
             td = tempfile.gettempdir()
@@ -209,7 +212,7 @@ class VariableStateStore:
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
                 classification, value = snippet.split(':', 1)
-                processed_value = self._process_snippet(value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
+                processed_value = self._process_snippet(variable=variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
                 line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('line={}'.format(final_value))
                 snippets = self._extract_snippets(value='{}'.format(line))                
@@ -224,11 +227,11 @@ class VariableStateStore:
             for snippet in snippets_collection:
                 self.logger.debug('Final processing for snippet: {}'.format(snippet))
                 classification, value = snippet.split(':', 1)
-                processed_value = self._process_snippet(value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
+                processed_value = self._process_snippet(variable=variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
                 final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                 self.logger.debug('final_value={}'.format(final_value))
         else:
-            final_value = self._process_snippet(value=line, classification=classification, function_fixed_parameters=variable.extra_parameters)
+            final_value = self._process_snippet(variable=variable, value=line, classification=classification, function_fixed_parameters=variable.extra_parameters)
             self.logger.debug('final_value={}'.format(final_value))
         self.logger.info('final_value={}'.format(final_value))
         return final_value
