@@ -253,8 +253,13 @@ class VariableStateStore:
                     snippets[level_idx-1] = new_lower_snippets
                     self.logger.debug('      snippets={}'.format(snippets))
                 
+                snippets.pop(level_idx) # Remove this level
 
                 level_idx -= 1
+
+        self.logger.debug('snippets={}'.format(snippets))
+        variable_value = variable.value
+        
         
         processed_value = self._process_snippet(variable=variable, classification=classification, function_fixed_parameters=variable.extra_parameters)
         self.logger.debug('processed_value={}'.format(processed_value))
