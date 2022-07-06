@@ -123,28 +123,27 @@ class VariableStateStore:
         self.logger.debug('parameters={}'.format(parameters))
         return parameters
 
-    def _process_snippet(self, variable: Variable, value: str, classification: str='build-variable', function_fixed_parameters: dict=dict()):
+    def _process_snippet(self, variable: Variable, classification: str='build-variable', function_fixed_parameters: dict=dict()):
         self.logger.debug('variable={}'.format(str(variable)))
-        self.logger.debug('value={}'.format(value))
         if classification == 'ref':     # FIXME this is not working
             return variable.value
         if classification in ('build-variable', 'exports'):  # TODO add support for env
             return variable.value
         elif classification == 'shell':
             td = tempfile.gettempdir()
-            value_checksum = hashlib.sha256(str(value).encode(('utf-8'))).hexdigest()
+            value_checksum = hashlib.sha256(str(variable.value).encode(('utf-8'))).hexdigest()
             fn = '{}{}{}'.format(td, os.sep, value_checksum)
             self.logger.debug('Created temp file {}'.format(fn))
             with open(fn, 'w') as f:
-                f.write(value)
+                f.write(variable.value)
             result = subprocess.run(['/bin/sh', fn], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            self.logger.info('[{}] Command: {}'.format(value_checksum, value))
+            self.logger.info('[{}] Command: {}'.format(value_checksum, variable.value))
             self.logger.info('[{}] Command Result: {}'.format(value_checksum, result))
             return result
         elif classification == 'func':
             function_exec_result = ''
-            if '(' in value:
-                function_name = value.split('(')[0]
+            if '(' in variable.value:
+                function_name = variable.value.split('(')[0]
                 if ':' in function_name:
                     function_name = function_name.split(':')[1]
                 self.logger.debug('function_name={}'.format(function_name))
@@ -153,20 +152,46 @@ class VariableStateStore:
                 parameters = self._get_function_parameters(
                     function_name=function_name,
                     function_fixed_parameters=function_fixed_parameters,
-                    template_parameters=self._extract_function_parameters(value=value)
+                    template_parameters=self._extract_function_parameters(value=variable.value)
                 )
                 #                                      get_aws_identity(include_account_if_available=hh)
                 # TODO Fix the Variable replacement..................................................^^
                 self.logger.debug('parameters={}'.format(parameters))
                 try:
                     function_exec_result = FUNCTIONS[function_name]['f'](**parameters)
+                    self.logger.debug('EXEC RESULT :: function_exec_result={}'.format(function_exec_result))
                 except:
                     self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
             else:
                 raise Exception('Value does not appear to contain a function call')
+            self.logger.debug('function_exec_result={}'.format(function_exec_result))
             return function_exec_result
         raise Exception('Classification "{}" not yet supported'.format(classification)) # pragma: no cover
         
+    def _extract_snippets_OLD(self, value: str, level: int=0)->dict:
+        self.logger.debug('level {}: processing value: {}'.format(level, value))
+        new_snippets = dict()
+        new_snippets[level] = list()
+        if level > VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
+            raise Exception('Maximum embedded variable parsing depth exceeded')
+        
+        snippets = variable_snippet_extract(line=value)
+        self.logger.debug('snippets={}'.format(snippets))
+        next_level_snippets = dict()
+        for snippet in snippets:
+            new_snippets[level].append(snippet)
+        for snippet in snippets:
+            self.logger.debug('extracting next level snippet: {}'.format(snippet))
+            next_level_snippets = self._extract_snippets(value=snippet, level=level+1)
+            self.logger.debug('next_level_snippets={}'.format(next_level_snippets))
+            for deeper_level, snippet_collection in next_level_snippets.items():
+                if len(snippet_collection) > 0:
+                    if deeper_level not in new_snippets:
+                        new_snippets[deeper_level] = list()
+                    new_snippets[deeper_level] = snippet_collection
+        
+        return new_snippets
+
     def _extract_snippets(self, value: str, level: int=0)->dict:
         self.logger.debug('level {}: processing value: {}'.format(level, value))
         new_snippets = dict()
@@ -182,6 +207,7 @@ class VariableStateStore:
         for snippet in snippets:
             self.logger.debug('extracting next level snippet: {}'.format(snippet))
             next_level_snippets = self._extract_snippets(value=snippet, level=level+1)
+            self.logger.debug('next_level_snippets={}'.format(next_level_snippets))
             for deeper_level, snippet_collection in next_level_snippets.items():
                 if len(snippet_collection) > 0:
                     if deeper_level not in new_snippets:
@@ -191,6 +217,52 @@ class VariableStateStore:
         return new_snippets
 
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
+        variable = self.get_variable(id=id, classification=classification)
+        if skip_embedded_variable_processing is True:
+            self.logger.debug('skip_embedded_variable_processing :: returning value "{}" of type "{}"'.format(variable.value, variable.value_type))
+            return variable.value  
+        snippets = self._extract_snippets(value='{}'.format(variable.value))
+        self.logger.debug('snippets={}'.format(snippets))
+        if len(snippets) > 0:
+            level_idx = len(snippets) - 1
+            while level_idx > 0:
+                snippets_on_this_level = snippets[level_idx]
+                self.logger.debug('Processing IDX {}   -> qty of snippets_on_this_level={}'.format(level_idx, len(snippets_on_this_level)))
+                self.logger.debug('  snippets={}'.format(snippets))
+                for snippet in snippets_on_this_level:
+                    
+                    snippet_template_placeholder = '${}{}{}'.format('{',snippet,'}')
+                    self.logger.debug('  snippet_template_placeholder={}'.format(snippet_template_placeholder))
+
+                    next_id = snippet.split(':')[1]
+                    next_classification = snippet.split(':')[0]
+                    self.logger.debug('    next_id={}   next_classification={}'.format(next_id, next_classification))
+                    snippet_calculated_value = self.get_variable_value(id=next_id, classification=next_classification, skip_embedded_variable_processing=True)
+                    self.logger.debug('      snippet_calculated_value={}'.format(snippet_calculated_value))
+
+                    # Replace all lower level snippet templates with the calculated values
+                    snippets_lower_level = snippets[level_idx-1]
+                    new_lower_snippets = list()
+                    for snippet_on_lower_level in snippets_lower_level:
+                        self.logger.debug('        Processing template replacements for lower level snippet:{}'.format(snippet_on_lower_level))
+                        self.logger.debug('        snippet_template_placeholder={}'.format(snippet_template_placeholder))
+                        self.logger.debug('        snippet_calculated_value={}'.format(snippet_calculated_value))
+                        new_line = snippet_on_lower_level.replace('{}'.format(snippet_template_placeholder), '{}'.format(snippet_calculated_value))
+                        self.logger.debug('        new_line={}'.format(new_line))
+                        new_lower_snippets.append(
+                            snippet_on_lower_level.replace('{}'.format(snippet_template_placeholder), '{}'.format(snippet_calculated_value))
+                        )
+                    snippets[level_idx-1] = new_lower_snippets
+                
+
+                level_idx -= 1
+        
+        processed_value = self._process_snippet(variable=variable, classification=classification, function_fixed_parameters=variable.extra_parameters)
+        self.logger.debug('processed_value={}'.format(processed_value))
+
+        return 'INVALID VALUE'
+
+    def get_variable_value_OLD(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
         variable = self.get_variable(id=id, classification=classification)
         line = variable.value
         self.logger.debug('line={}'.format(line))
@@ -208,7 +280,11 @@ class VariableStateStore:
             idx = len(snippets_levels) -1
             while idx > 0:              # Level 1
                 idx_lower = idx - 1     # Level 0
-                
+
+                processed_value = self._process_snippet(variable=next_variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
+
+                idx -= 1
+
 
 
 
