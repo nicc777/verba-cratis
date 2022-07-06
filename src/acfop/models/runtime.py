@@ -199,10 +199,22 @@ class VariableStateStore:
         final_value = None
         
         snippets = self._extract_snippets(value='{}'.format(line))
-        self.logger.debug('snippets={}'.format(snippets))
-        snippets_levels = list(snippets.keys())
-        snippets_levels.sort(reverse=True)
-        self.logger.debug('snippets_levels={}'.format(snippets_levels))
+        if len(snippets) > 0:
+            self.logger.debug('snippets={}'.format(snippets))
+            snippets_levels = list(snippets.keys())
+            snippets_levels.sort(reverse=True)
+            self.logger.debug('snippets_levels={}'.format(snippets_levels))
+
+            idx = len(snippets_levels) -1
+            while idx > 0:              # Level 1
+                idx_lower = idx - 1     # Level 0
+                
+
+
+
+
+
+
 
         while len(snippets_levels) > 1:
             snippet_level = snippets_levels[0]
@@ -216,30 +228,33 @@ class VariableStateStore:
                 next_classification = snippet.split(':')[0]
                 self.logger.debug('next_id={}   next_classification={}'.format(next_id, next_classification))
                 next_variable = self.get_variable_value(id=next_id, classification=next_classification)
+                self.logger.debug('next_variable={}'.format(next_variable))
 
-                classification, value = snippet.split(':', 1)
-                processed_value = self._process_snippet(variable=next_variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
-                self.logger.debug('processed_value={}'.format(processed_value))
-                line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
-                self.logger.debug('line={}'.format(line))
-                snippets = self._extract_snippets(value='{}'.format(line))                
-                self.logger.debug('snippets={}'.format(snippets))
-                snippets_levels = list(snippets.keys())
-                snippets_levels.sort(reverse=True)
-                self.logger.debug('snippets_levels={}'.format(snippets_levels))
+                if ':' in next_variable:
+                    classification, value = snippet.split(':', 1)
+                    processed_value = self._process_snippet(variable=next_variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
+                    self.logger.debug('processed_value={}'.format(processed_value))
+                    line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+                    self.logger.debug('line={}'.format(line))
+                    # snippets = self._extract_snippets(value='{}'.format(line))                
+                    # self.logger.debug('snippets={}'.format(snippets))
+                    # snippets_levels = list(snippets.keys())
+                    # snippets_levels.sort(reverse=True)
+                    # self.logger.debug('snippets_levels={}'.format(snippets_levels))
 
-        snippets_collection = snippets[0]
-        self.logger.debug('snippets_collection={}'.format(snippets_collection))
-        if len(snippets_collection) > 0:
-            for snippet in snippets_collection:
-                self.logger.debug('Final processing for snippet: {}'.format(snippet))
-                classification, value = snippet.split(':', 1)
-                processed_value = self._process_snippet(variable=variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
-                final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+        if len(snippets) > 0:
+            snippets_collection = snippets[0]
+            self.logger.debug('snippets_collection={}'.format(snippets_collection))
+            if len(snippets_collection) > 0:
+                for snippet in snippets_collection:
+                    self.logger.debug('Final processing for snippet: {}'.format(snippet))
+                    classification, value = snippet.split(':', 1)
+                    processed_value = self._process_snippet(variable=variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
+                    final_value = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
+                    self.logger.debug('final_value={}'.format(final_value))
+            else:
+                final_value = self._process_snippet(variable=variable, value=line, classification=classification, function_fixed_parameters=variable.extra_parameters)
                 self.logger.debug('final_value={}'.format(final_value))
-        else:
-            final_value = self._process_snippet(variable=variable, value=line, classification=classification, function_fixed_parameters=variable.extra_parameters)
-            self.logger.debug('final_value={}'.format(final_value))
         self.logger.info('final_value={}'.format(final_value))
         return final_value
         
