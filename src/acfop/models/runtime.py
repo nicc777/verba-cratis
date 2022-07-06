@@ -249,10 +249,9 @@ class VariableStateStore:
                         self.logger.debug('        snippet_calculated_value={}'.format(snippet_calculated_value))
                         new_line = snippet_on_lower_level.replace('{}'.format(snippet_template_placeholder), '{}'.format(snippet_calculated_value))
                         self.logger.debug('        new_line={}'.format(new_line))
-                        new_lower_snippets.append(
-                            snippet_on_lower_level.replace('{}'.format(snippet_template_placeholder), '{}'.format(snippet_calculated_value))
-                        )
+                        new_lower_snippets.append(new_line)
                     snippets[level_idx-1] = new_lower_snippets
+                    self.logger.debug('      snippets={}'.format(snippets))
                 
 
                 level_idx -= 1
