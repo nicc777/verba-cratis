@@ -219,8 +219,9 @@ class VariableStateStore:
 
                 classification, value = snippet.split(':', 1)
                 processed_value = self._process_snippet(variable=next_variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
+                self.logger.debug('processed_value={}'.format(processed_value))
                 line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
-                self.logger.debug('line={}'.format(final_value))
+                self.logger.debug('line={}'.format(line))
                 snippets = self._extract_snippets(value='{}'.format(line))                
                 self.logger.debug('snippets={}'.format(snippets))
                 snippets_levels = list(snippets.keys())
