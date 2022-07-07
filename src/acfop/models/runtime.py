@@ -123,8 +123,9 @@ class VariableStateStore:
         self.logger.debug('parameters={}'.format(parameters))
         return parameters
 
-    def _process_snippet(self, variable: Variable, classification: str='build-variable', function_fixed_parameters: dict=dict()):
+    def _process_snippet(self, variable: Variable, function_fixed_parameters: dict=dict()):
         self.logger.debug('variable={}'.format(str(variable)))
+        classification = variable.classification
         if classification == 'ref':     # FIXME this is not working
             return variable.value
         if classification in ('build-variable', 'exports'):  # TODO add support for env
@@ -216,55 +217,72 @@ class VariableStateStore:
         
         return new_snippets
 
+    def _process_snippet_line(self, line: str, variable: Variable=None)->str:
+        self.logger.debug('line={}'.format(line))
+        result = line
+        if variable is not None:
+            result = variable.value
+        snippets = self._extract_snippets(value='{}'.format(line))
+        self.logger.debug('snippets={}'.format(snippets))
+        if len(snippets) > 0:
+            for snippet in snippets[0]:
+                template_line = '${}{}{}'.format('{', snippet, '}')
+                self.logger.debug('Getting value for snippet "{}"'.format(template_line))
+
+                next_id = snippet.split(':', 1)[1]
+                next_classification = snippet.split(':', 1)[0]
+                self.logger.debug('next_id={}   next_classification={}'.format(next_id, next_classification))
+                next_variable = self.get_variable(id=next_id)
+                self.logger.debug('next_variable={}'.format(str(next_variable)))
+
+                snippet_value = self._process_snippet_line(line=snippet, variable=next_variable) 
+                self.logger.debug('snippet_value={}'.format(snippet_value))
+                result = result.replace(template_line, snippet_value)
+                self.logger.debug('result={}'.format(result))
+
+        
+        self.logger.debug('Getting new temporary variable from current variable: {}'.format(str(variable)))
+        self.logger.debug('    initial_value will be set to "{}"'.format(result))
+        new_variable = Variable(id=variable.id, initial_value=result, value_type=variable.value_type, classification=variable.classification, extra_parameters=variable.extra_parameters)
+        self.logger.debug('new_variable={}'.format(str(new_variable)))
+
+        result = '{}'.format(self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters))
+
+
+        self.logger.debug('result={}'.format(result))
+        return result
+
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
         variable = self.get_variable(id=id, classification=classification)
         if skip_embedded_variable_processing is True:
             self.logger.debug('skip_embedded_variable_processing :: returning value "{}" of type "{}"'.format(variable.value, variable.value_type))
             return variable.value  
+        result = variable.value
         snippets = self._extract_snippets(value='{}'.format(variable.value))
         self.logger.debug('snippets={}'.format(snippets))
         if len(snippets) > 0:
-            level_idx = len(snippets) - 1
-            while level_idx > 0:
-                snippets_on_this_level = snippets[level_idx]
-                self.logger.debug('Processing IDX {}   -> qty of snippets_on_this_level={}'.format(level_idx, len(snippets_on_this_level)))
-                self.logger.debug('  snippets={}'.format(snippets))
-                for snippet in snippets_on_this_level:
-                    
-                    snippet_template_placeholder = '${}{}{}'.format('{',snippet,'}')
-                    self.logger.debug('  snippet_template_placeholder={}'.format(snippet_template_placeholder))
+            for snippet in snippets[0]:
+                self.logger.debug('Getting value for snippet "{}"'.format(snippet))
+                snippet_value = self._process_snippet_line(line=snippet, variable=variable)
+                template_line = '${}{}{}'.format('{', snippet, '}')
+                result = result.replace(template_line, snippet_value)
+                self.logger.debug('PROGRESSION: result={}'.format(result))
 
-                    next_id = snippet.split(':')[1]
-                    next_classification = snippet.split(':')[0]
-                    self.logger.debug('    next_id={}   next_classification={}'.format(next_id, next_classification))
-                    snippet_calculated_value = self.get_variable_value(id=next_id, classification=next_classification, skip_embedded_variable_processing=True)
-                    self.logger.debug('      snippet_calculated_value={}'.format(snippet_calculated_value))
-
-                    # Replace all lower level snippet templates with the calculated values
-                    snippets_lower_level = snippets[level_idx-1]
-                    new_lower_snippets = list()
-                    for snippet_on_lower_level in snippets_lower_level:
-                        self.logger.debug('        Processing template replacements for lower level snippet:{}'.format(snippet_on_lower_level))
-                        self.logger.debug('        snippet_template_placeholder={}'.format(snippet_template_placeholder))
-                        self.logger.debug('        snippet_calculated_value={}'.format(snippet_calculated_value))
-                        new_line = snippet_on_lower_level.replace('{}'.format(snippet_template_placeholder), '{}'.format(snippet_calculated_value))
-                        self.logger.debug('        new_line={}'.format(new_line))
-                        new_lower_snippets.append(new_line)
-                    snippets[level_idx-1] = new_lower_snippets
-                    self.logger.debug('      snippets={}'.format(snippets))
-                
-                snippets.pop(level_idx) # Remove this level
-
-                level_idx -= 1
-
-        self.logger.debug('snippets={}'.format(snippets))
-        variable_value = variable.value
-        
-        
-        processed_value = self._process_snippet(variable=variable, classification=classification, function_fixed_parameters=variable.extra_parameters)
-        self.logger.debug('processed_value={}'.format(processed_value))
-
-        return 'INVALID VALUE'
+        if isinstance(variable.value_type, str) is False:
+            if isinstance(variable.value_type, bool) is True:
+                result = False
+                if result.lower().startswith('t'):
+                    result = True
+                elif result.lower().startswith('1'):
+                    result = True
+            elif isinstance(variable.value_type, int) is True:
+                result = int(result)
+            else:
+                result = '{}'.format(result)
+        else:
+            result = '{}'.format(result)
+        self.logger.debug('FINAL: result={}'.format(result))
+        return result
 
     def get_variable_value_OLD(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
         variable = self.get_variable(id=id, classification=classification)
@@ -312,7 +330,7 @@ class VariableStateStore:
 
                 if ':' in next_variable:
                     classification, value = snippet.split(':', 1)
-                    processed_value = self._process_snippet(variable=next_variable, value=value, classification=classification, function_fixed_parameters=variable.extra_parameters)
+                    processed_value = self._process_snippet(variable=next_variable, value=value, classification=classification, )
                     self.logger.debug('processed_value={}'.format(processed_value))
                     line = line.replace('${}{}{}'.format('{', snippet, '}'), '{}'.format(processed_value))
                     self.logger.debug('line={}'.format(line))
