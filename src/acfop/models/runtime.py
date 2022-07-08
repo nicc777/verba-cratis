@@ -167,30 +167,6 @@ class VariableStateStore:
             return function_exec_result
         raise Exception('Classification "{}" not yet supported'.format(classification)) # pragma: no cover
         
-    def _extract_snippets_OLD(self, value: str, level: int=0)->dict:
-        self.logger.debug('level {}: processing value: {}'.format(level, value))
-        new_snippets = dict()
-        new_snippets[level] = list()
-        if level > VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH:
-            raise Exception('Maximum embedded variable parsing depth exceeded')
-        
-        snippets = variable_snippet_extract(line=value)
-        self.logger.debug('snippets={}'.format(snippets))
-        next_level_snippets = dict()
-        for snippet in snippets:
-            new_snippets[level].append(snippet)
-        for snippet in snippets:
-            self.logger.debug('extracting next level snippet: {}'.format(snippet))
-            next_level_snippets = self._extract_snippets(value=snippet, level=level+1)
-            self.logger.debug('next_level_snippets={}'.format(next_level_snippets))
-            for deeper_level, snippet_collection in next_level_snippets.items():
-                if len(snippet_collection) > 0:
-                    if deeper_level not in new_snippets:
-                        new_snippets[deeper_level] = list()
-                    new_snippets[deeper_level] = snippet_collection
-        
-        return new_snippets
-
     def _extract_snippets(self, value: str, level: int=0)->dict:
         self.logger.debug('level {}: processing value: {}'.format(level, value))
         new_snippets = dict()
