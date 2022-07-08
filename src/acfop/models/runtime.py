@@ -206,7 +206,7 @@ class VariableStateStore:
                 next_id = snippet.split(':', 1)[1]
                 next_classification = snippet.split(':', 1)[0]
                 self.logger.debug('next_id={}   next_classification={}'.format(next_id, next_classification))
-                next_variable = self.get_variable(id=next_id)
+                next_variable = self.get_variable(id=next_id, classification=next_classification)
                 self.logger.debug('next_variable={}'.format(str(next_variable)))
 
                 snippet_value = self._process_snippet_line(line=snippet, variable=next_variable) 
