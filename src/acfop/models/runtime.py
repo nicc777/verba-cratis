@@ -191,6 +191,14 @@ class VariableStateStore:
         
         return new_snippets
 
+    def _get_variable_run_result(self, current_variable: Variable, updated_value: object=None)->str:
+        self.logger.debug('Getting new temporary variable from current variable: {}'.format(str(current_variable)))
+        self.logger.debug('    initial_value will be set to "{}"'.format(updated_value))
+        new_variable = Variable(id=current_variable.id, initial_value=updated_value, value_type=current_variable.value_type, classification=current_variable.classification, extra_parameters=current_variable.extra_parameters)
+        self.logger.debug('new_variable={}'.format(str(new_variable)))
+        result = '{}'.format(self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters))
+        self.logger.debug('result={}'.format(result))
+
     def _process_snippet_line(self, line: str, variable: Variable=None)->str:
         self.logger.debug('line={}'.format(line))
         result = line
@@ -215,14 +223,7 @@ class VariableStateStore:
                 self.logger.debug('result={}'.format(result))
 
         
-        self.logger.debug('Getting new temporary variable from current variable: {}'.format(str(variable)))
-        self.logger.debug('    initial_value will be set to "{}"'.format(result))
-        new_variable = Variable(id=variable.id, initial_value=result, value_type=variable.value_type, classification=variable.classification, extra_parameters=variable.extra_parameters)
-        self.logger.debug('new_variable={}'.format(str(new_variable)))
-
-        result = '{}'.format(self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters))
-
-
+        result = self._get_variable_run_result(current_variable=variable, updated_value=result)
         self.logger.debug('result={}'.format(result))
         return result
 
