@@ -129,7 +129,7 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
     def setUp(self):
         self.store = VariableStateStore()
         v1 = Variable(id='aa', initial_value='var1', classification='ref')
-        v2 = Variable(id='bb', initial_value='${}func:print_s(message="${}ref:var1{}"){}'.format('{', '{', '}', '}'), classification='func')
+        v2 = Variable(id='bb', initial_value='${}func:print_s(message="${}ref:aa{}"){}'.format('{', '{', '}', '}'), classification='func')
 
         cmd1 = "find . -type f | awk -F\/ '{print $1}' | wc -l"
         v3 = Variable(id='cc', initial_value=cmd1, classification='shell')
