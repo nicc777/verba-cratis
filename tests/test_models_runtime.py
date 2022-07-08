@@ -139,7 +139,7 @@ qty=`echo $files | wc -l`
 echo $qty
         """
         v4 = Variable(id='dd', initial_value=cmd2, classification='shell')
-        v5 = Variable(id='ee', initial_value='${}func:get_aws_identity{}'.format('{', '{', '}', '}'), classification='func')
+        v5 = Variable(id='ee', initial_value='${}func:get_aws_identity{}'.format('{', '}'), classification='func')
         v6 = Variable(id='ff', initial_value='${}func:get_aws_identity(){}'.format('{', '{', '}', '}'), classification='func')
         v7 = Variable(id='gg', initial_value='${}func:get_aws_identity(include_account_if_available=True){}'.format('{', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
         v8 = Variable(id='hh', initial_value=True, classification='build-variable', value_type=bool)
