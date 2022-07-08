@@ -198,6 +198,7 @@ class VariableStateStore:
         self.logger.debug('new_variable={}'.format(str(new_variable)))
         result = '{}'.format(self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters))
         self.logger.debug('result={}'.format(result))
+        return result
 
     def _process_snippet_line(self, line: str, variable: Variable=None)->str:
         self.logger.debug('line={}'.format(line))
