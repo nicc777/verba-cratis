@@ -283,7 +283,7 @@ echo $qty
         self.assertIsInstance(result, str)
         self.assertEqual(result, '', 'result contained "{}"'.format(result))
 
-    def test_class_variable_state_store_ops_update_variable_kk(self):
+    def test_class_variable_state_store_ops_update_variable_kk_value_true(self):
         kk = self.store.get_variable(id='kk', classification='build-variable')
         kk.value = '1'
         self.store.update_variable(variable=kk)
@@ -291,6 +291,15 @@ echo $qty
         self.assertIsNotNone(result)
         self.assertIsInstance(result, bool)
         self.assertTrue(result)
+
+    def test_class_variable_state_store_ops_update_variable_kk_value_false(self):
+        kk = self.store.get_variable(id='kk', classification='build-variable')
+        kk.value = 'false'
+        self.store.update_variable(variable=kk)
+        result = self.store.get_variable_value(id='kk', classification='build-variable')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
 
     def test_class_variable_state_store_ops_get_variable_value_kk(self):
         result = self.store.get_variable_value(id='kk', classification='build-variable')
