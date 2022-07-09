@@ -145,6 +145,9 @@ echo $qty
         v8 = Variable(id='hh', initial_value=True, classification='build-variable', value_type=bool)
         v9 = Variable(id='ii', initial_value='${}func:get_aws_identity(include_account_if_available=${}build-variable:hh{}){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
 
+        # Invalid Function Parameters
+        v10 = Variable(id='jj', initial_value='${}func:get_aws_identity(blablabla=$$){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
+
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
         self.store.add_variable(var=v3)
@@ -154,6 +157,7 @@ echo $qty
         self.store.add_variable(var=v7)
         self.store.add_variable(var=v8)
         self.store.add_variable(var=v9)
+        self.store.add_variable(var=v10)
 
     def test_class_variable_state_store_ops_get_variable(self):
         result1 = self.store.get_variable(id='aa', classification='ref')
@@ -228,6 +232,12 @@ echo $qty
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
         self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC,Account=123456789012', 'result contained "{}"'.format(result))
+
+    def test_class_variable_state_store_ops_get_variable_value_jj(self):
+        result = self.store.get_variable_value(id='jj', classification='func')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
 
 
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
