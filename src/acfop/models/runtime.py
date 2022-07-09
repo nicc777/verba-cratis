@@ -75,6 +75,11 @@ class VariableStateStore:
         self.registered_functions = registered_functions
         self.logger.debug('registered_functions={}'.format(self.registered_functions))
 
+    def update_variable(self, variable: Variable):
+        if variable.classification in self.variables:
+            if variable.id in self.variables[variable.classification]:
+                self.variables[variable.classification][variable.id] = variable
+
     def add_variable(self, var: Variable):
         self.logger.info('Added variable id "{}" with classification "{}"'.format(var.id, var.classification))
         if var.classification in self.variables:
