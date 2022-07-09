@@ -168,9 +168,10 @@ echo $qty
         v7 = Variable(id='gg', initial_value='${}func:get_aws_identity(include_account_if_available=True){}'.format('{', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
         v8 = Variable(id='hh', initial_value=True, classification='build-variable', value_type=bool)
         v9 = Variable(id='ii', initial_value='${}func:get_aws_identity(include_account_if_available=${}build-variable:hh{}){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
+        v10 = Variable(id='kk', initial_value=True, classification='build-variable', value_type=bool)
 
         # Invalid Function Parameters
-        v10 = Variable(id='jj', initial_value='${}func:get_aws_identity(blablabla=$$){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
+        e1 = Variable(id='jj', initial_value='${}func:get_aws_identity(blablabla=$$){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
 
         self.store.add_variable(var=v1)
         self.store.add_variable(var=v2)
@@ -182,6 +183,7 @@ echo $qty
         self.store.add_variable(var=v8)
         self.store.add_variable(var=v9)
         self.store.add_variable(var=v10)
+        self.store.add_variable(var=e1)
 
         self.store2.add_variable(var=v1)
         self.store2.add_variable(var=v2)
@@ -193,6 +195,7 @@ echo $qty
         self.store2.add_variable(var=v8)
         self.store2.add_variable(var=v9)
         self.store2.add_variable(var=v10)
+        self.store2.add_variable(var=e1)
 
     def test_class_variable_state_store_ops_get_variable(self):
         result1 = self.store.get_variable(id='aa', classification='ref')
@@ -279,6 +282,12 @@ echo $qty
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
         self.assertEqual(result, '', 'result contained "{}"'.format(result))
+
+    def test_class_variable_state_store_ops_get_variable_value_kk(self):
+        result = self.store.get_variable_value(id='kk', classification='build-variable')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
 
 
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
