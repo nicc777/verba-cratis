@@ -257,8 +257,8 @@ class VariableStateStore:
 
         self.logger.debug('variable.value_type={}'.format(variable.value_type))
         if str(variable.value_type) == '<class \'str\'>':
-            if isinstance(result, str) is False:
-                result = '{}'.format(result)
+            if isinstance(result, str) is False:    # pragma: no cover
+                result = '{}'.format(result)        # Very unlikely to ever reach this scenario
         elif str(variable.value_type) == '<class \'bool\'>':
             if isinstance(result, str) is True:
                 if result.lower().startswith('t'):
