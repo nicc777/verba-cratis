@@ -111,23 +111,17 @@ class VariableStateStore:
         return parameters
 
     def _extract_function_parameters(self, value: str)->dict:
-        # value: value = 'get_aws_identity(include_account_if_available="hh", blabla=True, something="1,2")'
         parameters = dict()
         try:
             value = value.strip()
             value = value.partition('(')[2].rpartition(')')[0]  # 'include_account_if_available="hh", blabla=True, something="1,2"'
             self.logger.debug('value={}'.format(value))
-
-            # Following 5 line from https://stackoverflow.com/questions/49723047/parsing-a-string-as-a-python-argument-list
             args = 'f({})'.format(value)
             tree = ast.parse(args)
             funccall = tree.body[0].value
             args = [ast.literal_eval(arg) for arg in funccall.args]
             kwargs = {arg.arg: ast.literal_eval(arg.value) for arg in funccall.keywords}
-
-            # For now, we only support kwargs... 
-            parameters = kwargs
-
+            parameters = kwargs # For now, we only support kwargs... 
         except:
             self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
         self.logger.debug('parameters={}'.format(parameters))
