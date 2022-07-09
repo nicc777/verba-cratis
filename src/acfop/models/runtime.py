@@ -135,8 +135,8 @@ class VariableStateStore:
     def _process_snippet(self, variable: Variable, function_fixed_parameters: dict=dict()):
         self.logger.debug('variable={}'.format(str(variable)))
         classification = variable.classification
-        if classification == 'ref':     # FIXME this is not working - this must lookup another variable (like a pointer)
-            return variable.value
+        if classification == 'ref':     # FIXME this is not working - this must lookup another variable (like a pointer) - must return first match from build-variable (the variable as parsed from the config - basically the keys/paths)
+            return self.get_variable_value(id=variable.value, classification='build-variable')
         if classification in ('build-variable', 'exports'):  # TODO add support for env
             return variable.value
         if classification in ('env'):  

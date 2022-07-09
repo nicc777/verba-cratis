@@ -32,6 +32,7 @@ functionParameterValues:
 globalVariables:
   awsRegion: eu-central-1
   awsAccountId: ${env:AWS_REGION}
+  cloudFormationS3Bucket: artifact-bucket-83g-74y-bco-8nx
 
 
 # Define the deployment logging options
