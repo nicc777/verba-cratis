@@ -73,6 +73,7 @@ class VariableStateStore:
         self.variables['other'] = dict()
         self.logger = logger
         self.registered_functions = registered_functions
+        self.logger.debug('registered_functions={}'.format(self.registered_functions))
 
     def add_variable(self, var: Variable):
         self.logger.info('Added variable id "{}" with classification "{}"'.format(var.id, var.classification))
