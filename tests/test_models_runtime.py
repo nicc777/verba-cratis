@@ -172,6 +172,7 @@ echo $qty
         v10 = Variable(id='kk', initial_value=True, classification='build-variable', value_type=bool)
         v11 = Variable(id='ll', initial_value='DOES_NOT_EXIST', classification='env', value_type=str, extra_parameters={'default_value': 'some value'})
         v12 = Variable(id='mm', initial_value='HOME', classification='env', value_type=str, extra_parameters={'default_value': ''})
+        v13 = Variable(id='nn', initial_value='aa', classification='ref')
 
         # Invalid Function Parameters
         e1 = Variable(id='jj', initial_value='${}func:get_aws_identity(blablabla=$$){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
@@ -188,6 +189,7 @@ echo $qty
         self.store.add_variable(var=v10)
         self.store.add_variable(var=v11)
         self.store.add_variable(var=v12)
+        self.store.add_variable(var=v13)
         self.store.add_variable(var=e1)
 
         self.store2.add_variable(var=v1)
@@ -202,6 +204,7 @@ echo $qty
         self.store2.add_variable(var=v10)
         self.store2.add_variable(var=v11)
         self.store2.add_variable(var=v12)
+        self.store2.add_variable(var=v13)
         self.store2.add_variable(var=e1)
 
     def test_class_variable_state_store_ops_get_variable(self):
@@ -343,6 +346,12 @@ echo $qty
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
         self.assertTrue('home' in result.lower())
+
+    def test_class_variable_state_store_ops_get_variable_value_nn(self):
+        result = self.store.get_variable_value(id='nn', classification='ref')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual('var1', result)
 
 
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
