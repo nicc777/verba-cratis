@@ -10,6 +10,7 @@
 import traceback
 from acfop.utils import get_logger
 from acfop.utils.parser import variable_snippet_extract
+from acfop.utils.os_integration import exec_shell_cmd
 from acfop.functions import user_function_factory
 import subprocess, shlex
 import hashlib
@@ -146,16 +147,7 @@ class VariableStateStore:
             value = os.getenv(variable.value, default=default_value)
             return value
         elif classification == 'shell':
-            td = tempfile.gettempdir()
-            value_checksum = hashlib.sha256(str(variable.value).encode(('utf-8'))).hexdigest()
-            fn = '{}{}{}'.format(td, os.sep, value_checksum)
-            self.logger.debug('Created temp file {}'.format(fn))
-            with open(fn, 'w') as f:
-                f.write(variable.value)
-            result = subprocess.run(['/bin/sh', fn], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            self.logger.info('[{}] Command: {}'.format(value_checksum, variable.value))
-            self.logger.info('[{}] Command Result: {}'.format(value_checksum, result))
-            return result
+            return exec_shell_cmd(cmd=variable.value, logger=self.logger)
         elif classification == 'func':
             function_exec_result = ''
             if '(' in variable.value:
