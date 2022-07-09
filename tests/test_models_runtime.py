@@ -14,6 +14,8 @@ print('sys.path={}'.format(sys.path))
 import unittest
 
 from acfop.models.runtime import *
+from acfop.functions import user_function_factory
+from acfop.utils import get_logger
 
 
 class StsClientMock:    # pragma: no cover
@@ -34,6 +36,17 @@ class Boto3Mock:    # pragma: no cover
     def client(self, service_name: str, region_name: str='eu-central-1'):
         if service_name == 'sts':
             return StsClientMock()
+
+
+def get_aws_identity_mock1(     # pragma: no cover
+    boto3_clazz: object=Boto3Mock(),
+    region: str='eu-central-1',
+    logger=get_logger(),
+    include_account_if_available: bool=False,
+    include_arn_if_available: bool=False,
+    delimiter_char: str=','
+):
+    raise Exception('Function Threw an Exception')
 
 
 class TestClassVariable(unittest.TestCase):    # pragma: no cover
@@ -127,7 +140,18 @@ class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
 class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
-        self.store = VariableStateStore()
+        self.store = VariableStateStore(registered_functions=user_function_factory())
+        self.store2 = VariableStateStore(
+            registered_functions={
+                'get_aws_identity': {
+                    'f': get_aws_identity_mock1,
+                    'fixed_parameters': {
+                        'boto3_clazz': Boto3Mock(),
+                    },
+                },
+            },
+        )
+
         v1 = Variable(id='aa', initial_value='var1', classification='ref')
         v2 = Variable(id='bb', initial_value='${}func:print_s(message="${}ref:aa{}"){}'.format('{', '{', '}', '}'), classification='func')
 
@@ -158,6 +182,17 @@ echo $qty
         self.store.add_variable(var=v8)
         self.store.add_variable(var=v9)
         self.store.add_variable(var=v10)
+
+        self.store2.add_variable(var=v1)
+        self.store2.add_variable(var=v2)
+        self.store2.add_variable(var=v3)
+        self.store2.add_variable(var=v4)
+        self.store2.add_variable(var=v5)
+        self.store2.add_variable(var=v6)
+        self.store2.add_variable(var=v7)
+        self.store2.add_variable(var=v8)
+        self.store2.add_variable(var=v9)
+        self.store2.add_variable(var=v10)
 
     def test_class_variable_state_store_ops_get_variable(self):
         result1 = self.store.get_variable(id='aa', classification='ref')
@@ -238,6 +273,12 @@ echo $qty
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
         self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
+
+    def test_class_variable_state_store_ops_get_variable_value_ee_force_exception(self):
+        result = self.store2.get_variable_value(id='jj', classification='func')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, '', 'result contained "{}"'.format(result))
 
 
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
