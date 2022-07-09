@@ -101,6 +101,7 @@ class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
             'shell',
             'func',
             'other',
+            'env',
         )
 
     def test_class_variable_state_store_init_defaults(self):
@@ -169,6 +170,8 @@ echo $qty
         v8 = Variable(id='hh', initial_value=True, classification='build-variable', value_type=bool)
         v9 = Variable(id='ii', initial_value='${}func:get_aws_identity(include_account_if_available=${}build-variable:hh{}){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
         v10 = Variable(id='kk', initial_value=True, classification='build-variable', value_type=bool)
+        v11 = Variable(id='ll', initial_value='DOES_NOT_EXIST', classification='env', value_type=str, extra_parameters={'default_value': 'some value'})
+        v12 = Variable(id='mm', initial_value='HOME', classification='env', value_type=str, extra_parameters={'default_value': ''})
 
         # Invalid Function Parameters
         e1 = Variable(id='jj', initial_value='${}func:get_aws_identity(blablabla=$$){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
@@ -183,6 +186,8 @@ echo $qty
         self.store.add_variable(var=v8)
         self.store.add_variable(var=v9)
         self.store.add_variable(var=v10)
+        self.store.add_variable(var=v11)
+        self.store.add_variable(var=v12)
         self.store.add_variable(var=e1)
 
         self.store2.add_variable(var=v1)
@@ -195,6 +200,8 @@ echo $qty
         self.store2.add_variable(var=v8)
         self.store2.add_variable(var=v9)
         self.store2.add_variable(var=v10)
+        self.store2.add_variable(var=v11)
+        self.store2.add_variable(var=v12)
         self.store2.add_variable(var=e1)
 
     def test_class_variable_state_store_ops_get_variable(self):
@@ -324,6 +331,18 @@ echo $qty
         self.assertIsNotNone(result)
         self.assertIsInstance(result, bool)
         self.assertTrue(result)
+
+    def test_class_variable_state_store_ops_get_variable_value_ll(self):
+        result = self.store.get_variable_value(id='ll', classification='env')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue('some value' in result)
+
+    def test_class_variable_state_store_ops_get_variable_value_mm(self):
+        result = self.store.get_variable_value(id='mm', classification='env')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue('home' in result.lower())
 
 
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover

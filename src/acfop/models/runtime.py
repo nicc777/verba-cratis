@@ -20,12 +20,13 @@ import ast
 import random, string   # TODO temporary use - remove later
 
 
-VALID_CLASSIFICATIONS = (   # TODO add env variable type
+VALID_CLASSIFICATIONS = (
     'build-variable',
+    'env',
     'ref',
     'exports',
     'shell',
-    'func',     # TODO add support for function calls
+    'func',
     'other',    # When using Variable.get_value(), this type will force an exception
 )
 VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH = 3
@@ -71,6 +72,7 @@ class VariableStateStore:
         self.variables['shell'] = dict()
         self.variables['func'] = dict()
         self.variables['other'] = dict()
+        self.variables['env'] = dict()
         self.logger = logger
         self.registered_functions = registered_functions
         self.logger.debug('registered_functions={}'.format(self.registered_functions))
