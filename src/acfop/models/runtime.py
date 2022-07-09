@@ -138,7 +138,7 @@ class VariableStateStore:
         classification = variable.classification
         if classification == 'ref':     # this must lookup another variable (like a pointer) - must return first match from build-variable (the variable as parsed from the config - basically the keys/paths)
             return self.get_variable_value(id=variable.value, classification='build-variable')
-        if classification in ('build-variable', 'exports'):  # TODO add support for env
+        if classification in ('build-variable', 'exports'):
             return variable.value
         if classification in ('env'):  
             default_value = None
