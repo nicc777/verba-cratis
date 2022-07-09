@@ -117,7 +117,7 @@ class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
     def test_class_variable_state_store_add_variable(self):
         store = VariableStateStore()
         v1 = Variable(id='ref:var1', initial_value='', classification='ref')
-        v2 = Variable(id='func:print_s(message="${{var:var1}}")', initial_value='', classification='func')
+        v2 = Variable(id='func:print_s(message="${{build-variable:var1}}")', initial_value='', classification='func')
         store.add_variable(var=v1)
         store.add_variable(var=v2)
         self.assertIsNotNone(store)
@@ -153,7 +153,7 @@ class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no 
             },
         )
 
-        v1 = Variable(id='aa', initial_value='var1', classification='ref')
+        v1 = Variable(id='aa', initial_value='var1', classification='build-variable')
         v2 = Variable(id='bb', initial_value='${}func:print_s(message="${}ref:aa{}"){}'.format('{', '{', '}', '}'), classification='func')
 
         cmd1 = "find . -type f | awk -F\/ '{print $1}' | wc -l"
@@ -205,7 +205,7 @@ echo $qty
         self.store2.add_variable(var=e1)
 
     def test_class_variable_state_store_ops_get_variable(self):
-        result1 = self.store.get_variable(id='aa', classification='ref')
+        result1 = self.store.get_variable(id='aa', classification='build-variable')
         self.assertIsNotNone(result1)
         self.assertIsInstance(result1, Variable)
         self.assertTrue(result1.id == 'aa')
@@ -221,13 +221,13 @@ echo $qty
 
 
     def test_class_variable_state_store_ops_get_variable_value_aa_no_processing(self):
-        result = self.store.get_variable_value(id='aa', classification='ref', skip_embedded_variable_processing=True)
+        result = self.store.get_variable_value(id='aa', classification='build-variable', skip_embedded_variable_processing=True)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
         self.assertTrue(result, 'var1')
 
     def test_class_variable_state_store_ops_get_variable_value_aa(self):
-        result = self.store.get_variable_value(id='aa', classification='ref', skip_embedded_variable_processing=False)
+        result = self.store.get_variable_value(id='aa', classification='build-variable', skip_embedded_variable_processing=False)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
         self.assertTrue(result, 'var1')
