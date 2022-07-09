@@ -133,10 +133,16 @@ class VariableStateStore:
     def _process_snippet(self, variable: Variable, function_fixed_parameters: dict=dict()):
         self.logger.debug('variable={}'.format(str(variable)))
         classification = variable.classification
-        if classification == 'ref':     # FIXME this is not working
+        if classification == 'ref':     # FIXME this is not working - this must lookup another variable (like a pointer)
             return variable.value
         if classification in ('build-variable', 'exports'):  # TODO add support for env
             return variable.value
+        if classification in ('env'):  
+            default_value = None
+            if 'default_value' in function_fixed_parameters:
+                default_value = function_fixed_parameters['default_value']
+            value = os.getenv(variable.value, default=default_value)
+            return value
         elif classification == 'shell':
             td = tempfile.gettempdir()
             value_checksum = hashlib.sha256(str(variable.value).encode(('utf-8'))).hexdigest()

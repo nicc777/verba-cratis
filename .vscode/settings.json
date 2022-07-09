@@ -11,7 +11,9 @@
         "Docstrings",
         "funccall",
         "levelname",
-        "socktype"
+        "socktype",
+        "kubectl",
+        "asctime"
     ],
     "python.testing.unittestArgs": [
         "-v",
