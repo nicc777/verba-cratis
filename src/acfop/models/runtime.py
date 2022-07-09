@@ -201,9 +201,9 @@ class VariableStateStore:
     def _get_variable_run_result(self, current_variable: Variable, updated_value: object=None)->str:
         self.logger.debug('Getting new temporary variable from current variable: {}'.format(str(current_variable)))
         self.logger.debug('    initial_value will be set to "{}"'.format(updated_value))
-        new_variable = Variable(id=current_variable.id, initial_value=updated_value, value_type=current_variable.value_type, classification=current_variable.classification, extra_parameters=current_variable.extra_parameters)
+        new_variable = Variable(id=current_variable.id, initial_value=updated_value, value_type=type(updated_value), classification=current_variable.classification, extra_parameters=current_variable.extra_parameters)
         self.logger.debug('new_variable={}'.format(str(new_variable)))
-        result = '{}'.format(self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters))
+        result = self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters)
         self.logger.debug('result={}'.format(result))
         return result
 
@@ -227,7 +227,7 @@ class VariableStateStore:
 
                 snippet_value = self._process_snippet_line(line=snippet, variable=next_variable) 
                 self.logger.debug('snippet_value={}'.format(snippet_value))
-                result = result.replace(template_line, snippet_value)
+                result = result.replace(template_line, '{}'.format(snippet_value))
                 self.logger.debug('result={}'.format(result))
 
         
@@ -272,8 +272,8 @@ class VariableStateStore:
                     result = True
                 else:
                     result = False
-            elif isinstance(result, int.__class__) is True:
-                result = int(result)
+            elif isinstance(result, int) is True:
+                result = bool(result)
             else:
                 result = False
         elif str(variable.value_type) == '<class \'int\'>':
