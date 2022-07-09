@@ -140,7 +140,7 @@ echo $qty
         """
         v4 = Variable(id='dd', initial_value=cmd2, classification='shell')
         v5 = Variable(id='ee', initial_value='${}func:get_aws_identity{}'.format('{', '}'), classification='func')
-        v6 = Variable(id='ff', initial_value='${}func:get_aws_identity(){}'.format('{', '{', '}', '}'), classification='func')
+        v6 = Variable(id='ff', initial_value='${}func:get_aws_identity(){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
         v7 = Variable(id='gg', initial_value='${}func:get_aws_identity(include_account_if_available=True){}'.format('{', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
         v8 = Variable(id='hh', initial_value=True, classification='build-variable', value_type=bool)
         v9 = Variable(id='ii', initial_value='${}func:get_aws_identity(include_account_if_available=${}build-variable:hh{}){}'.format('{', '{', '}', '}'), classification='func', extra_parameters={'boto3_clazz': Boto3Mock()})
@@ -197,6 +197,7 @@ echo $qty
         result = self.store.get_variable_value(id='ff', classification='func', skip_embedded_variable_processing=False)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
+        self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
 
     def test_class_variable_state_store_ops_get_variable_value_cc(self):
         result = int(self.store.get_variable_value(id='cc', classification='shell', skip_embedded_variable_processing=False))
@@ -214,7 +215,7 @@ echo $qty
         result = self.store.get_variable_value(id='gg', classification='func')
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
-        self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC', 'result contained "{}"'.format(result))
+        self.assertEqual(result, 'UserId=AIDACCCCCCCCCCCCCCCCC,Account=123456789012', 'result contained "{}"'.format(result))
 
     def test_class_variable_state_store_ops_get_variable_value_hh(self):
         result = self.store.get_variable_value(id='hh', classification='build-variable')

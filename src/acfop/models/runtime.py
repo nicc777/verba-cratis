@@ -244,20 +244,42 @@ class VariableStateStore:
                 result = result.replace(template_line, snippet_value)
                 self.logger.debug('PROGRESSION: result={}'.format(result))
 
-        if isinstance(variable.value_type, str) is False:
-            if isinstance(variable.value_type, bool) is True:
-                result = False
+        old_result = result
+        try:
+            result = self._get_variable_run_result(current_variable=variable, updated_value=result)
+            self.logger.debug('result={}'.format(result))
+        except:
+            self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
+            self.logger.info('Calling _get_variable_run_result() resulted in an exception - in most cases this should not be a problem.')
+            result = old_result
+
+        self.logger.debug('variable.value_type={}'.format(variable.value_type))
+        if str(variable.value_type) == '<class \'str\'>':
+            if isinstance(result, str) is False:
+                result = '{}'.format(result)
+        elif str(variable.value_type) == '<class \'bool\'>':
+            if isinstance(result, str) is True:
                 if result.lower().startswith('t'):
                     result = True
                 elif result.lower().startswith('1'):
                     result = True
-            elif isinstance(variable.value_type, int) is True:
+                else:
+                    result = False
+            elif isinstance(result, int.__class__) is True:
                 result = int(result)
             else:
-                result = '{}'.format(result)
+                result = False
+        elif str(variable.value_type) == '<class \'int\'>':
+            if isinstance(result, str) is True:
+                result = int(result)
+            elif isinstance(result, bool) is True:
+                if result is True:
+                    result = 1
+                else:
+                    result = 0
         else:
             result = '{}'.format(result)
-        self.logger.debug('FINAL: result={}'.format(result))
+        self.logger.debug('FINAL: type={} result={}'.format(type(result), result))
         return result
 
    
