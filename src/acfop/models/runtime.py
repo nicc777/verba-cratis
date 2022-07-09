@@ -63,7 +63,7 @@ class Variable:
 
 class VariableStateStore:
 
-    def __init__(self, logger=get_logger()):
+    def __init__(self, logger=get_logger(), registered_functions: dict=FUNCTIONS):
         self.variables = dict()
         self.variables['build-variable'] = dict()
         self.variables['ref'] = dict()
@@ -72,6 +72,7 @@ class VariableStateStore:
         self.variables['func'] = dict()
         self.variables['other'] = dict()
         self.logger = logger
+        self.registered_functions = registered_functions
 
     def add_variable(self, var: Variable):
         self.logger.info('Added variable id "{}" with classification "{}"'.format(var.id, var.classification))
@@ -148,7 +149,7 @@ class VariableStateStore:
                 if ':' in function_name:
                     function_name = function_name.split(':')[1]
                 self.logger.debug('function_name={}'.format(function_name))
-                if function_name not in FUNCTIONS:
+                if function_name not in self.registered_functions:
                     raise Exception('Function "{}" is not a recognized function.'.format(function_name))
                 parameters = self._get_function_parameters(
                     function_name=function_name,
@@ -157,7 +158,7 @@ class VariableStateStore:
                 )
                 self.logger.debug('parameters={}'.format(parameters))
                 try:
-                    function_exec_result = FUNCTIONS[function_name]['f'](**parameters)
+                    function_exec_result = self.registered_functions[function_name]['f'](**parameters)
                     self.logger.debug('EXEC RESULT :: function_exec_result={}'.format(function_exec_result))
                 except:
                     self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
