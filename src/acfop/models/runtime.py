@@ -98,36 +98,6 @@ class VariableStateStore:
                 return self.variables[classification][id]
         raise Exception('Variable with id "{}" with classification "{}" does not exist'.format(id, classification))
 
-    def _get_function_parameters(self, function_name: str, function_fixed_parameters: dict=dict(), template_parameters: dict=dict())->dict:
-        parameters = dict()
-        self.logger.debug('function_fixed_parameters={}'.format(function_fixed_parameters))
-        function_default_parameters = FUNCTIONS[function_name]['fixed_parameters']
-        self.logger.debug('function_default_parameters={}'.format(function_default_parameters))
-        for k, v in function_default_parameters.items():
-            parameters[k] = v
-        for k, v in function_fixed_parameters.items():
-            parameters[k] = v
-        for k, v in template_parameters.items():
-            parameters[k] = v
-        return parameters
-
-    def _extract_function_parameters(self, value: str)->dict:
-        parameters = dict()
-        try:
-            value = value.strip()
-            value = value.partition('(')[2].rpartition(')')[0]  # 'include_account_if_available="hh", blabla=True, something="1,2"'
-            self.logger.debug('value={}'.format(value))
-            args = 'f({})'.format(value)
-            tree = ast.parse(args)
-            funccall = tree.body[0].value
-            args = [ast.literal_eval(arg) for arg in funccall.args]
-            kwargs = {arg.arg: ast.literal_eval(arg.value) for arg in funccall.keywords}
-            parameters = kwargs # For now, we only support kwargs... 
-        except:
-            self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
-        self.logger.debug('parameters={}'.format(parameters))
-        return parameters
-
     def _process_snippet(self, variable: Variable, function_fixed_parameters: dict=dict()):
         self.logger.debug('variable={}'.format(str(variable)))
         classification = variable.classification
@@ -150,30 +120,6 @@ class VariableStateStore:
                 logger=self.logger,
                 registered_functions=self.registered_functions
             )
-
-
-            # function_exec_result = ''
-            # if '(' in variable.value:
-            #     function_name = variable.value.split('(')[0]
-            #     if ':' in function_name:
-            #         function_name = function_name.split(':')[1]
-            #     self.logger.debug('function_name={}'.format(function_name))
-            #     if function_name not in self.registered_functions:
-            #         raise Exception('Function "{}" is not a recognized function.'.format(function_name))
-            #     parameters = self._get_function_parameters(
-            #         function_name=function_name,
-            #         function_fixed_parameters=function_fixed_parameters,
-            #         template_parameters=self._extract_function_parameters(value=variable.value)
-            #     )
-            #     self.logger.debug('parameters={}'.format(parameters))
-            #     try:
-            #         function_exec_result = self.registered_functions[function_name]['f'](**parameters)
-            #         self.logger.debug('EXEC RESULT :: function_exec_result={}'.format(function_exec_result))
-            #     except:
-            #         self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
-            # else:
-            #     raise Exception('Value does not appear to contain a function call')
-            
             self.logger.debug('function_exec_result={}'.format(function_exec_result))
             return function_exec_result
         raise Exception('Classification "{}" not yet supported'.format(classification)) # pragma: no cover
