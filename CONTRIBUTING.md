@@ -4,6 +4,23 @@ Contributing at the moment is limited to opening new Issues or Pull Requests. Th
 
 # Implementation Principles and Guidelines
 
+## Principle: Task completion - definition of DONE
+
+A feature/issue/task is considered complete when:
+
+* Functionality have been implemented (there is code)
+* Unit tests covers all reasonable scenarios
+* Test coverage is acceptable (aim always for 100%, if at all possible)
+* Exceptions and expected error conditions are also covered in unit tests
+* All tests are passing
+* All code and tests are committed to the current development branch
+
+In some cases, during implementation, it may make sense to break up a task or add more smaller tasks and to reorganize the priority. That is perfectly acceptable.
+
+In some edge cases (hopefully not often at all), it may become clear that a previous completed task is missing something - it could be perhaps certain specific test scenario not yet covered or even some particular logic that is not yet fully handled. In these cases, _do not_ re-open a task/issue but rather create a new item.
+
+Initially, while there are still only myself as a primary developer, and while there are still plenty to do, I will manage the tasks in the `TODO.md` file. When the projects becomes a little bit more mature, I will start using the GitHub tools for issue tracking.
+
 ## Principle: Do not re-invent the wheel
 
 As far as possible make use of third party libraries to fulfil various key functions. Logic in this application is around orchestration of CloudFormation deployment tasks with some additional complexity in that the orchestration must have some limited scripting support (template variables).
@@ -17,7 +34,7 @@ Thus far the following Libraries have been selected:
 
 ## Shell Scripts
 
-All shell scripts must be compatible with BASH.
+All shell scripts must be compatible with BASH. I do not intend to target Windows systems at the moment. If you are a Windows user, please consider using this tool in a [WSL distribution like Ubuntu](https://ubuntu.com/wsl).
 
 ## Python
 
