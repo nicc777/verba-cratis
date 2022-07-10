@@ -11,6 +11,7 @@ import traceback
 from acfop.utils import get_logger
 from acfop.utils.parser import variable_snippet_extract
 from acfop.utils.os_integration import exec_shell_cmd
+from acfop.utils.function_runner import execute_function
 from acfop.functions import user_function_factory
 import subprocess, shlex
 import hashlib
@@ -143,27 +144,36 @@ class VariableStateStore:
         elif classification == 'shell':
             return exec_shell_cmd(cmd=variable.value, logger=self.logger)
         elif classification == 'func':
-            function_exec_result = ''
-            if '(' in variable.value:
-                function_name = variable.value.split('(')[0]
-                if ':' in function_name:
-                    function_name = function_name.split(':')[1]
-                self.logger.debug('function_name={}'.format(function_name))
-                if function_name not in self.registered_functions:
-                    raise Exception('Function "{}" is not a recognized function.'.format(function_name))
-                parameters = self._get_function_parameters(
-                    function_name=function_name,
-                    function_fixed_parameters=function_fixed_parameters,
-                    template_parameters=self._extract_function_parameters(value=variable.value)
-                )
-                self.logger.debug('parameters={}'.format(parameters))
-                try:
-                    function_exec_result = self.registered_functions[function_name]['f'](**parameters)
-                    self.logger.debug('EXEC RESULT :: function_exec_result={}'.format(function_exec_result))
-                except:
-                    self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
-            else:
-                raise Exception('Value does not appear to contain a function call')
+            function_exec_result = execute_function(
+                function_template=variable.value,                     # Comes from Variable.value
+                function_fixed_parameters=function_fixed_parameters,
+                logger=self.logger,
+                registered_functions=self.registered_functions
+            )
+
+
+            # function_exec_result = ''
+            # if '(' in variable.value:
+            #     function_name = variable.value.split('(')[0]
+            #     if ':' in function_name:
+            #         function_name = function_name.split(':')[1]
+            #     self.logger.debug('function_name={}'.format(function_name))
+            #     if function_name not in self.registered_functions:
+            #         raise Exception('Function "{}" is not a recognized function.'.format(function_name))
+            #     parameters = self._get_function_parameters(
+            #         function_name=function_name,
+            #         function_fixed_parameters=function_fixed_parameters,
+            #         template_parameters=self._extract_function_parameters(value=variable.value)
+            #     )
+            #     self.logger.debug('parameters={}'.format(parameters))
+            #     try:
+            #         function_exec_result = self.registered_functions[function_name]['f'](**parameters)
+            #         self.logger.debug('EXEC RESULT :: function_exec_result={}'.format(function_exec_result))
+            #     except:
+            #         self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
+            # else:
+            #     raise Exception('Value does not appear to contain a function call')
+            
             self.logger.debug('function_exec_result={}'.format(function_exec_result))
             return function_exec_result
         raise Exception('Classification "{}" not yet supported'.format(classification)) # pragma: no cover
