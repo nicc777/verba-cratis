@@ -14,6 +14,7 @@ A feature/issue/task is considered complete when:
 * Exceptions and expected error conditions are also covered in unit tests
 * All tests are passing
 * All code and tests are committed to the current development branch
+* Docstring are added/updated as required
 
 In some cases, during implementation, it may make sense to break up a task or add more smaller tasks and to reorganize the priority. That is perfectly acceptable.
 
