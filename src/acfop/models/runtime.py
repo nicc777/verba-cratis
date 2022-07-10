@@ -36,13 +36,21 @@ FUNCTIONS = user_function_factory()
 
 
 class Variable:
+    """Each unique path with a value in the configuration is stored as a Variable, as well as some other variables as required.
 
-    """
-        External Dependencies:
+    The entire configuration will end up as a collection of Variable objects stored in :class:`VariableStateStore`
 
-            TODO Add support for "ref" classification - requires a configuration to variable reference processing function
+    TODO Ass support for "exports" classification - requires a process to add exports after CloudFormation template deployment
 
-            TODO Ass support for "exports" classification - requires a process to add exports after CloudFormation template deployment
+    TODO Implement value_checksum updates when value changes. May require an update() method
+
+    Attributes:
+        id (:obj:`str`): For configuration files, represents the path of a configuration item. Otherwise, just use an identified that makes sense
+        value (:obj:`object`): The current value of the variable. Some unprocessed Variables may have a string containing template directives. Once these are processed, the value should be updated to the processed value.
+        value_type (:obj:`object`): The type expressed as a Python type. Consider sticking to the following primitives: str, bool, int - other will eventually be better supported.
+        classification (:obj:`str`): One of ``VALID_CLASSIFICATIONS``
+        value_checksum  (:obj:`str`): A calculated checksum of the :attr:`value`. Not currently used, but in future will be used to determine if a value needs re-evaluation
+        extra_parameters (:obj:`dict`): Dictionary that may contain extra parameters required by the variable, depending on the ``classification``. Used mostly for ``functions``
     """
     def __init__(self, id: str, initial_value: object=None, value_type: object=str, classification: str='build-variable', extra_parameters: dict=dict()):
         if classification not in VALID_CLASSIFICATIONS:
@@ -58,6 +66,14 @@ class Variable:
         self.extra_parameters = extra_parameters    # Used for Functions only
 
     def get_value(self, logger=get_logger()):
+        """Gets the current ``value``
+
+        Args:
+            logger (:obj:`Logger`): A logger. Not used at the moment
+
+        Returns:
+            object: The ``value``
+        """
         return self.value
 
     def __str__(self):
