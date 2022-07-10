@@ -37,7 +37,7 @@ Next Up tasks
 * ~~Create unique build UUID during init~~
 * ~~Add logic to process a snippet to return a value~~
 * ~~Add unit tests for `src/acfop/models/runtime.py`~~
-* Setup project for main entry point (command line utility called `acfop`)
+* ~~Setup project for main entry point (command line utility called `acfop`)~~
 * Add command line arguments parsing - and add a command line argument for the location of the configuration file
 * Populate configuration template in variable store (classification='build-variable')
 * Process Variables in logging configuration strings, like `filename` (see example 1)
