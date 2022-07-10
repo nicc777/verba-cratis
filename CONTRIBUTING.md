@@ -40,7 +40,7 @@ All shell scripts must be compatible with BASH. I do not intend to target Window
 
 ### Docstrings
 
-Each Method containing more than half a dozen or so lines which involves several steps, should include a docstring (see [PEP 257](https://peps.python.org/pep-0257/)).
+Each Method containing more than half a dozen or so lines which involves several steps, should include a docstring - but also only if it makes sense. See [PEP 257](https://peps.python.org/pep-0257/).
 
 A general template for method docstrings are found below:
 
