@@ -7,20 +7,39 @@
 """
 
 
+import sys
 import argparse
+from acfop.utils import get_logger
 
 
-def parse_argument():
+def parse_argument(overrides: dict=dict(), logger=get_logger())->dict:
+    logger.debug('overrides={}'.format(overrides))
+    args = dict()
+    args['conf'] = None
     parser = argparse.ArgumentParser(description='Processes and execute an AWS CloudFormation deployment based on the supplied configuration')
     parser.add_argument(
         '-c', '--conf',
         action='store',
         nargs=1,
-        required=True,
         dest='config_file',
         metavar='CONFIGURATION_FILE',
         type=str, 
         help='The path and filename of the configuration file. REQUIRED'
     )
-    return parser.parse_args()
+    parsed_args = parser.parse_args()
+    logger.debug('parsed_args={}'.format(parsed_args))
+
+    if parsed_args.config_file is not None:
+        args['conf'] = parsed_args.config_file[0]
+    logger.debug('args={}'.format(args))
+
+    for k,v in overrides.items():
+        args[k] = v
+
+    if args['conf'] is None:
+        parser.print_usage()
+        sys.exit(1)
+
+    logger.debug('args={}'.format(args))
+    return args
 
