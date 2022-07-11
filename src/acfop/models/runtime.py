@@ -103,6 +103,11 @@ class VariableStateStore:
         self.logger.debug('registered_functions={}'.format(self.registered_functions))
 
     def update_variable(self, variable: Variable):
+        """Updates an already stored :class:`Variable` object, replacing it with the supplied :class:`Variable` object
+
+        Args:
+            variable (:obj:`Variable`): The new :class:`Variable` object replacing the existing one (`id` and `classification` must match)
+        """
         if variable.classification in self.variables:
             if variable.id in self.variables[variable.classification]:
                 self.variables[variable.classification][variable.id] = variable
