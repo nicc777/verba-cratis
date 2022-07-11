@@ -113,6 +113,11 @@ class VariableStateStore:
                 self.variables[variable.classification][variable.id] = variable
 
     def add_variable(self, var: Variable):
+        """Adds a :class:`Variable` object to :attr:`variables`
+
+        Args:
+            variable (:obj:`Variable`): The :class:`Variable` object to store
+        """
         self.logger.info('Added variable id "{}" with classification "{}"'.format(var.id, var.classification))
         if var.classification in self.variables:
             self.variables[var.classification][var.id] = var
