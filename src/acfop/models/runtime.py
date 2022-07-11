@@ -230,6 +230,20 @@ class VariableStateStore:
         return result
 
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
+        """Retrieve the calculated final value of a :class:`Variable` object
+
+        Some :class:`Variable` objects may include template references to functions or shell scripts. These will be 
+        executed and other template references will be parsed to obtain their respective values that will then be 
+        replacing the template placeholders in order to build up the final value.
+
+        Args:
+            id: The :attr:`Variable.id`
+            classification: The :attr:`Variable.classification`
+            skip_embedded_variable_processing (:obj:`bool`): If set to ``True``, returns the raw value without any further processing
+
+        Returns:
+            object: The calculated value, converted to the type indicated by the :attr:`Variable.value_type`
+        """
         variable = self.get_variable(id=id, classification=classification)
         if skip_embedded_variable_processing is True:
             self.logger.debug('skip_embedded_variable_processing :: returning value "{}" of type "{}"'.format(variable.value, variable.value_type))
