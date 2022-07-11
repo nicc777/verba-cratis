@@ -7,7 +7,6 @@
 """
 
 
-import sys
 import argparse
 from acfop.utils import get_logger
 
@@ -38,7 +37,6 @@ def parse_argument(overrides: dict=dict(), logger=get_logger())->dict:
 
     if args['conf'] is None:
         parser.print_usage()
-        sys.exit(1)
 
     logger.debug('args={}'.format(args))
     return args

@@ -24,9 +24,9 @@ class TestFunctionParseArgument(unittest.TestCase):  # pragma: no cover
         self.overrides['config_file'] = 'examples/example_01/example_01.yaml'
 
     def test_basic_invocation(self):
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(SystemExit) as cm:
             parse_argument()
-        self.assertTrue('Not all required command line arguments were supplied' in str(context.exception))
+        self.assertEqual(cm.exception.code, 2)
 
 
 if __name__ == '__main__':
