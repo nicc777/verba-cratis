@@ -126,6 +126,15 @@ class VariableStateStore:
         raise Exception('Variable classification "{}" is not supported'.format(var.classification))
 
     def get_variable(self, id: str, classification: str='build-variable')->Variable:
+        """Retrieve a stored variable
+
+        Args:
+            id: The :attr:`Variable.id`
+            classification: The :attr:`Variable.classification`
+
+        Returns:
+            Variable: The :class:`Variable` object matching the :attr:`Variable.id` and :attr:`Variable.classification`
+        """
         if classification in self.variables:
             if id in self.variables[classification]:
                 return self.variables[classification][id]
