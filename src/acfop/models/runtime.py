@@ -81,6 +81,13 @@ class Variable:
 
 
 class VariableStateStore:
+    """A store for Variable objects
+
+    Attributes:
+        variables (:obj:`dict`): A dictionary of Variable objects partitioned by the Variable classification
+        registered_functions (:obj:`dict`): A dictionary of functions
+        logger (:obj:`Logger`): A logger object, for logging
+    """
 
     def __init__(self, logger=get_logger(), registered_functions: dict=FUNCTIONS):
         self.variables = dict()
