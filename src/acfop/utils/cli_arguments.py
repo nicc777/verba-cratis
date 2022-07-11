@@ -18,7 +18,7 @@ def parse_argument():
         nargs=1,
         required=True,
         dest='config_file',
-        metavar='S',
+        metavar='CONFIGURATION_FILE',
         type=str, 
         help='The path and filename of the configuration file. REQUIRED'
     )
