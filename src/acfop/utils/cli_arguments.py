@@ -13,6 +13,15 @@ from acfop.utils import get_logger
 
 
 def parse_command_line_arguments(cli_args: list=sys.argv[1:], overrides: dict=dict(), logger=get_logger())->dict:
+    """Helper function to parse command line arguments
+
+    Args:
+        cli_args: list of arguments as gathered from the command line
+        overrides: dictionary with overrides
+
+    Returns:
+        Returns a dictionary with all the parsed command line arguments
+    """
     logger.debug('overrides={}'.format(overrides))
     logger.debug('cli_args={}'.format(cli_args))
     args = dict()
