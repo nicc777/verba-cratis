@@ -18,7 +18,7 @@ def main(cli_args: list=sys.argv[1:])->dict:
     state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
     logger = get_logger()
     logger.info('Started with build ID {}'.format(state_store.get_variable_value(id='build_id')))
-    state_store = parse_command_line_arguments(cli_args=cli_args, state_store=state_store)
+    state_store = parse_command_line_arguments(cli_args=cli_args, state_store=state_store, logger=logger)
     result = dict()
     result['BuildId'] = state_store.get_variable_value(id='build_id')
     result['SourceConfigFile'] = state_store.get_variable_value(id='args:config_file')
