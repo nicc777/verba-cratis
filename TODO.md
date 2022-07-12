@@ -40,7 +40,7 @@ Next Up tasks
 * ~~Add unit tests for `src/acfop/models/runtime.py`~~
 * ~~Setup project for main entry point (command line utility called `acfop`)~~
 * ~~Add docstring to `acfop.models.runtime` module~~
-* Add command line arguments parsing - and add a command line argument for the location of the configuration file
+* ~~Add command line arguments parsing - and add a command line argument for the location of the configuration file~~
 * Populate configuration template in variable store (classification='build-variable')
 * Process Variables in logging configuration strings, like `filename` (see example 1)
 * Calculate final values for `globalVariables`
