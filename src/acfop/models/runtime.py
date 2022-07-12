@@ -271,29 +271,29 @@ class VariableStateStore:
         self.logger.debug('variable.value_type={}'.format(variable.value_type))
         if str(variable.value_type) == '<class \'str\'>':
             if isinstance(result, str) is False:    # pragma: no cover
-                result = '{}'.format(result)        # Very unlikely to ever reach this scenario
+                result = '{}'.format(result)        # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
         elif str(variable.value_type) == '<class \'bool\'>':
             if isinstance(result, str) is True:
-                if result.lower().startswith('t'):
-                    result = True
+                if result.lower().startswith('t'):  # pragma: no cover
+                    result = True                   # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
                 elif result.lower().startswith('1'):
                     result = True
                 else:
                     result = False
             elif isinstance(result, int) is True:
                 result = bool(result)
-            else:
-                result = False
-        elif str(variable.value_type) == '<class \'int\'>':
-            if isinstance(result, str) is True:
+            else:                                   # pragma: no cover
+                result = False                      # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
+        elif str(variable.value_type) == '<class \'int\'>': # pragma: no cover
+            if isinstance(result, str) is True:             # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
                 result = int(result)
             elif isinstance(result, bool) is True:
                 if result is True:
                     result = 1
                 else:
                     result = 0
-        else:
-            result = '{}'.format(result)
+        else:                                       # pragma: no cover
+            result = '{}'.format(result)            # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
         self.logger.debug('FINAL: type={} result={}'.format(type(result), result))
         return result
 

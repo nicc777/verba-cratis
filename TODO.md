@@ -13,7 +13,7 @@ src/acfop/aws/__init__.py                6      0   100%
 src/acfop/functions/__init__.py         14      0   100%
 src/acfop/functions/aws_helpers.py      18      0   100%
 src/acfop/models/__init__.py             0      0   100%
-src/acfop/models/runtime.py            180     10    94%   278, 286-296
+src/acfop/models/runtime.py            169      0   100%
 src/acfop/utils/__init__.py            192      0   100%
 src/acfop/utils/cli_arguments.py        29      0   100%
 src/acfop/utils/file_io.py              12      0   100%
@@ -21,7 +21,7 @@ src/acfop/utils/function_runner.py      50      0   100%
 src/acfop/utils/os_integration.py       16      0   100%
 src/acfop/utils/parser.py              106      0   100%
 ------------------------------------------------------------------
-TOTAL                                  643     10    98%
+TOTAL                                  632      0   100%
 ```
 
 ## Other Tasks
