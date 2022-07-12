@@ -21,7 +21,7 @@ from acfop.utils import *
 class TestFunctionMain(unittest.TestCase):    # pragma: no cover
 
     def test_call_main_defaults(self):
-        result = main()
+        result = main(cli_args=['--conf', 'examples/example_01/example_01.yaml'])
         self.assertIsNotNone(result)
         self.assertIsInstance(result, dict)
         self.assertTrue('BuildId' in result)
