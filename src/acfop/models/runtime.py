@@ -40,7 +40,7 @@ class Variable:
 
     The entire configuration will end up as a collection of Variable objects stored in :class:`VariableStateStore`
 
-    TODO Ass support for "exports" classification - requires a process to add exports after CloudFormation template deployment
+    TODO Add support for "exports" classification - requires a process to add exports after CloudFormation template deployment
 
     TODO Implement value_checksum updates when value changes. May require an update() method
 
