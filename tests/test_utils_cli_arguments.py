@@ -58,6 +58,11 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
         self.assertTrue(len(result['config_file']) > 0)
         self.assertTrue('example_02' in result['config_file'])
 
+    def test_basic_invocation_invalid_overrides_fail_with_exit(self):
+        with self.assertRaises(SystemExit) as cm:
+            parse_command_line_arguments(overrides={'config_file': None})
+        self.assertEqual(cm.exception.code, 2)
+
 
 if __name__ == '__main__':
     unittest.main()
