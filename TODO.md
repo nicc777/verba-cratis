@@ -44,6 +44,7 @@ Next Up tasks
 * Populate configuration template in variable store (classification='build-variable')
 * Process Variables in logging configuration strings, like `filename` (see example 1)
 * Calculate final values for `globalVariables`
+* Add logic to search for local `.acfop` configuration file in absence of config file command line argument
 
 > Note: this list is not the complete task list. I try to look a couple of major features ahead at the moment as apposed to fully planning all the steps out up front, simply because the effort to do the latter is just to great nad there are some finer details I have yet to think about. As far as the example configuration goes - I thought about current manifests from several DevOps/SysOps tools and then thought about how something like what I want could look like. Therefore, the configuration examples may very well evolve as the application implementation progresses - and this has already happened.
 
