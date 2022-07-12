@@ -8,10 +8,15 @@
 
 
 from acfop.utils import get_logger
+from acfop.utils.os_integration import file_exists
 from acfop.models.runtime import Variable, VariableStateStore
 
 
 def update_state_store_from_config_file(state_store: VariableStateStore, logger=get_logger())->VariableStateStore:
-
+    config_file = state_store.get_variable_value(id='args:config_file', skip_embedded_variable_processing=True)
+    if file_exists(file_path=config_file, logger=logger):
+        pass
+    else:
+        raise Exception('Config file not found')
     return state_store
 

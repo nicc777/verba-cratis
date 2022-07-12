@@ -11,6 +11,8 @@ import subprocess, shlex
 import hashlib
 import tempfile
 import os
+import os.path
+import traceback
 from acfop.utils import get_logger
 
 
@@ -25,3 +27,14 @@ def exec_shell_cmd(cmd: str, logger=get_logger()):
     logger.info('[{}] Command: {}'.format(value_checksum, cmd))
     logger.info('[{}] Command Result: {}'.format(value_checksum, result))
     return result
+
+
+def file_exists(file_path: str, logger=get_logger())->bool:
+    logger.debug('Checking if file "{}" exists'.format(file_path))
+    exists = False
+    try:
+        exists = os.path.isfile(file_path) 
+    except:
+        logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
+    logger.info('file "{}" exists: {}'.format(file_path, exists))
+    return exist
