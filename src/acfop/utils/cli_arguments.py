@@ -26,7 +26,7 @@ def parse_command_line_arguments(
         overrides: dictionary with overrides
 
     Returns:
-        Returns a dictionary with all the parsed command line arguments
+        Returns an updated :class:`VariableStateStore` object with all the parsed command line arguments
     """
     logger.debug('overrides={}'.format(overrides))
     logger.debug('cli_args={}'.format(cli_args))
