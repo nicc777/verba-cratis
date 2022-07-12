@@ -42,6 +42,7 @@ Next Up tasks
 * ~~Add docstring to `acfop.models.runtime` module~~
 * ~~Add command line arguments parsing - and add a command line argument for the location of the configuration file~~
 * Populate configuration template in variable store (classification='build-variable')
+* Add logger to state_store and remove from functions receiving state_store as parameter (optimized function parameter list)
 * Process Variables in logging configuration strings, like `filename` (see example 1)
 * Calculate final values for `globalVariables`
 * Add logic to search for local `.acfop` configuration file in absence of config file command line argument
