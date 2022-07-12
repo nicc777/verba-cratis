@@ -37,4 +37,4 @@ def file_exists(file_path: str, logger=get_logger())->bool:
     except:
         logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
     logger.info('file "{}" exists: {}'.format(file_path, exists))
-    return exist
+    return exists
