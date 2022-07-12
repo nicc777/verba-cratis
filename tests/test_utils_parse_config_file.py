@@ -27,6 +27,15 @@ class TestFunctionUpdateStateStoreFromConfigFile(unittest.TestCase):    # pragma
             '--conf', 'examples/example_01/example_01.yaml',
         ]
 
+    def test_call_update_state_store_from_config_file_force_exception(self):
+        state_store = parse_command_line_arguments(cli_args=self.cli_args)
+        v = state_store.get_variable(id='args:config_file', classification='build-variable')
+        v.value = None
+        state_store.update_variable(variable=v)
+        with self.assertRaises(Exception) as context:
+            update_state_store_from_config_file(state_store=state_store)
+        self.assertTrue('Config file not found' in str(context.exception))
+
     def test_call_update_state_store_from_config_file_defaults(self):
         state_store = parse_command_line_arguments(cli_args=self.cli_args)
         result = update_state_store_from_config_file(state_store=state_store)
