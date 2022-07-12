@@ -1,4 +1,4 @@
-# Status at 2022-07-11
+# Status at 2022-07-12
 
 ## Complete Unit Tests
 
@@ -8,20 +8,20 @@ Current coverage:
 Name                                 Stmts   Miss  Cover   Missing
 ------------------------------------------------------------------
 src/acfop/__init__.py                    3      0   100%
-src/acfop/acfop.py                      13      0   100%
+src/acfop/acfop.py                      14      0   100%
 src/acfop/aws/__init__.py                6      0   100%
 src/acfop/functions/__init__.py         14      0   100%
 src/acfop/functions/aws_helpers.py      18      0   100%
 src/acfop/models/__init__.py             0      0   100%
 src/acfop/models/runtime.py            180     10    94%   278, 286-296
 src/acfop/utils/__init__.py            192      0   100%
-src/acfop/utils/cli_arguments.py        19      2    89%   32, 36
+src/acfop/utils/cli_arguments.py        26      2    92%   47-48
 src/acfop/utils/file_io.py              12      0   100%
 src/acfop/utils/function_runner.py      50      0   100%
 src/acfop/utils/os_integration.py       16      0   100%
 src/acfop/utils/parser.py              106      0   100%
 ------------------------------------------------------------------
-TOTAL                                  629     12    98%
+TOTAL                                  637     12    98%
 ```
 
 ## Other Tasks
