@@ -15,6 +15,7 @@ import unittest
 
 
 from acfop.utils.cli_arguments import parse_command_line_arguments
+from acfop.models.runtime import VariableStateStore
 
 
 class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no cover
@@ -34,29 +35,32 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
     def test_basic_invocation_args_basic(self):
         result = parse_command_line_arguments(cli_args=self.cli_args)
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, dict)
-        self.assertTrue('config_file' in result)
-        self.assertIsInstance(result['config_file'], str)
-        self.assertTrue(len(result['config_file']) > 0)
-        self.assertTrue('example_01' in result['config_file'])
+        self.assertIsInstance(result, VariableStateStore)
+        value = result.get_variable_value(id='args:config_file', skip_embedded_variable_processing=True)
+        self.assertIsNotNone(value)
+        self.assertIsInstance(value, str)
+        self.assertTrue(len(value) > 0)
+        self.assertTrue('example_01' in value)
 
     def test_basic_invocation_args_overrides_only(self):
         result = parse_command_line_arguments(overrides=self.overrides)
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, dict)
-        self.assertTrue('config_file' in result)
-        self.assertIsInstance(result['config_file'], str)
-        self.assertTrue(len(result['config_file']) > 0)
-        self.assertTrue('example_02' in result['config_file'])
+        self.assertIsInstance(result, VariableStateStore)
+        value = result.get_variable_value(id='args:config_file', skip_embedded_variable_processing=True)
+        self.assertIsNotNone(value)
+        self.assertIsInstance(value, str)
+        self.assertTrue(len(value) > 0)
+        self.assertTrue('example_02' in value)
 
     def test_basic_invocation_args_cli_provided_and_overrides(self):
         result = parse_command_line_arguments(cli_args=self.cli_args, overrides=self.overrides)
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, dict)
-        self.assertTrue('config_file' in result)
-        self.assertIsInstance(result['config_file'], str)
-        self.assertTrue(len(result['config_file']) > 0)
-        self.assertTrue('example_02' in result['config_file'])
+        self.assertIsInstance(result, VariableStateStore)
+        value = result.get_variable_value(id='args:config_file', skip_embedded_variable_processing=True)
+        self.assertIsNotNone(value)
+        self.assertIsInstance(value, str)
+        self.assertTrue(len(value) > 0)
+        self.assertTrue('example_02' in value)
 
     def test_basic_invocation_invalid_overrides_fail_with_exit(self):
         with self.assertRaises(SystemExit) as cm:
