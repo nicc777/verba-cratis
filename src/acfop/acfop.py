@@ -8,7 +8,7 @@
 
 import sys
 from acfop.utils import get_logger
-from acfop.utils.cli_arguments import parse_argument
+from acfop.utils.cli_arguments import parse_command_line_arguments
 from acfop import BUILD_ID
 from acfop.models.runtime import Variable, VariableStateStore
 
@@ -18,7 +18,7 @@ def main(cli_args: list=sys.argv[1:])->dict:
     state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
     logger = get_logger()
     logger.info('Started with build ID {}'.format(state_store.get_variable_value(id='build_id')))
-    cli_args = parse_argument(cli_args=cli_args)
+    cli_args = parse_command_line_arguments(cli_args=cli_args)
     result = dict()
     result['BuildId'] = state_store.get_variable_value(id='build_id')
     return result

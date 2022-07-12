@@ -12,7 +12,7 @@ import argparse
 from acfop.utils import get_logger
 
 
-def parse_argument(cli_args: list=sys.argv[1:], overrides: dict=dict(), logger=get_logger())->dict:
+def parse_command_line_arguments(cli_args: list=sys.argv[1:], overrides: dict=dict(), logger=get_logger())->dict:
     logger.debug('overrides={}'.format(overrides))
     logger.debug('cli_args={}'.format(cli_args))
     args = dict()
@@ -21,13 +21,13 @@ def parse_argument(cli_args: list=sys.argv[1:], overrides: dict=dict(), logger=g
     parser.add_argument(
         '-c', '--conf',
         action='store',
-        nargs=1,
+        nargs='*',
         dest='config_file',
         metavar='CONFIGURATION_FILE',
         type=str, 
         help='The path and filename of the configuration file. REQUIRED'
     )
-    parsed_args = parser.parse_args(cli_args)
+    parsed_args, unknown_args = parser.parse_known_args(cli_args)
     logger.debug('parsed_args={}'.format(parsed_args))
 
     if parsed_args.config_file is not None:
@@ -37,8 +37,15 @@ def parse_argument(cli_args: list=sys.argv[1:], overrides: dict=dict(), logger=g
     for k,v in overrides.items():
         args[k] = v
 
+    logger.debug('args={}'.format(args))
+
+    if 'config_file' not in args:
+        parser.print_usage()
+        sys.exit(2)
+
     if args['config_file'] is None:
         parser.print_usage()
+        sys.exit(2)
 
     logger.debug('args={}'.format(args))
     return args
