@@ -32,7 +32,7 @@ def main(cli_args: list=sys.argv[1:])->dict:
     result = dict()
     result['BuildId'] = state_store.get_variable_value(id='build_id')
     result['SourceConfigFile'] = state_store.get_variable_value(id='args:config_file')
-    result['RuntimeCOnfiguration'] = configuration_as_dict
+    result['RuntimeConfiguration'] = configuration_as_dict
 
     # Log and return final result
     logger.info('RESULT: {}'.format(json.dumps(result, indent=4, sort_keys=True, default=str)))

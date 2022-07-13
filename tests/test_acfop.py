@@ -24,9 +24,19 @@ class TestFunctionMain(unittest.TestCase):    # pragma: no cover
         result = main(cli_args=['--conf', 'examples/example_01/example_01.yaml'])
         self.assertIsNotNone(result)
         self.assertIsInstance(result, dict)
+        
         self.assertTrue('BuildId' in result)
         self.assertIsInstance(result['BuildId'], str)
         self.assertTrue(len(result['BuildId']) > 0)
+
+        self.assertTrue('SourceConfigFile' in result)
+        self.assertIsInstance(result['SourceConfigFile'], str)
+        self.assertTrue(len(result['SourceConfigFile']) > 0)
+        self.assertEqual(result['SourceConfigFile'], 'examples/example_01/example_01.yaml')
+
+        self.assertTrue('RuntimeConfiguration' in result)
+        self.assertIsInstance(result['RuntimeConfiguration'], dict)
+        self.assertTrue(len(result['RuntimeConfiguration']) > 0)
 
 
 if __name__ == '__main__':
