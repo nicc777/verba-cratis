@@ -19,6 +19,7 @@ import tempfile
 import os
 import re
 import ast
+import json
 import random, string   # TODO temporary use - remove later
 
 
@@ -301,6 +302,28 @@ class VariableStateStore:
 def configuration_to_variable_state_store(configuration: dict, logger=get_logger(), registered_functions: dict=FUNCTIONS)->VariableStateStore:
     vss = VariableStateStore(registered_functions=registered_functions)
     if not validate_configuration(configuration=configuration):
+        logger.error('Configuration Validation Failed. configuration={}'.format(json.dumps(configuration, indent=4, sort_keys=True, default=str)))
         raise Exception('Configuration is invalid')
+
+
+    if 'logging' in configuration:
+        pass # Parse logging configuration, and update logger
+
+
+    if 'globalVariables' in configuration:
+        pass # Parse globalVariables configuration
+
+
+    if 'functionParameterValues' in configuration:
+        pass # Parse globalVariables configuration
+
+
+    if 'tasks' in configuration:
+        pass # Parse globalVariables configuration
+
+
+    if 'deployments' in configuration:
+        pass # Parse globalVariables configuration
+
 
     return vss
