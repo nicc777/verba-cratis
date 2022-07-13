@@ -431,7 +431,7 @@ def update_logger_from_configuration(variable_state_store: VariableStateStore, l
         include_logging_timed_rotating_file_handler=variable_state_store.get_variable_value(id='logging.handlers.TimedRotatingFileHandler'),
         include_logging_datagram_handler=variable_state_store.get_variable_value(id='logging.handlers.DatagramHandler'),
         include_logging_syslog_handler=variable_state_store.get_variable_value(id='logging.handlers.SysLogHandler'),
-        extra_parameters=json.loads(variable_state_store.get_variable_value(id='logging.level'))
+        extra_parameters=json.loads(variable_state_store.get_variable_value(id='logging.extra_parameters_as_json'))
     )
     return updated_logger
 
