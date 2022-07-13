@@ -340,6 +340,10 @@ def extract_logging_configuration(logging_configuration: dict, variable_state_st
         variable_state_store.add_variable(
             var=Variable(id='logging.format', initial_value=logging_configuration['format'], classification='build-variable')
         )
+        logging_format_variable = variable_state_store.get_variable(id='logging.format')
+        logging_format_variable.value =  variable_state_store.get_variable_value(id='logging.format')# FIXME the template variable in the example is not yet processed successfully 
+        variable_state_store.update_variable(variable=logging_format_variable)
+        
     else:   # Set default
         variable_state_store.add_variable(
             var=Variable(id='logging.format', initial_value='%(asctime)s %(levelname)s %(message)s', classification='build-variable')
