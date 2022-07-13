@@ -9,7 +9,7 @@
 
 import traceback
 from acfop.utils import get_logger
-from acfop.utils.parser import variable_snippet_extract
+from acfop.utils.parser import variable_snippet_extract, validate_configuration
 from acfop.utils.os_integration import exec_shell_cmd
 from acfop.utils.function_runner import execute_function
 from acfop.functions import user_function_factory
@@ -300,6 +300,7 @@ class VariableStateStore:
    
 def configuration_to_variable_state_store(configuration: dict, logger=get_logger(), registered_functions: dict=FUNCTIONS)->VariableStateStore:
     vss = VariableStateStore(registered_functions=registered_functions)
-
+    if not validate_configuration(configuration=configuration):
+        raise Exception(('Configuration is invalid'))
 
     return vss
