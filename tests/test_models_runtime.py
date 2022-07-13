@@ -16,6 +16,7 @@ import unittest
 from acfop.models.runtime import *
 from acfop.functions import user_function_factory
 from acfop.utils import get_logger
+from acfop.utils.parser import parse_configuration_file
 
 
 class StsClientMock:    # pragma: no cover
@@ -381,7 +382,7 @@ class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    #
 class TestFunctionConfigurationToVariableStateStore(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
-        self.configuration = dict()
+        self.configuration = parse_configuration_file(file_path='examples/example_01/example_01.yaml')
 
     def test_configuration_to_variable_state_store_call_with_defaults(self):
         result = configuration_to_variable_state_store(configuration=self.configuration)

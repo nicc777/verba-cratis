@@ -20,6 +20,7 @@ import os
 import re
 import ast
 import json
+import logging
 import random, string   # TODO temporary use - remove later
 
 
@@ -298,6 +299,143 @@ class VariableStateStore:
         self.logger.debug('FINAL: type={} result={}'.format(type(result), result))
         return result
 
+
+def extract_logging_configuration(logging_configuration: dict, variable_state_store: VariableStateStore, logger=get_logger())->VariableStateStore:
+    """
+        Example logging configuration section
+        {
+            "filename": "deployment-${build-variable:build_id}.log",
+            "format": "%(asctime)s %(levelname)s %(message)s",
+            "handlers": [
+                {
+                    "name": "TimedRotatingFileHandler",
+                    "parameters": [
+                        {
+                            "parameterName": "format",
+                            "parameterType": "str",
+                            "parameterValue": "%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d - %(message)s"
+                        }
+                    ]
+                },
+                {
+                    "name": "StreamHandler"
+                }
+            ],
+            "level": "warn"
+        }
+    """
+
+    if 'filename' in logging_configuration:
+        variable_state_store.add_variable(
+            var=Variable(id='logging.filename', initial_value=logging_configuration['filename'], classification='build-variable')
+        )
+    else:   # Use default name in case any of the file handlers are required
+        variable_state_store.add_variable(
+            var=Variable(id='logging.filename', initial_value='acfop.log', classification='build-variable')
+        )
+
+    if 'format' in logging_configuration:
+        variable_state_store.add_variable(
+            var=Variable(id='logging.format', initial_value=logging_configuration['format'], classification='build-variable')
+        )
+    else:   # Set default
+        variable_state_store.add_variable(
+            var=Variable(id='logging.format', initial_value='%(asctime)s %(levelname)s %(message)s', classification='build-variable')
+        )
+
+    if 'level' in logging_configuration:
+        if 'warn' in logging_configuration['level'].lower():
+            variable_state_store.add_variable(
+                var=Variable(id='logging.level', initial_value=logging.WARNING, value_type=int, classification='build-variable')
+            )
+        elif 'err' in logging_configuration['level'].lower():
+            variable_state_store.add_variable(
+                var=Variable(id='logging.level', initial_value=logging.ERROR, value_type=int, classification='build-variable')
+            )
+        elif 'debug' in logging_configuration['level'].lower():
+            variable_state_store.add_variable(
+                var=Variable(id='logging.level', initial_value=logging.DEBUG, value_type=int, classification='build-variable')
+            )
+        else:
+            variable_state_store.add_variable(
+                var=Variable(id='logging.level', initial_value=logging.INFO, value_type=int, classification='build-variable')
+            )
+    else:   # Set default
+        variable_state_store.add_variable(
+            var=Variable(id='logging.level', initial_value=logging.DEBUG, value_type=int, classification='build-variable')
+        )
+
+
+    ### SET DEFAULTS
+    # StreamHandler
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.StreamHandler', initial_value=True, value_type=bool, classification='build-variable')
+    )
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.StreamHandler.parameters', initial_value='', value_type=str, classification='build-variable')
+    )
+
+    # FileHandler
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.FileHandler', initial_value=False, value_type=bool, classification='build-variable')
+    )
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.StreamHandler.parameters', initial_value='', value_type=str, classification='build-variable')
+    )
+
+    # TimedRotatingFileHandler
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.TimedRotatingFileHandler', initial_value=False, value_type=bool, classification='build-variable')
+    )
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.TimedRotatingFileHandler.parameters', initial_value='', value_type=str, classification='build-variable')
+    )
+
+    # DatagramHandler
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.DatagramHandler', initial_value=False, value_type=bool, classification='build-variable')
+    )
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.DatagramHandler.parameters', initial_value='', value_type=str, classification='build-variable')
+    )
+
+    # SysLogHandler
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.SysLogHandler', initial_value=False, value_type=bool, classification='build-variable')
+    )
+    variable_state_store.add_variable(
+        var=Variable(id='logging.handlers.SysLogHandler.parameters', initial_value='', value_type=str, classification='build-variable')
+    )
+    if 'handlers' in logging_configuration:
+        pass
+        
+
+    return variable_state_store
+
+
+def update_logger_from_configuration(variable_state_store: VariableStateStore, logger=get_logger())->logging.Logger:
+    result = list()
+    level = logging.DEBUG
+    logger_extra_parameters = dict()
+    include_logging_file_handler=False,
+    include_logging_stream_handler=True,
+    include_logging_timed_rotating_file_handler=False,
+    include_logging_datagram_handler=False,
+    include_logging_syslog_handler=False,
+    extra_parameters = dict()
+
+    updated_logger = get_logger(
+        level=level,    
+        include_logging_file_handler=include_logging_file_handler,
+        include_logging_stream_handler=include_logging_stream_handler,
+        include_logging_timed_rotating_file_handler=include_logging_timed_rotating_file_handler,
+        include_logging_datagram_handler=include_logging_datagram_handler,
+        include_logging_syslog_handler=include_logging_syslog_handler,
+        extra_parameters=extra_parameters
+    )
+
+    return updated_logger
+
    
 def configuration_to_variable_state_store(configuration: dict, logger=get_logger(), registered_functions: dict=FUNCTIONS)->VariableStateStore:
     vss = VariableStateStore(registered_functions=registered_functions)
@@ -307,7 +445,16 @@ def configuration_to_variable_state_store(configuration: dict, logger=get_logger
 
 
     if 'logging' in configuration:
-        pass # Parse logging configuration, and update logger
+        vss = extract_logging_configuration(
+            logging_configuration=configuration['logging'],
+            variable_state_store=vss,
+            logger=logger
+        )
+        logger = update_logger_from_configuration(variable_state_store=vss, logger=logger)
+        logger_variable = Variable(id='logging.logger', initial_value='', classification='build-variable')
+        logger_variable.value = logger
+        logger_variable.value_type = type(logger)
+        vss.add_variable(var=logger_variable)
 
 
     if 'globalVariables' in configuration:
