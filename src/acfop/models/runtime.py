@@ -415,6 +415,8 @@ def extract_logging_configuration(logging_configuration: dict, variable_state_st
 
 def update_logger_from_configuration(variable_state_store: VariableStateStore, logger=get_logger())->logging.Logger:
     result = list()
+
+    # TODO the defaults below are all to be obtained from variable_state_store
     level = logging.DEBUG
     logger_extra_parameters = dict()
     include_logging_file_handler=False,
