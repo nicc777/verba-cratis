@@ -38,8 +38,8 @@ globalVariables:
 # Define the deployment logging options - NOTE: Only the build id and access to functions is available for template substitution since logging is setup still in the early stages of the application startup
 logging:
   filename: deployment-${build-variable:build_id}.log
-  level: warn
-  format: '%(asctime)s %(levelname)s %(message)s'
+  level: debug
+  format: '%(asctime)s [%(funcName)s:%(lineno)d] %(levelname)s %(message)s'
   handlers:
   - name: TimedRotatingFileHandler
     parameters:

@@ -424,16 +424,19 @@ def extract_logging_configuration(logging_configuration: dict, variable_state_st
 
 
 def update_logger_from_configuration(variable_state_store: VariableStateStore, logger=get_logger())->logging.Logger:
-    updated_logger = get_logger(
+    logger.info('Configuring logging from config...')
+    logger = get_logger(
         level=variable_state_store.get_variable(id='logging.level').value,
         include_logging_file_handler=variable_state_store.get_variable_value(id='logging.handlers.FileHandler'),
         include_logging_stream_handler=variable_state_store.get_variable_value(id='logging.handlers.StreamHandler'),
         include_logging_timed_rotating_file_handler=variable_state_store.get_variable_value(id='logging.handlers.TimedRotatingFileHandler'),
         include_logging_datagram_handler=variable_state_store.get_variable_value(id='logging.handlers.DatagramHandler'),
         include_logging_syslog_handler=variable_state_store.get_variable_value(id='logging.handlers.SysLogHandler'),
-        extra_parameters=json.loads(variable_state_store.get_variable_value(id='logging.extra_parameters_as_json'))
+        extra_parameters=json.loads(variable_state_store.get_variable_value(id='logging.extra_parameters_as_json')),
+        log_format=variable_state_store.get_variable_value(id='logging.format')
     )
-    return updated_logger
+    logger.info('Configured logging from config - DONE')
+    return logger
 
    
 def configuration_to_variable_state_store(configuration: dict, logger=get_logger(), registered_functions: dict=FUNCTIONS)->VariableStateStore:
@@ -454,7 +457,10 @@ def configuration_to_variable_state_store(configuration: dict, logger=get_logger
         logger_variable.value = logger
         logger_variable.value_type = type(logger)
         vss.add_variable(var=logger_variable)
-    logger.info('Application Startup - Logging Configured')
+    logger.info('Application Startup - Logging Configured - INFO LEVEL')
+    logger.debug('Application Startup - Logging Configured - DEBUG LEVEL')
+    logger.error('Application Startup - Logging Configured - ERROR LEVEL')
+    logger.warning('Application Startup - Logging Configured - WARNING LEVEL')
 
 
     if 'globalVariables' in configuration:

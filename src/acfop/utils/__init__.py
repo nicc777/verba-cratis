@@ -143,11 +143,12 @@ def get_logger(
     include_logging_timed_rotating_file_handler: bool=False,
     include_logging_datagram_handler: bool=False,
     include_logging_syslog_handler: bool=False,
-    extra_parameters: dict=dict()
+    extra_parameters: dict=dict(),
+    log_format: str='%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
 )->logging.Logger:
     logger = logging.getLogger()
     logger.handlers = []
-    formatter = logging.Formatter('%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s')
+    formatter = logging.Formatter(log_format)
     
     qty_handlers_included = 0
 
