@@ -378,5 +378,16 @@ class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    #
         self.assertTrue('Maximum embedded variable parsing depth exceeded' in str(context.exception))
 
 
+class TestFunctionConfigurationToVariableStateStore(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        self.configuration = dict()
+
+    def test_configuration_to_variable_state_store_call_with_defaults(self):
+        result = configuration_to_variable_state_store(configuration=self.configuration)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, VariableStateStore)
+
+
 if __name__ == '__main__':
     unittest.main()
