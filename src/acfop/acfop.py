@@ -12,6 +12,7 @@ from acfop.utils import get_logger
 from acfop.utils.cli_arguments import parse_command_line_arguments
 from acfop import BUILD_ID
 from acfop.models.runtime import Variable, VariableStateStore
+from acfop.utils.parser import parse_configuration_file
 
 
 def main(cli_args: list=sys.argv[1:])->dict:
@@ -24,10 +25,14 @@ def main(cli_args: list=sys.argv[1:])->dict:
     # Parse command line arguments (update state_store)
     state_store = parse_command_line_arguments(cli_args=cli_args, state_store=state_store, logger=logger)
     
+    # Read and parse the configuration
+    configuration_as_dict = parse_configuration_file(file_path=state_store.get_variable_value(id='args:config_file'))
+
     # Prepare the final result
     result = dict()
     result['BuildId'] = state_store.get_variable_value(id='build_id')
     result['SourceConfigFile'] = state_store.get_variable_value(id='args:config_file')
+    result['RuntimeCOnfiguration'] = configuration_as_dict
 
     # Log and return final result
     logger.info('RESULT: {}'.format(json.dumps(result, indent=4, sort_keys=True, default=str)))
