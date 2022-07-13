@@ -298,4 +298,8 @@ class VariableStateStore:
         return result
 
    
-        
+def configuration_to_variable_state_store(configuration: dict, logger=get_logger(), registered_functions: dict=FUNCTIONS)->VariableStateStore:
+    vss = VariableStateStore(registered_functions=registered_functions)
+
+
+    return vss
