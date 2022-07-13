@@ -325,6 +325,8 @@ def extract_logging_configuration(logging_configuration: dict, variable_state_st
         }
     """
 
+    extra_parameters = dict()
+
     if 'filename' in logging_configuration:
         variable_state_store.add_variable(
             var=Variable(id='logging.filename', initial_value=logging_configuration['filename'], classification='build-variable')
@@ -406,36 +408,31 @@ def extract_logging_configuration(logging_configuration: dict, variable_state_st
     variable_state_store.add_variable(
         var=Variable(id='logging.handlers.SysLogHandler.parameters', initial_value='', value_type=str, classification='build-variable')
     )
+
+
+    # TODO store extra parameters
     if 'handlers' in logging_configuration:
         pass
-        
+
+
+    # Store extra parameters as JSON
+    variable_state_store.add_variable(
+        var=Variable(id='logging.extra_parameters_as_json', initial_value=json.dumps(extra_parameters), value_type=str, classification='build-variable')
+    )
 
     return variable_state_store
 
 
 def update_logger_from_configuration(variable_state_store: VariableStateStore, logger=get_logger())->logging.Logger:
-    result = list()
-
-    # TODO the defaults below are all to be obtained from variable_state_store
-    level = logging.DEBUG
-    logger_extra_parameters = dict()
-    include_logging_file_handler=False,
-    include_logging_stream_handler=True,
-    include_logging_timed_rotating_file_handler=False,
-    include_logging_datagram_handler=False,
-    include_logging_syslog_handler=False,
-    extra_parameters = dict()
-
     updated_logger = get_logger(
-        level=level,    
-        include_logging_file_handler=include_logging_file_handler,
-        include_logging_stream_handler=include_logging_stream_handler,
-        include_logging_timed_rotating_file_handler=include_logging_timed_rotating_file_handler,
-        include_logging_datagram_handler=include_logging_datagram_handler,
-        include_logging_syslog_handler=include_logging_syslog_handler,
-        extra_parameters=extra_parameters
+        level=variable_state_store.get_variable(id='logging.level').value,
+        include_logging_file_handler=variable_state_store.get_variable_value(id='logging.handlers.FileHandler'),
+        include_logging_stream_handler=variable_state_store.get_variable_value(id='logging.handlers.StreamHandler'),
+        include_logging_timed_rotating_file_handler=variable_state_store.get_variable_value(id='logging.handlers.TimedRotatingFileHandler'),
+        include_logging_datagram_handler=variable_state_store.get_variable_value(id='logging.handlers.DatagramHandler'),
+        include_logging_syslog_handler=variable_state_store.get_variable_value(id='logging.handlers.SysLogHandler'),
+        extra_parameters=json.loads(variable_state_store.get_variable_value(id='logging.level'))
     )
-
     return updated_logger
 
    
@@ -457,6 +454,7 @@ def configuration_to_variable_state_store(configuration: dict, logger=get_logger
         logger_variable.value = logger
         logger_variable.value_type = type(logger)
         vss.add_variable(var=logger_variable)
+    logger.info('Application Startup - Logging Configured')
 
 
     if 'globalVariables' in configuration:

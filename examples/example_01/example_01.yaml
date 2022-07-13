@@ -35,7 +35,7 @@ globalVariables:
   cloudFormationS3Bucket: artifact-bucket-83g-74y-bco-8nx
 
 
-# Define the deployment logging options
+# Define the deployment logging options - NOTE: Only the build id and access to functions is available for template substitution since logging is setup still in the early stages of the application startup
 logging:
   filename: deployment-${build-variable:build_id}.log
   level: warn
