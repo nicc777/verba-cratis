@@ -7,6 +7,9 @@
 """
 
 
+# TODO this file is no longer required. remove together with unit tests
+
+
 from acfop.utils import get_logger
 from acfop.utils.os_integration import file_exists
 from acfop.models.runtime import Variable, VariableStateStore
