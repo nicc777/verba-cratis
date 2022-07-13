@@ -301,6 +301,6 @@ class VariableStateStore:
 def configuration_to_variable_state_store(configuration: dict, logger=get_logger(), registered_functions: dict=FUNCTIONS)->VariableStateStore:
     vss = VariableStateStore(registered_functions=registered_functions)
     if not validate_configuration(configuration=configuration):
-        raise Exception(('Configuration is invalid'))
+        raise Exception('Configuration is invalid')
 
     return vss
