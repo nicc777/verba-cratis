@@ -39,7 +39,7 @@ globalVariables:
 logging:
   filename: deployment-${build-variable:build_id}.log
   level: debug
-  format: '%(asctime)s [%(funcName)s:%(lineno)d] %(levelname)s %(message)s'
+  format: '[${build-variable:build_id}] %(asctime)s [%(funcName)s:%(lineno)d] %(levelname)s %(message)s'
   handlers:
   - name: TimedRotatingFileHandler
     parameters:
