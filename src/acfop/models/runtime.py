@@ -189,7 +189,7 @@ class VariableStateStore:
                     if deeper_level not in new_snippets:
                         new_snippets[deeper_level] = list()
                     new_snippets[deeper_level] = snippet_collection
-        
+        self.logger.debug('new_snippets={}'.format(new_snippets))
         return new_snippets
 
     def _get_variable_run_result(self, current_variable: Variable, updated_value: object=None)->str:
@@ -209,7 +209,7 @@ class VariableStateStore:
         snippets = self._extract_snippets(value='{}'.format(line))
         self.logger.debug('snippets={}'.format(snippets))
         if len(snippets) > 0:
-            for snippet in snippets[0]:
+            for snippet in snippets[len(snippets) - 1]:
                 template_line = '${}{}{}'.format('{', snippet, '}')
                 self.logger.debug('Getting value for snippet "{}"'.format(template_line))
 
