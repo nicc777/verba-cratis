@@ -250,16 +250,19 @@ class VariableStateStore:
         if skip_embedded_variable_processing is True:
             self.logger.debug('skip_embedded_variable_processing :: returning value "{}" of type "{}"'.format(variable.value, variable.value_type))
             return variable.value  
-        result = variable.value
-        snippets = self._extract_snippets(value='{}'.format(variable.value))
-        self.logger.debug('snippets={}'.format(snippets))
-        if len(snippets) > 0:
-            for snippet in snippets[0]:
-                self.logger.debug('Getting value for snippet "{}"'.format(snippet))
-                snippet_value = self._process_snippet_line(line=snippet, variable=variable)
-                template_line = '${}{}{}'.format('{', snippet, '}')
-                result = result.replace(template_line, snippet_value)
-                self.logger.debug('PROGRESSION: result={}'.format(result))
+
+        result = self._process_snippet_line(line=variable.value, variable=variable)
+
+        # result = variable.value
+        # snippets = self._extract_snippets(value='{}'.format(variable.value))
+        # self.logger.debug('snippets={}'.format(snippets))
+        # if len(snippets) > 0:
+        #     for snippet in snippets[0]:
+        #         self.logger.debug('Getting value for snippet "{}"'.format(snippet))
+        #         snippet_value = self._process_snippet_line(line=snippet, variable=variable)
+        #         template_line = '${}{}{}'.format('{', snippet, '}')
+        #         result = result.replace(template_line, snippet_value)
+        #         self.logger.debug('PROGRESSION: result={}'.format(result))
 
         old_result = result
         try:
@@ -443,24 +446,24 @@ def update_logger_from_configuration(variable_state_store: VariableStateStore, l
     return logger
 
    
-def configuration_to_variable_state_store(configuration: dict, logger=get_logger(), registered_functions: dict=FUNCTIONS)->VariableStateStore:
-    vss = VariableStateStore(registered_functions=registered_functions)
+def configuration_to_variable_state_store(variable_state_store: VariableStateStore, configuration: dict, logger=get_logger(), registered_functions: dict=FUNCTIONS)->VariableStateStore:
+    # variable_state_store = VariableStateStore(registered_functions=registered_functions)
     if not validate_configuration(configuration=configuration):
         logger.error('Configuration Validation Failed. configuration={}'.format(json.dumps(configuration, indent=4, sort_keys=True, default=str)))
         raise Exception('Configuration is invalid')
 
 
     if 'logging' in configuration:
-        vss = extract_logging_configuration(
+        variable_state_store = extract_logging_configuration(
             logging_configuration=configuration['logging'],
-            variable_state_store=vss,
+            variable_state_store=variable_state_store,
             logger=logger
         )
-        logger = update_logger_from_configuration(variable_state_store=vss, logger=logger)
+        logger = update_logger_from_configuration(variable_state_store=variable_state_store, logger=logger)
         logger_variable = Variable(id='logging.logger', initial_value='', classification='build-variable')
         logger_variable.value = logger
         logger_variable.value_type = type(logger)
-        vss.add_variable(var=logger_variable)
+        variable_state_store.add_variable(var=logger_variable)
     logger.info('Application Startup - Logging Configured - INFO LEVEL')
     logger.debug('Application Startup - Logging Configured - DEBUG LEVEL')
     logger.error('Application Startup - Logging Configured - ERROR LEVEL')
@@ -483,4 +486,5 @@ def configuration_to_variable_state_store(configuration: dict, logger=get_logger
         pass # Parse globalVariables configuration
 
 
-    return vss
+    return variable_state_store
+

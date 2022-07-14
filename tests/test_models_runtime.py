@@ -13,6 +13,7 @@ print('sys.path={}'.format(sys.path))
 
 import unittest
 
+from acfop import BUILD_ID
 from acfop.models.runtime import *
 from acfop.functions import user_function_factory
 from acfop.utils import get_logger
@@ -383,9 +384,12 @@ class TestFunctionConfigurationToVariableStateStore(unittest.TestCase):    # pra
 
     def setUp(self):
         self.configuration = parse_configuration_file(file_path='examples/example_01/example_01.yaml')
+        self.initial_state_store = BUILD_ID
 
     def test_configuration_to_variable_state_store_call_with_defaults(self):
-        result = configuration_to_variable_state_store(configuration=self.configuration)
+        state_store = VariableStateStore()
+        state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
+        result = configuration_to_variable_state_store(variable_state_store=state_store, configuration=self.configuration) 
         self.assertIsNotNone(result)
         self.assertIsInstance(result, VariableStateStore)
 
