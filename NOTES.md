@@ -357,5 +357,71 @@ The example template processing algorithm is in [this source](scratch/processing
 Example run output:
 
 ```text
-
+001: line=abc ${func:func_a(p1=${ref:aa})} and ${ref:bb} and ${func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})} def
+002: process_line(): line=abc ${func:func_a(p1=${ref:aa})} and ${ref:bb} and ${func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})} def   len(snippets)=0   is_snippet=False
+003: process_line(): line=func:func_a(p1=${ref:aa})   len(snippets)=0   is_snippet=True
+004: process_line(): line=ref:aa   len(snippets)=0   is_snippet=True
+005: process_line():   Processing is_snippet "ref:aa"
+006:    get_snippet_processed_result(): snippet=ref:aa
+007:    get_snippet_processed_result():    parts=['ref', 'aa']
+008:    get_snippet_processed_result():    variable_classification=ref   variable_value=aa
+009:    get_snippet_processed_result():       Running a simulation of processing the variable and getting a result
+010:    get_snippet_processed_result():    result=aaa
+011: process_line():   line=aaa
+012: process_line():   Merging snippet "${ref:aa}" calculated value "aaa" back into original line "func:func_a(p1=${ref:aa})"
+013: process_line():   Processing is_snippet "func:func_a(p1=aaa)"
+014:    get_snippet_processed_result(): snippet=func:func_a(p1=aaa)
+015:    get_snippet_processed_result():    parts=['func', 'func_a(p1=aaa)']
+016:    get_snippet_processed_result():    variable_classification=func   variable_value=func_a(p1=aaa)
+017:    get_snippet_processed_result():       Running a simulation of processing the variable and getting a result
+018:    get_snippet_processed_result():    result=AAA
+019: process_line():   line=AAA
+020: process_line():   Merging snippet "${func:func_a(p1=${ref:aa})}" calculated value "AAA" back into original line "abc ${func:func_a(p1=${ref:aa})} and ${ref:bb} and ${func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})} def"
+021: process_line(): line=ref:bb   len(snippets)=0   is_snippet=True
+022: process_line():   Processing is_snippet "ref:bb"
+023:    get_snippet_processed_result(): snippet=ref:bb
+024:    get_snippet_processed_result():    parts=['ref', 'bb']
+025:    get_snippet_processed_result():    variable_classification=ref   variable_value=bb
+026:    get_snippet_processed_result():       Running a simulation of processing the variable and getting a result
+027:    get_snippet_processed_result():    result=TEST
+028: process_line():   line=TEST
+029: process_line():   Merging snippet "${ref:bb}" calculated value "TEST" back into original line "abc AAA and ${ref:bb} and ${func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})} def"
+030: process_line(): line=func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})   len(snippets)=0   is_snippet=True
+031: process_line(): line=ref:dd   len(snippets)=0   is_snippet=True
+032: process_line():   Processing is_snippet "ref:dd"
+033:    get_snippet_processed_result(): snippet=ref:dd
+034:    get_snippet_processed_result():    parts=['ref', 'dd']
+035:    get_snippet_processed_result():    variable_classification=ref   variable_value=dd
+036:    get_snippet_processed_result():       Running a simulation of processing the variable and getting a result
+037:    get_snippet_processed_result():    result=10
+038: process_line():   line=10
+039: process_line():   Merging snippet "${ref:dd}" calculated value "10" back into original line "func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})"
+040: process_line(): line=func:round_up(n=${ref:cc})   len(snippets)=0   is_snippet=True
+041: process_line(): line=ref:cc   len(snippets)=0   is_snippet=True
+042: process_line():   Processing is_snippet "ref:cc"
+043:    get_snippet_processed_result(): snippet=ref:cc
+044:    get_snippet_processed_result():    parts=['ref', 'cc']
+045:    get_snippet_processed_result():    variable_classification=ref   variable_value=cc
+046:    get_snippet_processed_result():       Running a simulation of processing the variable and getting a result
+047:    get_snippet_processed_result():    result=9.9
+048: process_line():   line=9.9
+049: process_line():   Merging snippet "${ref:cc}" calculated value "9.9" back into original line "func:round_up(n=${ref:cc})"
+050: process_line():   Processing is_snippet "func:round_up(n=9.9)"
+051:    get_snippet_processed_result(): snippet=func:round_up(n=9.9)
+052:    get_snippet_processed_result():    parts=['func', 'round_up(n=9.9)']
+053:    get_snippet_processed_result():    variable_classification=func   variable_value=round_up(n=9.9)
+054:    get_snippet_processed_result():       Running a simulation of processing the variable and getting a result
+055:    get_snippet_processed_result():    result=10
+056: process_line():   line=10
+057: process_line():   Merging snippet "${func:round_up(n=${ref:cc})}" calculated value "10" back into original line "func:sum(n1=10, n2=${func:round_up(n=${ref:cc})})"
+058: process_line():   Processing is_snippet "func:sum(n1=10, n2=10)"
+059:    get_snippet_processed_result(): snippet=func:sum(n1=10, n2=10)
+060:    get_snippet_processed_result():    parts=['func', 'sum(n1=10, n2=10)']
+061:    get_snippet_processed_result():    variable_classification=func   variable_value=sum(n1=10, n2=10)
+062:    get_snippet_processed_result():       Running a simulation of processing the variable and getting a result
+063:    get_snippet_processed_result():    result=20
+064: process_line():   line=20
+065: process_line():   Merging snippet "${func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})}" calculated value "20" back into original line "abc AAA and TEST and ${func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})} def"
+066: process_line():   line=abc AAA and TEST and 20 def
+067: result=abc AAA and TEST and 20 def
 ```
