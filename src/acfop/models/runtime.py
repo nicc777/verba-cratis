@@ -37,6 +37,10 @@ VARIABLE_IN_VARIABLE_PARSING_MAX_DEPTH = 3
 FUNCTIONS = user_function_factory()
 
 
+def templatize_str(input: str)->str:
+    return '${}{}{}'.format('{',input,'}')
+
+
 class Variable:
     """Each unique path with a value in the configuration is stored as a Variable, as well as some other variables as required.
 
@@ -192,44 +196,53 @@ class VariableStateStore:
         self.logger.debug('new_snippets={}'.format(new_snippets))
         return new_snippets
 
-    def _get_variable_run_result(self, current_variable: Variable, updated_value: object=None)->str:
-        self.logger.debug('Getting new temporary variable from current variable: {}'.format(str(current_variable)))
-        self.logger.debug('    initial_value will be set to "{}"'.format(updated_value))
-        new_variable = Variable(id=current_variable.id, initial_value=updated_value, value_type=type(updated_value), classification=current_variable.classification, extra_parameters=current_variable.extra_parameters)
-        self.logger.debug('new_variable={}'.format(str(new_variable)))
-        result = self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters)
-        self.logger.debug('result={}'.format(result))
-        return result
+    def _get_variable_run_result(self, snippet: str)->str:
+        # self.logger.debug('Getting new temporary variable from current variable: {}'.format(str(current_variable)))
+        # self.logger.debug('    initial_value will be set to "{}"'.format(updated_value))
+        # new_variable = Variable(id=current_variable.id, initial_value=updated_value, value_type=type(updated_value), classification=current_variable.classification, extra_parameters=current_variable.extra_parameters)
+        # self.logger.debug('new_variable={}'.format(str(new_variable)))
+        # result = self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters)
+        # self.logger.debug('result={}'.format(result))
+        # return result
 
-    def _process_snippet_line(self, line: str, variable: Variable=None)->str:
-        self.logger.debug('line={}'.format(line))
-        result = line
-        if variable is not None:
-            result = variable.value
-        snippets = self._extract_snippets(value='{}'.format(line))
-        self.logger.debug('snippets={}'.format(snippets))
-        if len(snippets) > 0:
-            for snippet in snippets[len(snippets) - 1]:
-                template_line = '${}{}{}'.format('{', snippet, '}')
-                self.logger.debug('Getting value for snippet "{}"'.format(template_line))
+        result = ''
 
-                next_variable = variable
-                next_id = snippet.split(':', 1)[1]
-                next_classification = snippet.split(':', 1)[0]
-                if next_classification != 'ref':
-                    self.logger.debug('next_id={}   next_classification={}'.format(next_id, next_classification))
-                    next_variable = self.get_variable(id=next_id, classification=next_classification)
-                    self.logger.debug('next_variable={}'.format(str(next_variable)))
+        self.logger.debug('    snippet={}'.format(snippet))
 
-                snippet_value = self._process_snippet_line(line=snippet, variable=next_variable) 
-                self.logger.debug('snippet_value={}'.format(snippet_value))
-                result = result.replace(template_line, '{}'.format(snippet_value))
-                self.logger.debug('result={}'.format(result))
+        parts = snippet.split(':', 1)
+        self.logger.debug('       parts={}'.format(parts))
 
+        variable_classification = parts[0]
+        variable_value = parts[1]
+        self.logger.debug('       variable_classification={}   variable_value={}'.format(variable_classification, variable_value))
+
+        self.logger.debug('          Running a simulation of processing the variable and getting a result')
+        # classes = VALUES[variable_classification]
+        # for n, v in classes.items():
+        #     if variable_value.startswith(n):
+        #         result = v
+        # new_variable = Variable(id=current_variable.id, initial_value=updated_value, value_type=type(updated_value), classification=current_variable.classification, extra_parameters=current_variable.extra_parameters)
+        # self.logger.debug('new_variable={}'.format(str(new_variable)))
+        # result = self._process_snippet(variable=new_variable, function_fixed_parameters=new_variable.extra_parameters)
         
-        result = self._get_variable_run_result(current_variable=variable, updated_value=result)
-        self.logger.debug('result={}'.format(result))
+        self.logger.debug('       result={}'.format(result))
+
         return result
+
+    def _process_snippet_line(self, line: str, variable: Variable=None, snippets: list=list(), is_snippet: bool=False)->str:
+        self.logger.debug('line={}'.format(line))
+        if len(snippets) == 0:
+            snippets = variable_snippet_extract(line=line)
+        for snippet in snippets:
+            snippet_result = self._process_snippet_line(line=snippet, is_snippet=True)
+            snippet_template = templatize_str(input=snippet)
+            self.logger.debug('   Merging snippet "{}" calculated value "{}" back into original line "{}"'.format(snippet_template, snippet_result, line))
+            line = line.replace(snippet_template, snippet_result)
+        if is_snippet:
+            self.logger.debug('   Processing is_snippet "{}"'.format(line))
+            line = self._get_variable_run_result(snippet=line)
+        self.logger.debug('   line={}'.format(line))
+        return line
 
     def get_variable_value(self, id: str, classification: str='build-variable', skip_embedded_variable_processing: bool=False, iteration_number: int=0):
         """Retrieve the calculated final value of a :class:`Variable` object
@@ -253,52 +266,41 @@ class VariableStateStore:
 
         result = self._process_snippet_line(line=variable.value, variable=variable)
 
-        # result = variable.value
-        # snippets = self._extract_snippets(value='{}'.format(variable.value))
-        # self.logger.debug('snippets={}'.format(snippets))
-        # if len(snippets) > 0:
-        #     for snippet in snippets[0]:
-        #         self.logger.debug('Getting value for snippet "{}"'.format(snippet))
-        #         snippet_value = self._process_snippet_line(line=snippet, variable=variable)
-        #         template_line = '${}{}{}'.format('{', snippet, '}')
-        #         result = result.replace(template_line, snippet_value)
-        #         self.logger.debug('PROGRESSION: result={}'.format(result))
+        # old_result = result
+        # try:
+        #     result = self._get_variable_run_result(current_variable=variable, updated_value=result)
+        #     self.logger.debug('result={}'.format(result))
+        # except:
+        #     self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
+        #     self.logger.info('Calling _get_variable_run_result() resulted in an exception - in most cases this should not be a problem.')
+        #     result = old_result
 
-        old_result = result
-        try:
-            result = self._get_variable_run_result(current_variable=variable, updated_value=result)
-            self.logger.debug('result={}'.format(result))
-        except:
-            self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
-            self.logger.info('Calling _get_variable_run_result() resulted in an exception - in most cases this should not be a problem.')
-            result = old_result
-
-        self.logger.debug('variable.value_type={}'.format(variable.value_type))
-        if str(variable.value_type) == '<class \'str\'>':
-            if isinstance(result, str) is False:    # pragma: no cover
-                result = '{}'.format(result)        # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
-        elif str(variable.value_type) == '<class \'bool\'>':
-            if isinstance(result, str) is True:
-                if result.lower().startswith('t'):  # pragma: no cover
-                    result = True                   # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
-                elif result.lower().startswith('1'):
-                    result = True
-                else:
-                    result = False
-            elif isinstance(result, int) is True:
-                result = bool(result)
-            else:                                   # pragma: no cover
-                result = False                      # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
-        elif str(variable.value_type) == '<class \'int\'>': # pragma: no cover
-            if isinstance(result, str) is True:             # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
-                result = int(result)
-            elif isinstance(result, bool) is True:
-                if result is True:
-                    result = 1
-                else:
-                    result = 0
-        else:                                       # pragma: no cover
-            result = '{}'.format(result)            # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
+        # self.logger.debug('variable.value_type={}'.format(variable.value_type))
+        # if str(variable.value_type) == '<class \'str\'>':
+        #     if isinstance(result, str) is False:    # pragma: no cover
+        #         result = '{}'.format(result)        # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
+        # elif str(variable.value_type) == '<class \'bool\'>':
+        #     if isinstance(result, str) is True:
+        #         if result.lower().startswith('t'):  # pragma: no cover
+        #             result = True                   # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
+        #         elif result.lower().startswith('1'):
+        #             result = True
+        #         else:
+        #             result = False
+        #     elif isinstance(result, int) is True:
+        #         result = bool(result)
+        #     else:                                   # pragma: no cover
+        #         result = False                      # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
+        # elif str(variable.value_type) == '<class \'int\'>': # pragma: no cover
+        #     if isinstance(result, str) is True:             # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
+        #         result = int(result)
+        #     elif isinstance(result, bool) is True:
+        #         if result is True:
+        #             result = 1
+        #         else:
+        #             result = 0
+        # else:                                       # pragma: no cover
+        #     result = '{}'.format(result)            # TODO Very unlikely to ever reach this scenario - so consider removing this in the future
         self.logger.debug('FINAL: type={} result={}'.format(type(result), result))
         return result
 
