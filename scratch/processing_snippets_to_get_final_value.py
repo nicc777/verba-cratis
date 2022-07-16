@@ -1,10 +1,18 @@
 from copy import deepcopy
 
+CURRENT_LINE = 0
+
+def print_progress(msg: str):
+    global CURRENT_LINE
+    CURRENT_LINE += 1
+    ln = str(CURRENT_LINE).zfill(3)
+    print('{}: {}'.format(ln, msg))
+
 line = ''
 with open('scratch/template_line.txt', 'r') as f:
     line = f.read()
     line = line.strip()
-print('line={}'.format(line))
+print_progress('line={}'.format(line))
 
 def extract_snippets(line: str):
     snippets = list()
@@ -62,41 +70,41 @@ VALUES = {
 def get_snippet_processed_result(snippet: str)->str:
     result = ''
 
-    print('   get_snippet_processed_result(): snippet={}'.format(snippet))
+    print_progress('   get_snippet_processed_result(): snippet={}'.format(snippet))
 
     parts = snippet.split(':', 1)
-    print('   get_snippet_processed_result():    parts={}'.format(parts))
+    print_progress('   get_snippet_processed_result():    parts={}'.format(parts))
 
     variable_classification = parts[0]
     variable_value = parts[1]
-    print('   get_snippet_processed_result():    variable_classification={}   variable_value={}'.format(variable_classification, variable_value))
+    print_progress('   get_snippet_processed_result():    variable_classification={}   variable_value={}'.format(variable_classification, variable_value))
 
-    print('   get_snippet_processed_result():       Running a simulation of processing the variable and getting a result')
+    print_progress('   get_snippet_processed_result():       Running a simulation of processing the variable and getting a result')
     classes = VALUES[variable_classification]
     for n, v in classes.items():
         if variable_value.startswith(n):
             result = v
     
-    print('   get_snippet_processed_result():    result={}'.format(result))
+    print_progress('   get_snippet_processed_result():    result={}'.format(result))
 
     return result
 
 
 def process_line(line: str, snippets: list=list(), is_snippet: bool=False)->str:
-    print('process_line(): line={}   len(snippets)={}   is_snippet={}'.format(line, len(snippets), is_snippet))
+    print_progress('process_line(): line={}   len(snippets)={}   is_snippet={}'.format(line, len(snippets), is_snippet))
     if len(snippets) == 0:
         snippets = extract_snippets(line=line)
     for snippet in snippets:
         snippet_result = process_line(line=snippet, is_snippet=True)
         snippet_template = templatize_str(input=snippet)
-        print('process_line():   Merging snippet "{}" calculated value "{}" back into original line "{}"'.format(snippet_template, snippet_result, line))
+        print_progress('process_line():   Merging snippet "{}" calculated value "{}" back into original line "{}"'.format(snippet_template, snippet_result, line))
         line = line.replace(snippet_template, snippet_result)
     if is_snippet:
-        print('process_line():   Processing is_snippet "{}"'.format(line))
+        print_progress('process_line():   Processing is_snippet "{}"'.format(line))
         line = get_snippet_processed_result(snippet=line)
-    print('process_line():   line={}'.format(line))
+    print_progress('process_line():   line={}'.format(line))
     return line
 
 
 result = process_line(line=line)
-print('result={}'.format(result))
+print_progress('result={}'.format(result))

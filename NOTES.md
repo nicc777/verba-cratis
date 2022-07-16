@@ -345,3 +345,17 @@ parse_args(value)
 ```
 
 The result: `([], {'include_account_if_available': True, 'blabla': 123, 'something': '1,2'})`
+
+# Processing a string and all it's template sub-strings to arrive at the final value
+
+Setup an experiment to refine the template processing algorithm 
+
+Given a string like: `abc ${func:func_a(p1=${ref:aa})} and ${ref:bb} and ${func:sum(n1=${ref:dd}, n2=${func:round_up(n=${ref:cc})})} def` (see [example data file](scratch/template_line.txt))
+
+The example template processing algorithm is in [this source](scratch/processing_snippets_to_get_final_value.py)
+
+Example run output:
+
+```text
+
+```
