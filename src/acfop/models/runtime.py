@@ -229,17 +229,33 @@ class VariableStateStore:
 
         return result
 
-    def _process_snippet_line(self, line: str, variable: Variable=None, snippets: list=list(), is_snippet: bool=False)->str:
+    def _process_snippet_line(self, line: str=None, variable: Variable=None, snippets: list=list(), is_snippet: bool=False, extra_parameters: dict=dict())->str:
+        self.logger.debug('PARAMS: line={}   variable=[{}]   is_snippet={}   extra_parameters={}'.format(line, str(variable), is_snippet, extra_parameters))
+        if line is None and variable is not None:
+            line = variable.value
+        elif line is not None and variable is not None:
+            raise Exception('Only line or variable parameters must be supplied - not both')
+        else:
+            raise Exception('Either line or variable parameters must be supplied')
+        if variable is not None:
+            for epn, epv in variable.extra_parameters.items():
+                extra_parameters[epn] = epv
         self.logger.debug('line={}'.format(line))
         if len(snippets) == 0:
             snippets = variable_snippet_extract(line=line)
+            self.logger.debug('snippets={}'.format(snippets))
         for snippet in snippets:
-            snippet_result = self._process_snippet_line(line=snippet, is_snippet=True)
+
+            self.logger.debug('  Processing snippet={}'.format(snippet))
+
+            snippet_result = self._process_snippet_line(line=snippet, is_snippet=True, extra_parameters=extra_parameters)
             snippet_template = templatize_str(input=snippet)
             self.logger.debug('   Merging snippet "{}" calculated value "{}" back into original line "{}"'.format(snippet_template, snippet_result, line))
             line = line.replace(snippet_template, snippet_result)
         if is_snippet:
             self.logger.debug('   Processing is_snippet "{}"'.format(line))
+
+
             line = self._get_variable_run_result(snippet=line)
         self.logger.debug('   line={}'.format(line))
         return line
@@ -264,7 +280,7 @@ class VariableStateStore:
             self.logger.debug('skip_embedded_variable_processing :: returning value "{}" of type "{}"'.format(variable.value, variable.value_type))
             return variable.value  
 
-        result = self._process_snippet_line(line=variable.value, variable=variable)
+        result = self._process_snippet_line(variable=variable)
 
         # old_result = result
         # try:
