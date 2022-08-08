@@ -257,6 +257,7 @@ class VariableStateStore:
 
 
             line = self._get_variable_run_result(snippet=line)
+
         self.logger.debug('   line={}'.format(line))
         return line
 
