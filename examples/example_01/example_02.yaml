@@ -6,8 +6,9 @@ metadata:
     phase: deployment
 spec:
   authentication:
-    useProfile: true
-    profileName: AwsDevProfileName
+    aws:                                        # AWS Specific credentials
+      useProfile: true                          # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
+      defaultProfileName: AwsDevProfileName     # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "awsProfile".
 ---
 apiVersion: v1-alpha
 kind: ShellScript
@@ -49,12 +50,8 @@ spec:
   staticValues:
     - name: awsRegion
       value: eu-central-1
-      type: string
-    - name: awsAccountId
-      value: 123456789012
-      type: integer
   dynamicValues:
-    - name: cloudFormationS3ArtifactBucket
+    - name: S3ArtifactBucket
       source:                           # From where is it obtained (Kind) - the output from the shell script will be the value set
         kind: ShellScript
         name: generateS3BucketName      # Reference to the name of the Kind of source
@@ -65,6 +62,11 @@ spec:
         stripLeadingSpaces: true        # OPTIONAL: Default=true
         stripTrailingSpaces: true       # OPTIONAL: Default=true
         cacheOutput: true               # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
+    - name: awsProfile
+      source:                           # From where is it obtained (Kind) - the output from the shell script will be the value set
+        kind: shellEnvironment          # "shellEnvironment" is a special kind that reads the shell environment variable names and values
+        name: AWS_PROFILE               # Use the value from this shell environment variable name
+        default: default                # OPTIONAL: Default=<empty string>
 ---
 apiVersion: v1-alpha
 kind: AwsCloudFormationTemplate
