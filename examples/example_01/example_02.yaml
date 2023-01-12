@@ -54,7 +54,7 @@ spec:
       value: 123456789012
       type: integer
   dynamicValues:
-    - name: cloudFormationS3Bucket
+    - name: cloudFormationS3ArtifactBucket
       source:                           # From where is it obtained (Kind) - the output from the shell script will be the value set
         kind: ShellScript
         name: generateS3BucketName      # Reference to the name of the Kind of source
@@ -67,9 +67,9 @@ spec:
         cacheOutput: true               # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
 ---
 apiVersion: v1
-kind: CloudFormationTemplate
+kind: AwsCloudFormationTemplate
 metadata:
-    name: s3-artifact-bucket-template
+  name: s3-artifact-bucket-template
 spec:
   #source: /path/to/template.yaml       # If set, "data" is ignored
   data: >
@@ -92,3 +92,6 @@ spec:
       BucketName:
         Value: !Ref S3Bucket
         Description: 'Name of the bucket with default values'
+  EnvironmentVariableToParameterMap:
+  - parameterName: BucketNameParameter
+    environmentVariableName: cloudFormationS3ArtifactBucket
