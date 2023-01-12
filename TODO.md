@@ -31,3 +31,25 @@ spec:
         somethingelse: 456
 ```
 
+## What Kind of Objects Is Required?
+
+| Kind        | Description                                                                                                                       |
+|-------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| Environment | Defines the high level environment, linked to a specific AWS Account via a Profile (or environment variables, for authentication) |
+
+### Environment Kind
+
+Example:
+
+```yaml
+apiVersion: v1-alpha
+kind: Environment
+metadata:
+    name: dev
+    labels:
+        phase: deployment
+spec:
+    authentication:
+        useProfile: true
+        profileName: AwsDevProfileName
+```
