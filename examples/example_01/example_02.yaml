@@ -65,3 +65,30 @@ spec:
         stripLeadingSpaces: true        # OPTIONAL: Default=true
         stripTrailingSpaces: true       # OPTIONAL: Default=true
         cacheOutput: true               # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
+---
+apiVersion: v1
+kind: CloudFormationTemplate
+metadata:
+    name: s3-artifact-bucket-template
+spec:
+  #source: /path/to/template.yaml       # If set, "data" is ignored
+  data: >
+    AWSTemplateFormatVersion: "2010-09-09"
+    Description: >
+      This is a S3 bucket used for
+      storing various artifacts     
+      during deployment
+    Parameters:
+      BucketNameParameter:
+        Type: String
+        Default: artifact-bucket
+    Resources:
+      S3Bucket:
+        Type: 'AWS::S3::Bucket'
+        DeletionPolicy: Retain
+        Properties:
+          BucketName: !Ref BucketNameParameter
+    Outputs:
+      BucketName:
+        Value: !Ref S3Bucket
+        Description: 'Name of the bucket with default values'
