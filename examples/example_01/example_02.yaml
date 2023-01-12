@@ -66,12 +66,12 @@ spec:
         stripTrailingSpaces: true       # OPTIONAL: Default=true
         cacheOutput: true               # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
 ---
-apiVersion: v1
+apiVersion: v1-alpha
 kind: AwsCloudFormationTemplate
 metadata:
   name: s3-artifact-bucket-template
 spec:
-  #source: /path/to/template.yaml       # If set, "data" is ignored
+  #source: /path/to/template.yaml       # If set, "data" is ignored. Relative paths are processed from the current working directory
   data: >
     AWSTemplateFormatVersion: "2010-09-09"
     Description: >
@@ -81,7 +81,6 @@ spec:
     Parameters:
       BucketNameParameter:
         Type: String
-        Default: artifact-bucket
     Resources:
       S3Bucket:
         Type: 'AWS::S3::Bucket'
@@ -92,6 +91,8 @@ spec:
       BucketName:
         Value: !Ref S3Bucket
         Description: 'Name of the bucket with default values'
-  EnvironmentVariableToParameterMap:
+  environmentVariableToParameterMap:    # Optional, but required if there are parameters defined without default values
   - parameterName: BucketNameParameter
     environmentVariableName: cloudFormationS3ArtifactBucket
+  ifExists:                             # What actions to take if the template was already deployed. This is a default action and can be overridden during actual deployments
+    useChangeSet: false                 # OPTIONAL: Default=false - If the template has been deployed previously, should changes be applied with a change-set. If value is false, essentially already deployed stacks will be ignored
