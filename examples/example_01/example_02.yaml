@@ -1,0 +1,67 @@
+apiVersion: v1-alpha
+kind: Environment
+metadata:
+  name: dev                             # The name of the environment
+  labels:
+    phase: deployment
+spec:
+  authentication:
+    useProfile: true
+    profileName: AwsDevProfileName
+---
+apiVersion: v1-alpha
+kind: ShellScript
+metadata:
+  name: generateS3BucketName
+spec:
+  interpreter: python3
+  outputParser: string
+  onFail:
+    returnSuccess: true                 # Or FALSE - will result in Exception being thrown
+    returnValue: example-bucket-name    # Only required if returnSuccess is TRUE
+  data: >
+    #!/usr/bin/env python3
+    
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate a Bucket Name')
+    parser.add_argument('--env', metavar='S', type=str, help='The environment name')
+    environment_name = 'unknown-environment'
+    try:
+        args = parser.parse_args()
+        if args.env is not None:
+            tmp_name = '{}'.format(args.env)
+            if isinstance(tmp_name, str):
+                if len(tmp_name) > 0 and len(tmp_name) < 17:
+                    environment_name = tmp_name
+    except:
+        environment_name = 'none'
+    print('some-example-bucket-{}'.format(environment_name))
+---
+apiVersion: v1-alpha
+kind: EnvironmentVariables
+metadata:
+  name: dev-environment-variables
+spec:
+  environment: dev                      # Links to Environment.metadata.name - iof not set, defaults to "default"
+  selector:                             # OPTIONAL - if omitted, variables is visible to all environments that matches the environment name
+    matchLabels:
+        phase: deployment               # Links these environment variables only to a certain label selector 
+  staticValues:
+    - name: awsRegion
+      value: eu-central-1
+      type: string
+    - name: awsAccountId
+      value: 123456789012
+      type: integer
+  dynamicValues:
+    - name: cloudFormationS3Bucket
+      source:                           # From where is it obtained (Kind) - the output from the shell script will be the value set
+        kind: ShellScript
+        name: generateS3BucketName      # Reference to the name of the Kind of source
+        #commandLineArgument: "1 2 3"   # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
+        commandLineArguments:           # Alternatively, set named command line arguments
+          env: dev                      # Will be passed as "--env dev"
+        outputParser: asString          # OPTIONAL: Default=string. For now this is the only accepted option
+        stripLeadingSpaces: true        # OPTIONAL: Default=true
+        stripTrailingSpaces: true       # OPTIONAL: Default=true
+        cacheOutput: true               # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT

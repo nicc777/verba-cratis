@@ -33,38 +33,10 @@ spec:
 
 ## What Kind of Objects Is Required?
 
-| Kind                 | Description                                                                                                                       |
-|----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| Environment          | Defines the high level environment, linked to a specific AWS Account via a Profile (or environment variables, for authentication) |
-| EnvironmentVariable  | Parameters available to an environment                                                                                            |
+| Kind                 | Description                                                                                                                                                                                                                                                                        |
+|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Environment          | Defines the high level environment, linked to a specific AWS Account via a Profile (or environment variables, for authentication). There is also a default environment called `default` which is assumed for any resources environment bound but without an environment identifier |
+| EnvironmentVariables | Parameters available to an environment                                                                                                                                                                                                                                             |
+| ShellScript          | Defines a shell script to be run. The shell script output should be matched to a output parser                                                                                                                                                                                     |
 
-### Example
-
-Example:
-
-```yaml
-apiVersion: v1-alpha
-kind: Environment
-metadata:
-    name: dev                               # The name of the environment
-    labels:
-        phase: deployment
-spec:
-    authentication:
-        useProfile: true
-        profileName: AwsDevProfileName
----
-apiVersion: v1-alpha
-kind: EnvironmentVariable
-metadata:
-    name: dev-environment-variable
-spec:
-    environment: dev                        # Links to Environment.metadata.name
-    selector:                               # OPTIONAL - if omitted, variables is visible to all environments that matches the environment name
-        matchLabels:
-            phase: deployment               # Links these environment variables only to a certain label selector 
-    staticValues:
-        awsRegion: eu-central-1
-        awsAccountId: 123456789012
-        cloudFormationS3Bucket: artifact-bucket-83g-74y-bco-8nx
-```
+See `examples/example_01/example_02.yaml` for an example
