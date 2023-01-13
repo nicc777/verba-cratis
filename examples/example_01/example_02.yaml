@@ -50,8 +50,8 @@ spec:
     returnSuccess: true                         # Or FALSE - will result in Exception being thrown
     returnValue: ""                             # Only required if returnSuccess is TRUE
   data: >
-    echo "Running in Environment                : ${Environment:metadata.name}"
-    echo "Bucket name to be created             : ${ShellScript:generateS3BucketName}"
+    echo "Running in Environment                : ${Environment:raw:metadata.name}"
+    echo "Bucket name to be created             : ${ShellScript:computed:generateS3BucketName}"
     echo "Environment Bucket Name               : ${EnvironmentVariables:computed:environment-variables.S3ArtifactBucket}"
     echo "Environment from EnvironmentVariables : ${EnvironmentVariables:raw:environment-variables.spec.environment}"
 ---
@@ -118,7 +118,7 @@ spec:
       expose: true
       shellEnvironmentVariableName: AWS_PROFILE
     source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
-      kind: shellEnvironment                    # "shellEnvironment" is a special kind that reads the shell environment variable names and values
+      kind: shellEnvironment                    # "shellEnvironment" is a special kind that reads the shell environment variable names and values at the time of execution of the deployment
       name: AWS_PROFILE                         # Use the value from this shell environment variable name
       default: default                          # OPTIONAL: Default=<empty string>
 ---
@@ -137,6 +137,8 @@ spec:
     Parameters:
       BucketNameParameter:
         Type: String
+      SomeOtherParam:
+        Type: String
     Resources:
       S3Bucket:
         Type: 'AWS::S3::Bucket'
@@ -149,7 +151,15 @@ spec:
         Description: 'Name of the bucket with default values'
   environmentVariableToParameterMap:            # Optional, but required if there are parameters defined without default values
   - parameterName: BucketNameParameter
-    environmentVariableName: cloudFormationS3ArtifactBucket
+    value:
+      source: 
+        type: EnvironmentVariables
+        name: cloudFormationS3ArtifactBucket
+  - parameterName: SomeOtherParam
+    value:
+      source: 
+        type: ShellEnvironment                  # Special kind of source that refers to a shell environment variable
+        name: USER                              # Will get the value of the environment variable $USER
   ifExists:                                     # What actions to take if the template was already deployed. This is a default action and can be overridden during actual deployments
     update: false                               # OPTIONAL: Default=false - If the template has been deployed previously, should changes be applied with a change-set (AWS). If value is false, essentially already deployed stacks will be ignored
 ---
