@@ -69,7 +69,7 @@ spec:
         default: default                # OPTIONAL: Default=<empty string>
 ---
 apiVersion: v1-alpha
-kind: AwsCloudFormationTemplate
+kind: InfrastructureTemplate
 metadata:
   name: s3-artifact-bucket-template
 spec:
@@ -98,3 +98,4 @@ spec:
     environmentVariableName: cloudFormationS3ArtifactBucket
   ifExists:                             # What actions to take if the template was already deployed. This is a default action and can be overridden during actual deployments
     useChangeSet: false                 # OPTIONAL: Default=false - If the template has been deployed previously, should changes be applied with a change-set. If value is false, essentially already deployed stacks will be ignored
+---
