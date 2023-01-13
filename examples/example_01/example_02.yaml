@@ -9,7 +9,33 @@ spec:
   authentication:
     aws:                                        # AWS Specific credentials
       useProfile: true                          # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
-      defaultProfileName: AwsDevProfileName     # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "awsProfile".
+      defaultProfileName: AwsDevProfileName     # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+---
+apiVersion: v1-alpha
+kind: Environment
+metadata:
+  name: test                                    # The name of the environment.
+  labels:
+    phase: deployment
+    targetAccountName: qa
+spec:
+  authentication:
+    aws:                                        # AWS Specific credentials
+      useProfile: true                          # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
+      defaultProfileName: AwsTestProfileName    # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+---
+apiVersion: v1-alpha
+kind: Environment
+metadata:
+  name: prod                                    # The name of the environment.
+  labels:
+    phase: deployment
+    targetAccountName: prod
+spec:
+  authentication:
+    aws:                                        # AWS Specific credentials
+      useProfile: true                          # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
+      defaultProfileName: AwsProdProfileName    # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
 ---
 apiVersion: v1-alpha
 kind: ShellScript
@@ -89,9 +115,6 @@ metadata:
   name: environment-variables
 spec:
   environment: dev                              # Links to Environment.metadata.name - iof not set, defaults to "default"
-  selector:                                     # OPTIONAL - if omitted, variables is visible to all environments that matches the environment name
-    matchLabels:
-      targetAccountName: sandbox                # Links these environment variables only to a certain label selector 
   staticValues:
   - name: awsRegion
     value: eu-central-1
@@ -109,6 +132,78 @@ spec:
       #commandLineArgument: "1 2 3"             # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
       commandLineArguments:                     # Alternatively, set named command line arguments
         env: dev                                # Will be passed as "--env dev"
+      outputParser: asString                    # OPTIONAL: Default=string. For now this is the only accepted option
+      stripLeadingSpaces: true                  # OPTIONAL: Default=true
+      stripTrailingSpaces: true                 # OPTIONAL: Default=true
+      cacheOutput: true                         # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
+  - name: awsProfile
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: AWS_PROFILE
+    source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
+      kind: shellEnvironment                    # "shellEnvironment" is a special kind that reads the shell environment variable names and values at the time of execution of the deployment
+      name: AWS_PROFILE                         # Use the value from this shell environment variable name
+      default: default                          # OPTIONAL: Default=<empty string>
+---
+apiVersion: v1-alpha
+kind: EnvironmentVariables
+metadata:
+  name: environment-variables
+spec:
+  environment: test                             # Links to Environment.metadata.name - iof not set, defaults to "default"
+  staticValues:
+  - name: awsRegion
+    value: eu-central-1
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: AWS_REGION
+  dynamicValues:
+  - name: S3ArtifactBucket
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: S3_ARTIFACT_BUCKET_NAME
+    source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
+      kind: ShellScript
+      name: generateS3BucketName                # Reference to the name of the Kind of source
+      #commandLineArgument: "1 2 3"             # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
+      commandLineArguments:                     # Alternatively, set named command line arguments
+        env: test                               # Will be passed as "--env test"
+      outputParser: asString                    # OPTIONAL: Default=string. For now this is the only accepted option
+      stripLeadingSpaces: true                  # OPTIONAL: Default=true
+      stripTrailingSpaces: true                 # OPTIONAL: Default=true
+      cacheOutput: true                         # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
+  - name: awsProfile
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: AWS_PROFILE
+    source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
+      kind: shellEnvironment                    # "shellEnvironment" is a special kind that reads the shell environment variable names and values at the time of execution of the deployment
+      name: AWS_PROFILE                         # Use the value from this shell environment variable name
+      default: default                          # OPTIONAL: Default=<empty string>
+---
+apiVersion: v1-alpha
+kind: EnvironmentVariables
+metadata:
+  name: environment-variables
+spec:
+  environment: prod                             # Links to Environment.metadata.name - iof not set, defaults to "default"
+  staticValues:
+  - name: awsRegion
+    value: eu-central-1
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: AWS_REGION
+  dynamicValues:
+  - name: S3ArtifactBucket
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: S3_ARTIFACT_BUCKET_NAME
+    source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
+      kind: ShellScript
+      name: generateS3BucketName                # Reference to the name of the Kind of source
+      #commandLineArgument: "1 2 3"             # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
+      commandLineArguments:                     # Alternatively, set named command line arguments
+        env: prod                               # Will be passed as "--env prod"
       outputParser: asString                    # OPTIONAL: Default=string. For now this is the only accepted option
       stripLeadingSpaces: true                  # OPTIONAL: Default=true
       stripTrailingSpaces: true                 # OPTIONAL: Default=true
