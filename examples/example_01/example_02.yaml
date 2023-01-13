@@ -78,8 +78,8 @@ spec:
   data: >
     echo "Running in Environment                : ${Environment:raw:metadata.name}"
     echo "Bucket name to be created             : ${ShellScript:computed:generateS3BucketName}"
-    echo "Environment Bucket Name               : ${EnvironmentVariables:computed:environment-variables.S3ArtifactBucket}"
-    echo "Environment from EnvironmentVariables : ${EnvironmentVariables:raw:environment-variables.spec.environment}"
+    echo "Environment Bucket Name               : ${EnvironmentVariables:computed:S3ArtifactBucket}"
+    echo "Environment                           : ${Environment:raw:metadata.name}"
 ---
 apiVersion: v1-alpha
 kind: ShellScript
@@ -93,7 +93,7 @@ spec:
     returnValue: "Failed to empty S3 bucket"    # On exception, the returnValue will be printed in the error message
   data: >
     echo "This script deletes the contents of an S3 bucket
-    aws s3 rm s3://${EnvironmentVariables:computed:environment-variables.S3ArtifactBucket} --recursive  --region $AWS_REGION --profile $AWS_PROFILE"
+    aws s3 rm s3://${EnvironmentVariables:computed:S3ArtifactBucket} --recursive  --region $AWS_REGION --profile $AWS_PROFILE"
 ---
 apiVersion: v1-alpha
 kind: ShellScript
@@ -107,14 +107,15 @@ spec:
     returnValue: "Failed to empty S3 bucket"    # On exception, the returnValue will be printed in the error message
   data: >
     echo "This script deletes a S3 bucket
-    aws s3api delete-bucket --bucket ${EnvironmentVariables:computed:environment-variables.S3ArtifactBucket} --recursive --region $AWS_REGION --profile $AWS_PROFILE"    
+    aws s3api delete-bucket --bucket ${EnvironmentVariables:computed:S3ArtifactBucket} --recursive --region $AWS_REGION --profile $AWS_PROFILE"    
 ---
 apiVersion: v1-alpha
 kind: EnvironmentVariables
 metadata:
-  name: environment-variables
+  name: dev-environment-variables
+  labels:
+    environment: dev                            # Links to Environment.metadata.name - iof not set, defaults to "default"
 spec:
-  environment: dev                              # Links to Environment.metadata.name - iof not set, defaults to "default"
   staticValues:
   - name: awsRegion
     value: eu-central-1
@@ -148,9 +149,10 @@ spec:
 apiVersion: v1-alpha
 kind: EnvironmentVariables
 metadata:
-  name: environment-variables
+  name: test-environment-variables
+  labels:
+    environment: test                           # Links to Environment.metadata.name - iof not set, defaults to "default"
 spec:
-  environment: test                             # Links to Environment.metadata.name - iof not set, defaults to "default"
   staticValues:
   - name: awsRegion
     value: eu-central-1
@@ -184,9 +186,10 @@ spec:
 apiVersion: v1-alpha
 kind: EnvironmentVariables
 metadata:
-  name: environment-variables
+  name: prod-environment-variables
+  labels:
+    environment: prod                           # Links to Environment.metadata.name - iof not set, defaults to "default"
 spec:
-  environment: prod                             # Links to Environment.metadata.name - iof not set, defaults to "default"
   staticValues:
   - name: awsRegion
     value: eu-central-1
@@ -249,7 +252,7 @@ spec:
     value:
       source: 
         type: EnvironmentVariables
-        name: cloudFormationS3ArtifactBucket
+        name: S3ArtifactBucket
   - parameterName: SomeOtherParam
     value:
       source: 
