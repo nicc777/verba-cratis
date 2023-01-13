@@ -1,9 +1,10 @@
 apiVersion: v1-alpha
 kind: Environment
 metadata:
-  name: dev                             # The name of the environment
+  name: dev                                     # The name of the environment.
   labels:
     phase: deployment
+    targetAccountName: sandbox
 spec:
   authentication:
     aws:                                        # AWS Specific credentials
@@ -16,10 +17,10 @@ metadata:
   name: generateS3BucketName
 spec:
   interpreter: python3
-  outputParser: string
+  outputParser: string                          # The output will be stored in a string value and will be available in the variable named "generateS3BucketName"
   onFail:
-    returnSuccess: true                 # Or FALSE - will result in Exception being thrown
-    returnValue: example-bucket-name    # Only required if returnSuccess is TRUE
+    returnSuccess: true                         # Or FALSE - will result in Exception being thrown
+    returnValue: example-bucket-name            # Only required if returnSuccess is TRUE
   data: >
     #!/usr/bin/env python3
     
@@ -39,41 +40,94 @@ spec:
     print('some-example-bucket-{}'.format(environment_name))
 ---
 apiVersion: v1-alpha
-kind: EnvironmentVariables
+kind: ShellScript
 metadata:
-  name: dev-environment-variables
+  name: echoGeneralDeploymentInfo
 spec:
-  environment: dev                      # Links to Environment.metadata.name - iof not set, defaults to "default"
-  selector:                             # OPTIONAL - if omitted, variables is visible to all environments that matches the environment name
-    matchLabels:
-        phase: deployment               # Links these environment variables only to a certain label selector 
-  staticValues:
-    - name: awsRegion
-      value: eu-central-1
-  dynamicValues:
-    - name: S3ArtifactBucket
-      source:                           # From where is it obtained (Kind) - the output from the shell script will be the value set
-        kind: ShellScript
-        name: generateS3BucketName      # Reference to the name of the Kind of source
-        #commandLineArgument: "1 2 3"   # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
-        commandLineArguments:           # Alternatively, set named command line arguments
-          env: dev                      # Will be passed as "--env dev"
-        outputParser: asString          # OPTIONAL: Default=string. For now this is the only accepted option
-        stripLeadingSpaces: true        # OPTIONAL: Default=true
-        stripTrailingSpaces: true       # OPTIONAL: Default=true
-        cacheOutput: true               # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
-    - name: awsProfile
-      source:                           # From where is it obtained (Kind) - the output from the shell script will be the value set
-        kind: shellEnvironment          # "shellEnvironment" is a special kind that reads the shell environment variable names and values
-        name: AWS_PROFILE               # Use the value from this shell environment variable name
-        default: default                # OPTIONAL: Default=<empty string>
+  interpreter: sh
+  outputParser: none                            # none -> The output will not be parsed
+  onFail:
+    returnSuccess: true                         # Or FALSE - will result in Exception being thrown
+    returnValue: ""                             # Only required if returnSuccess is TRUE
+  data: >
+    echo "Running in Environment                : ${Environment:metadata.name}"
+    echo "Bucket name to be created             : ${ShellScript:generateS3BucketName}"
+    echo "Environment Bucket Name               : ${EnvironmentVariables:computed:environment-variables.S3ArtifactBucket}"
+    echo "Environment from EnvironmentVariables : ${EnvironmentVariables:raw:environment-variables.spec.environment}"
 ---
 apiVersion: v1-alpha
-kind: InfrastructureTemplate
+kind: ShellScript
+metadata:
+  name: emptyS3Bucket
+spec:
+  interpreter: sh
+  outputParser: none                            # none -> The output will not be parsed
+  onFail:
+    returnSuccess: false                        # Or FALSE - will result in Exception being thrown
+    returnValue: "Failed to empty S3 bucket"    # On exception, the returnValue will be printed in the error message
+  data: >
+    echo "This script deletes the contents of an S3 bucket
+    aws s3 rm s3://${EnvironmentVariables:computed:environment-variables.S3ArtifactBucket} --recursive  --region $AWS_REGION --profile $AWS_PROFILE"
+---
+apiVersion: v1-alpha
+kind: ShellScript
+metadata:
+  name: deleteS3Bucket
+spec:
+  interpreter: sh
+  outputParser: none                            # none -> The output will not be parsed
+  onFail:
+    returnSuccess: false                        # Or FALSE - will result in Exception being thrown
+    returnValue: "Failed to empty S3 bucket"    # On exception, the returnValue will be printed in the error message
+  data: >
+    echo "This script deletes a S3 bucket
+    aws s3api delete-bucket --bucket ${EnvironmentVariables:computed:environment-variables.S3ArtifactBucket} --recursive --region $AWS_REGION --profile $AWS_PROFILE"    
+---
+apiVersion: v1-alpha
+kind: EnvironmentVariables
+metadata:
+  name: environment-variables
+spec:
+  environment: dev                              # Links to Environment.metadata.name - iof not set, defaults to "default"
+  selector:                                     # OPTIONAL - if omitted, variables is visible to all environments that matches the environment name
+    matchLabels:
+      targetAccountName: sandbox                # Links these environment variables only to a certain label selector 
+  staticValues:
+  - name: awsRegion
+    value: eu-central-1
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: AWS_REGION
+  dynamicValues:
+  - name: S3ArtifactBucket
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: S3_ARTIFACT_BUCKET_NAME
+    source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
+      kind: ShellScript
+      name: generateS3BucketName                # Reference to the name of the Kind of source
+      #commandLineArgument: "1 2 3"             # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
+      commandLineArguments:                     # Alternatively, set named command line arguments
+        env: dev                                # Will be passed as "--env dev"
+      outputParser: asString                    # OPTIONAL: Default=string. For now this is the only accepted option
+      stripLeadingSpaces: true                  # OPTIONAL: Default=true
+      stripTrailingSpaces: true                 # OPTIONAL: Default=true
+      cacheOutput: true                         # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
+  - name: awsProfile
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: AWS_PROFILE
+    source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
+      kind: shellEnvironment                    # "shellEnvironment" is a special kind that reads the shell environment variable names and values
+      name: AWS_PROFILE                         # Use the value from this shell environment variable name
+      default: default                          # OPTIONAL: Default=<empty string>
+---
+apiVersion: v1-alpha
+kind: InfrastructureTemplate                    # During deployment, this will create a temporary manifest file which can be referenced with ${InfrastructureTemplate:reference:<<value of metadata.name>>} (points to the temporary file)
 metadata:
   name: s3-artifact-bucket-template
 spec:
-  #source: /path/to/template.yaml       # If set, "data" is ignored. Relative paths are processed from the current working directory
+  #source: /path/to/template.yaml               # If set, "data" is ignored. Relative paths are processed from the current working directory
   data: >
     AWSTemplateFormatVersion: "2010-09-09"
     Description: >
@@ -93,9 +147,58 @@ spec:
       BucketName:
         Value: !Ref S3Bucket
         Description: 'Name of the bucket with default values'
-  environmentVariableToParameterMap:    # Optional, but required if there are parameters defined without default values
+  environmentVariableToParameterMap:            # Optional, but required if there are parameters defined without default values
   - parameterName: BucketNameParameter
     environmentVariableName: cloudFormationS3ArtifactBucket
-  ifExists:                             # What actions to take if the template was already deployed. This is a default action and can be overridden during actual deployments
-    useChangeSet: false                 # OPTIONAL: Default=false - If the template has been deployed previously, should changes be applied with a change-set. If value is false, essentially already deployed stacks will be ignored
+  ifExists:                                     # What actions to take if the template was already deployed. This is a default action and can be overridden during actual deployments
+    update: false                               # OPTIONAL: Default=false - If the template has been deployed previously, should changes be applied with a change-set (AWS). If value is false, essentially already deployed stacks will be ignored
 ---
+apiVersion: v1-alpha
+kind: Task
+metadata:
+  name: echoGeneralDeploymentInfo
+spec:
+  environments:
+  - dev
+  - test
+  action:
+    type: ShellScript
+    name: echoGeneralDeploymentInfo
+---
+apiVersion: v1-alpha
+kind: Task
+metadata:
+  name: emptyS3Bucket
+spec:
+  environments:
+  - dev
+  - test
+  action:
+    type: ShellScript
+    name: emptyS3Bucket
+---
+apiVersion: v1-alpha
+kind: Task
+metadata:
+  name: deleteS3Bucket
+spec:
+  environments:
+  - dev
+  - test
+  action:
+    type: ShellScript
+    name: deleteS3Bucket
+---
+apiVersion: v1-alpha
+kind: Task
+metadata:
+  name: deleteS3Bucket
+spec:
+  environments:
+  - dev
+  - test
+  - prod
+  action:
+    type: InfrastructureTemplate
+    provider: AWS                         # Each cloud provider must have a provide that knows how to deploy an infrastructure template
+    name: s3-artifact-bucket-template
