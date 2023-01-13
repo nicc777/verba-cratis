@@ -161,6 +161,7 @@ spec:
   environments:
   - dev
   - test
+  - prod
   action:
     type: ShellScript
     name: echoGeneralDeploymentInfo
@@ -192,7 +193,7 @@ spec:
 apiVersion: v1-alpha
 kind: Task
 metadata:
-  name: deleteS3Bucket
+  name: deployS3Bucket
 spec:
   environments:
   - dev
@@ -200,5 +201,24 @@ spec:
   - prod
   action:
     type: InfrastructureTemplate
-    provider: AWS                         # Each cloud provider must have a provide that knows how to deploy an infrastructure template
+    provider: AWS                               # Each cloud provider must have a provide that knows how to deploy an infrastructure template
     name: s3-artifact-bucket-template
+---
+apiVersion: v1-alpha
+kind: Deployment
+metadata:
+  name: deployS3Bucket
+spec:
+  environments:
+  - dev
+  - test
+  - prod
+  tasks:
+  - order: 100                                  # All tasks will be executed in numerical order. To make change management and change tracking easier, you can keep gaps between numbers.
+    task: echoGeneralDeploymentInfo
+  - order: 200
+    task: emptyS3Bucket
+  - order: 300
+    task: deleteS3Bucket
+  - order: 400
+    task: deployS3Bucket
