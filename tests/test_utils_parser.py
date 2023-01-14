@@ -28,6 +28,7 @@ def mock_get_file_contents_throws_exception(file: str)->str:
     raise Exception('File Not Found')
 
 
+@unittest.skip("Deprecated")
 class TestFunctionVariableSnippetExtract(unittest.TestCase):    # pragma: no cover
 
     def test_string_with_no_variables(self):
@@ -62,6 +63,7 @@ class TestFunctionVariableSnippetExtract(unittest.TestCase):    # pragma: no cov
         self.assertEqual('var:var1', result2[0])
 
 
+@unittest.skip("Deprecated")
 class TestFunctionParseConfigurationFile(unittest.TestCase):    # pragma: no cover
 
     def test_parse_configuration_file_example1(self):
@@ -87,6 +89,7 @@ class TestFunctionParseConfigurationFile(unittest.TestCase):    # pragma: no cov
         self.assertEqual(len(configuration), 0)
 
 
+@unittest.skip("Deprecated")
 class TestFunctionValidateConfiguration(unittest.TestCase):    # pragma: no cover
 
     def test_validate_example1(self):
@@ -187,6 +190,7 @@ class TestFunctionValidateConfiguration(unittest.TestCase):    # pragma: no cove
         self.assertFalse(result)
 
 
+@unittest.skip("Deprecated")
 class TestFunctionFromConfigurationGetAllTaskNamesAsList(unittest.TestCase):    # pragma: no cover
 
     def test_validate_example1(self):

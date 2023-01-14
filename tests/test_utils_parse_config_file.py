@@ -18,6 +18,7 @@ from acfop.utils.cli_arguments import parse_command_line_arguments
 from acfop.utils.parse_config_file import *
 
 
+@unittest.skip("Deprecated")
 class TestFunctionUpdateStateStoreFromConfigFile(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):

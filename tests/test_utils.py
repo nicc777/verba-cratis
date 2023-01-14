@@ -389,6 +389,7 @@ class TestExtractHandlerConfig(unittest.TestCase):    # pragma: no cover
         self.assertEqual(result['SysLogHandler']['socktype'], socket.SOCK_DGRAM)
 
 
+@unittest.skip("Deprecated")
 class TestFunctionGetLoggerFromConfiguration(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):

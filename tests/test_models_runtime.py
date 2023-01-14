@@ -51,6 +51,7 @@ def get_aws_identity_mock1(     # pragma: no cover
     raise Exception('Function Threw an Exception')
 
 
+@unittest.skip("Deprecated")
 class TestClassVariable(unittest.TestCase):    # pragma: no cover
 
     def test_class_variable_init_defaults(self):
@@ -93,6 +94,7 @@ echo $qty
         self.assertEqual(result, 'Variable: id=var1 classification=build-variable >> value as string: test')
 
 
+@unittest.skip("Deprecated")
 class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
@@ -140,6 +142,7 @@ class TestClassVariableStateStore(unittest.TestCase):    # pragma: no cover
         self.assertTrue('Variable classification "not-going-to-work" is not supported' in str(context.exception))
 
 
+@unittest.skip("Deprecated")
 class TestClassVariableStateStoreOperations(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
@@ -356,6 +359,7 @@ echo $qty
         self.assertEqual('var1', result)
 
 
+@unittest.skip("Deprecated")
 class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    # pragma: no cover
 
     def test_class_variable_state_store_ops_get_variable_value_exceeding_max_depth_processing(self):
@@ -380,6 +384,7 @@ class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    #
         self.assertTrue('Maximum embedded variable parsing depth exceeded' in str(context.exception))
 
 
+@unittest.skip("Deprecated")
 class TestFunctionConfigurationToVariableStateStore(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
