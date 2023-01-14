@@ -1,6 +1,10 @@
 import boto3
 import hashlib
 import copy
+import os
+import shutil
+import tempfile
+from acfop.utils.file_io import *
 
 
 class Kinds:
@@ -11,6 +15,11 @@ class Kinds:
     KIND_INFRASTRUCTURE_TEMPLATE = 'InfrastructureTemplate'
     KIND_TASK = 'Task'
     KIND_DEPLOYMENT = 'Deployment'
+
+
+class Interpreters:
+    PYTHON = 'python'
+    SHELL = 'shell'
 
 
 class MetaData:
@@ -73,10 +82,22 @@ class ConfigurationStore:
         raise Exception('Configuration definition "{}" of kind "{}" was not found'.format(name, kind))
 
 
-class ShellScripts:
-
-    def __init__(self) -> None:
-        pass
+class ShellScript:
+    def __init__(
+        self,
+        script_name: str,
+        code_reference: str,
+        interpreter: Interpreters=Interpreters.SHELL,
+        on_fail_return_success: bool = False,
+        on_fail_return_value: str = 'The Script Returned an Error',
+    )->None:
+        self.interpreter = interpreter
+        self.on_fail_return_success = on_fail_return_success
+        self.on_fail_return_value = on_fail_return_value
+        if does_file_exists(code_reference) is True:
+            self.script_file = copy_file(source_file=code_reference, tmp_dir=create_tmp_dir(script_name=script_name), file_name=script_name)
+        else:
+            self.script_file = create_tmp_file(tmp_dir=create_tmp_dir(script_name=script_name), file_name=script_name, data=code_reference)
 
 
 class Environment:
