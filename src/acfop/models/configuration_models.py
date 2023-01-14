@@ -1,4 +1,6 @@
 import boto3
+import hashlib
+import copy
 
 
 class Kinds:
@@ -16,10 +18,8 @@ class MetaData:
     def __init__(self, data: dict) -> None:
         self.name = 'noName'
         self.labels = dict()
-
         if 'name' in data:
             self.name = '{}'.format(data['name'])
-
         if 'labels' in data:
             for k, v in data['labels'].items():
                 self.labels[k] = '{}'.format(v)
@@ -38,6 +38,31 @@ class ConfigurationDefinition:
         self.kind = kind
         self.metadata = metadata
         self.spec = spec
+        self.identifier = '{}:{}'.format(
+            kind,
+            hashlib.sha256(str(metadata.name).encode(('utf-8'))).hexdigest()
+        )
+
+
+class ConfigurationStore:
+
+    def __init__(self) -> None:
+        self.store = dict()
+        self.kind_store_map = dict()
+        self.kind_store_map[Kinds.KIND_DEPLOYMENT] = dict()
+        self.kind_store_map[Kinds.KIND_ENVIRONMENT] = dict()
+        self.kind_store_map[Kinds.KIND_ENVIRONMENT_VARIABLES] = dict()
+        self.kind_store_map[Kinds.KIND_INFRASTRUCTURE_TEMPLATE] = dict()
+        self.kind_store_map[Kinds.KIND_SHELL_SCRIPT] = dict()
+        self.kind_store_map[Kinds.KIND_TASK] = dict()
+
+    def add_configuration_definition(self, configuration_definition: ConfigurationDefinition):
+        if configuration_definition.identifier in self.store:
+            raise Exception('COnfiguration Duplication Detected. Ensure every configuration element of the same kind has a unique name')
+        if configuration_definition.kind not in self.kind_store_map:
+            raise Exception('The configuration kind is not supported')
+        self.store[configuration_definition.identifier] = configuration_definition
+        self.kind_store_map[configuration_definition.kind][configuration_definition.metadata.name] = configuration_definition.identifier
 
 
 class ShellScripts:

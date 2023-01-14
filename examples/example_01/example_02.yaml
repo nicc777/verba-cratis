@@ -153,7 +153,7 @@ kind: EnvironmentVariables
 metadata:
   name: test-environment-variables
   labels:
-    environment: test                           # Links to Environment.metadata.name - iof not set, defaults to "default"
+    environment: test                           # Links to Environment.metadata.name - if not set, defaults to "default"
 spec:
   staticValues:
   - name: awsRegion

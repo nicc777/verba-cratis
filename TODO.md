@@ -43,3 +43,12 @@ spec:
 | Deployment                | Defines a deployment specific to an environment that contains one or more tasks.                                                                                                                                                                                                   |
 
 See `examples/example_01/example_02.yaml` for an example
+
+Order of parsing of configuration:
+
+1. ShellScript
+2. EnvironmentVariables - Note: if `metadata.labels.environment` is set, and matches the provided running environment, parse. If environment label is not present, assume name is `default` and only parse if the running environment name is also `default`
+3. Environment 
+4. InfrastructureTemplate
+5. Task
+6. Deployment
