@@ -10,7 +10,8 @@ spec:
   authentication:
     aws:                                        # AWS Specific credentials
       useProfile: true                          # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
-      defaultProfileName: AwsDevProfileName     # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+      profileName: AwsDevProfileName            # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+      region: eu-central-1                      # OPTIONAL, default=eu-central-1
 ---
 apiVersion: v1-alpha
 kind: Environment
@@ -21,9 +22,9 @@ metadata:
     targetAccountName: qa
 spec:
   authentication:
-    aws:                                        # AWS Specific credentials
-      useProfile: true                          # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
-      defaultProfileName: AwsTestProfileName    # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+    aws:                                        # AWS Specific credentials - in this example we obtain the credentials from the environment
+      awsAccessKeyId: ${EnvironmentVariables:computed:awsAccessKeyId}
+      awsSecretAccessKey: ${EnvironmentVariables:computed:awsSecretAccessKey}
 ---
 apiVersion: v1-alpha
 kind: Environment
@@ -36,7 +37,7 @@ spec:
   authentication:
     aws:                                        # AWS Specific credentials
       useProfile: true                          # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
-      defaultProfileName: AwsProdProfileName    # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+      profileName: AwsProdProfileName           # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
 ---
 apiVersion: v1-alpha
 kind: ShellScript
@@ -175,14 +176,22 @@ spec:
       stripLeadingSpaces: true                  # OPTIONAL: Default=true
       stripTrailingSpaces: true                 # OPTIONAL: Default=true
       cacheOutput: true                         # OPTIONAL: Default=true - once the script is run, the return value will be cached and re-used in subsequent calls to the script FOR THIS ENVIRONMENT
-  - name: awsProfile
+  - name: awsAccessKeyId
     shellEnvironment:
       expose: true
-      shellEnvironmentVariableName: AWS_PROFILE
+      shellEnvironmentVariableName: AWS_ACCESS_KEY_ID
     source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
       kind: shellEnvironment                    # "shellEnvironment" is a special kind that reads the shell environment variable names and values at the time of execution of the deployment
-      name: AWS_PROFILE                         # Use the value from this shell environment variable name
-      default: default                          # OPTIONAL: Default=<empty string>
+      name: AWS_ACCESS_KEY_ID                   # Use the value from this shell environment variable name
+      default: ""                               # OPTIONAL: Default=<empty string>
+  - name: awsSecretAccessKey
+    shellEnvironment:
+      expose: true
+      shellEnvironmentVariableName: AWS_SECRET_ACCESS_KEY
+    source:                                     # From where is it obtained (Kind) - the output from the shell script will be the value set
+      kind: shellEnvironment                    # "shellEnvironment" is a special kind that reads the shell environment variable names and values at the time of execution of the deployment
+      name: AWS_SECRET_ACCESS_KEY               # Use the value from this shell environment variable name
+      default: ""                               # OPTIONAL: Default=<empty string>
 ---
 apiVersion: v1-alpha
 kind: EnvironmentVariables
