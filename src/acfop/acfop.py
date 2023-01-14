@@ -29,7 +29,7 @@ def main(cli_args: list=sys.argv[1:], logger=get_logger())->dict:
     ###
     ### Parse command line arguments (update state_store)
     ###
-    #state_store = parse_command_line_arguments(cli_args=cli_args, state_store=state_store, logger=logger)
+    cli_args = parse_command_line_arguments(cli_args=cli_args, logger=logger)
     
     ###
     ### Read and parse the configuration
@@ -52,4 +52,5 @@ def main(cli_args: list=sys.argv[1:], logger=get_logger())->dict:
 
 
 if __name__ == '__main__':  # pragma: no cover
-    main(cli_args=sys.argv[1:])
+    logger=get_logger()
+    main(cli_args=sys.argv[1:], logger=logger)

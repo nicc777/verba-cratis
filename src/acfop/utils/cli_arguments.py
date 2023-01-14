@@ -16,9 +16,8 @@ from acfop.models.runtime import Variable, VariableStateStore
 def parse_command_line_arguments(
     cli_args: list=sys.argv[1:],
     overrides: dict=dict(),
-    logger=get_logger(),
-    state_store: VariableStateStore=VariableStateStore()
-)->VariableStateStore:
+    logger=get_logger()
+)->dict:
     """Helper function to parse command line arguments
 
     Args:
@@ -64,15 +63,5 @@ def parse_command_line_arguments(
 
     logger.debug('args={}'.format(args))
 
-    for k,v in args.items():
-        state_store.add_variable(
-            var=Variable(
-                id='args:{}'.format(k),
-                initial_value=v,
-                value_type=str,
-                classification='build-variable'
-            )
-        )
-
-    return state_store
+    return args
 

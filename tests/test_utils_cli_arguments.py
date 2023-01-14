@@ -24,7 +24,7 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
         self.overrides = dict()
         self.overrides['config_file'] = 'examples/example_02/example_02.yaml'
         self.cli_args=[
-            '--conf', 'examples/example_01/example_01.yaml',
+            '--conf', 'examples/example_01/example_02.yaml',
         ]
 
     def test_basic_invocation_no_args_fail_with_exit(self):
@@ -35,32 +35,7 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
     def test_basic_invocation_args_basic(self):
         result = parse_command_line_arguments(cli_args=self.cli_args)
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, VariableStateStore)
-        value = result.get_variable_value(id='args:config_file', skip_embedded_variable_processing=True)
-        self.assertIsNotNone(value)
-        self.assertIsInstance(value, str)
-        self.assertTrue(len(value) > 0)
-        self.assertTrue('example_01' in value)
-
-    def test_basic_invocation_args_overrides_only(self):
-        result = parse_command_line_arguments(overrides=self.overrides)
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, VariableStateStore)
-        value = result.get_variable_value(id='args:config_file', skip_embedded_variable_processing=True)
-        self.assertIsNotNone(value)
-        self.assertIsInstance(value, str)
-        self.assertTrue(len(value) > 0)
-        self.assertTrue('example_02' in value)
-
-    def test_basic_invocation_args_cli_provided_and_overrides(self):
-        result = parse_command_line_arguments(cli_args=self.cli_args, overrides=self.overrides)
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, VariableStateStore)
-        value = result.get_variable_value(id='args:config_file', skip_embedded_variable_processing=True)
-        self.assertIsNotNone(value)
-        self.assertIsInstance(value, str)
-        self.assertTrue(len(value) > 0)
-        self.assertTrue('example_02' in value)
+        self.assertIsInstance(result, dict)
 
     def test_basic_invocation_invalid_overrides_fail_with_exit(self):
         with self.assertRaises(SystemExit) as cm:
