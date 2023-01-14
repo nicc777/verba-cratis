@@ -24,7 +24,7 @@ def main(cli_args: list=sys.argv[1:])->dict:
     # state_store = VariableStateStore()
     # state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
     logger = get_logger()
-    logger.info('Started with build ID {}'.format(state_store.get_variable_value(id='build_id')))
+    logger.info('Started with build ID {}'.format(BUILD_ID))
     logger.debug('Started in DEBUG mode')
     
     ###
