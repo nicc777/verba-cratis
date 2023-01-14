@@ -48,7 +48,7 @@ class ConfigurationStore:
 
     def __init__(self) -> None:
         self.store = dict()
-        self.kind_store_map = dict()
+        self.kind_store_map = dict()    # Stores the user friendly name of each configuration object, grouped by it's kind, with a link to the store identifier
         self.kind_store_map[Kinds.KIND_DEPLOYMENT] = dict()
         self.kind_store_map[Kinds.KIND_ENVIRONMENT] = dict()
         self.kind_store_map[Kinds.KIND_ENVIRONMENT_VARIABLES] = dict()
@@ -63,6 +63,14 @@ class ConfigurationStore:
             raise Exception('The configuration kind is not supported')
         self.store[configuration_definition.identifier] = configuration_definition
         self.kind_store_map[configuration_definition.kind][configuration_definition.metadata.name] = configuration_definition.identifier
+
+    def get_configuration_definition(self, kind: Kinds, name: str)->ConfigurationDefinition:
+        if kind in self.kind_store_map:
+            if name in self.kind_store_map[kind]:
+                identifier = self.kind_store_map[kind][name]
+                if identifier in self.store:
+                    return self.store[identifier]
+        raise Exception('Configuration definition "{}" of kind "{}" was not found'.format(name, kind))
 
 
 class ShellScripts:
