@@ -32,9 +32,13 @@ def parse_configuration_file(file_path: str, get_file_contents_function: object=
 
     """
     configuration = dict()
+    current_part = 0
     try:
         file_content = get_file_contents_function(file=file_path)
-        configuration = yaml.load(file_content, Loader=Loader)
+        # configuration = yaml.load(file_content, Loader=Loader)
+        for data in yaml.load_all(file_content, Loader=Loader):
+            current_part += 1
+            configuration['part_{}'.format(current_part)] = data
         logger.debug('configuration={}'.format(configuration))
     except:
         traceback.print_exc()
