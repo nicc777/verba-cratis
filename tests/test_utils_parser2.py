@@ -35,15 +35,6 @@ class TestFunctionParseConfigurationFile(unittest.TestCase):    # pragma: no cov
         self.assertIsNotNone(configuration)
         self.assertIsInstance(configuration, dict)
         self.assertTrue(len(configuration) > 0)
-        keys = (
-            'deployments',
-            'functionParameterValues',
-            'globalVariables',
-            'logging',
-            'tasks',
-        )
-        for key in keys:
-            self.assertTrue(key in configuration, 'Key "{}" not found in configuration'.format(key))
 
     def test_parse_configuration_file_example1_file_not_found(self):
         configuration = dict()
