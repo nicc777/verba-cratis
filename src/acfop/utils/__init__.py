@@ -13,6 +13,7 @@ import logging.handlers
 import socket
 import sys
 import copy
+import os
 
 
 DEFAULT_LOGGING_HANDLER_CONFIG = {  
@@ -136,8 +137,18 @@ def get_logging_syslog_handler(
     return None
 
 
+def is_debug_set_in_environment()->bool:
+    try:
+        env_debug = os.getenv('DEBUG', '0').lower()
+        if env_debug in ('1','true','t','enabled'):
+            return True
+    except:
+        pass
+    return False
+
+
 def get_logger(
-    level=logging.DEBUG,    # TODO at some stage, make the default INFO
+    level=logging.INFO,
     include_logging_file_handler: bool=False,
     include_logging_stream_handler: bool=True,
     include_logging_timed_rotating_file_handler: bool=False,
@@ -146,6 +157,10 @@ def get_logger(
     extra_parameters: dict=dict(),
     log_format: str='%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
 )->logging.Logger:
+
+    if is_debug_set_in_environment() is True:
+        level = logging.DEBUG
+
     logger = logging.getLogger()
     logger.handlers = []
     formatter = logging.Formatter(log_format)

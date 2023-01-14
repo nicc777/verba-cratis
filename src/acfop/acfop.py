@@ -16,25 +16,38 @@ from acfop.utils.parser import parse_configuration_file
 
 
 def main(cli_args: list=sys.argv[1:])->dict:
-    # Start the build
-    state_store = VariableStateStore()
-    state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
+    result = dict()
+
+    ###
+    ### Start the build
+    ###
+    # state_store = VariableStateStore()
+    # state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
     logger = get_logger()
     logger.info('Started with build ID {}'.format(state_store.get_variable_value(id='build_id')))
+    logger.debug('Started in DEBUG mode')
     
-    # Parse command line arguments (update state_store)
-    state_store = parse_command_line_arguments(cli_args=cli_args, state_store=state_store, logger=logger)
+    ###
+    ### Parse command line arguments (update state_store)
+    ###
+    #state_store = parse_command_line_arguments(cli_args=cli_args, state_store=state_store, logger=logger)
     
-    # Read and parse the configuration
-    configuration_as_dict = parse_configuration_file(file_path=state_store.get_variable_value(id='args:config_file'))
+    ###
+    ### Read and parse the configuration
+    ###
+    #configuration_as_dict = parse_configuration_file(file_path=state_store.get_variable_value(id='args:config_file'))
 
-    # Prepare the final result
-    result = dict()
-    result['BuildId'] = state_store.get_variable_value(id='build_id')
-    result['SourceConfigFile'] = state_store.get_variable_value(id='args:config_file')
-    result['RuntimeConfiguration'] = configuration_as_dict
+    ###
+    ### Prepare the final result
+    ###
+    #result = dict()
+    #result['BuildId'] = state_store.get_variable_value(id='build_id')
+    #result['SourceConfigFile'] = state_store.get_variable_value(id='args:config_file')
+    #result['RuntimeConfiguration'] = configuration_as_dict
 
-    # Log and return final result
+    ###
+    ### Log and return final result
+    ###
     logger.info('RESULT: {}'.format(json.dumps(result, indent=4, sort_keys=True, default=str)))
     return result
 

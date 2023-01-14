@@ -6,6 +6,12 @@
     https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
+"""
+MODULE DEPRECATED
+
+    This module is replaced by parser2.py after a new configuration pattern was considered and used instead.
+"""
+
 import traceback
 from acfop.utils.file_io import get_file_contents
 import yaml
