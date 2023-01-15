@@ -150,7 +150,7 @@ spec:
       name: generateS3BucketName                # Reference to the name of the Kind of source
       #commandLineArgument: "1 2 3"             # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
       commandLineArguments:                     # Alternatively, set named command line arguments
-        env: dev                                # Will be passed as "--env dev"
+        env: ${Environment:name}                # Will be passed as "--env dev"
       outputParser: asString                    # OPTIONAL: Default=string. For now this is the only accepted option
       stripLeadingSpaces: true                  # OPTIONAL: Default=true
       stripTrailingSpaces: true                 # OPTIONAL: Default=true
@@ -187,7 +187,7 @@ spec:
       name: generateS3BucketName                # Reference to the name of the Kind of source
       #commandLineArgument: "1 2 3"             # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
       commandLineArguments:                     # Alternatively, set named command line arguments
-        env: test                               # Will be passed as "--env test"
+        env: ${Environment:name}                # Will be passed as "--env test"
       outputParser: asString                    # OPTIONAL: Default=string. For now this is the only accepted option
       stripLeadingSpaces: true                  # OPTIONAL: Default=true
       stripTrailingSpaces: true                 # OPTIONAL: Default=true
@@ -232,7 +232,7 @@ spec:
       name: generateS3BucketName                # Reference to the name of the Kind of source
       #commandLineArgument: "1 2 3"             # Set all command line arguments as a single string - if "commandLineArguments" is also supplied, those will be put first and these appended
       commandLineArguments:                     # Alternatively, set named command line arguments
-        env: prod                               # Will be passed as "--env prod"
+        env: ${Environment:name}                # Will be passed as "--env prod"
       outputParser: asString                    # OPTIONAL: Default=string. For now this is the only accepted option
       stripLeadingSpaces: true                  # OPTIONAL: Default=true
       stripTrailingSpaces: true                 # OPTIONAL: Default=true

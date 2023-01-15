@@ -2,6 +2,7 @@
     "cSpell.words": [
         "acfop",
         "AIDACCCCCCCCCCCCCCCCC",
+        "asctime",
         "boto",
         "clazz",
         "Coetzee",
@@ -10,10 +11,10 @@
         "DGRAM",
         "Docstrings",
         "funccall",
+        "kubectl",
         "levelname",
         "socktype",
-        "kubectl",
-        "asctime"
+        "urllib"
     ],
     "python.testing.unittestArgs": [
         "-v",
