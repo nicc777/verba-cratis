@@ -118,5 +118,30 @@ spec:
             -   parameterName: format
                 parameterType: str
                 parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+    projects:
+    -   name: Test Project
+        locations:
+            -   type: ListOfFiles
+                files:
+                -   path: /path/to/infrastructure_manifest_file.yaml
+                    type: YAML
+    -   name: Another Project
+        locations:
+            -   type: ListOfDirectories
+                directories:
+                -   path: /path1
+                    type: YAML
+                -   path: /path2
+                    type: YAML
+                includeYamlFileRegex: 
+                -   "*\.yaml"
+                -   "*\.yml"
+            -   type: ListOfFiles
+                files:
+                -   path: /path/to/infrastructure_manifest_file.yaml
+                    type: YAML
 ```
 
+## Basic Application Logic
+
+TODO
