@@ -299,7 +299,18 @@ spec:
     waitForCompletion: true                     # OPTIONAL, default=true - If false, the deployment will continue in the background and the function will return. Otherwise, we wait until the stack is deployed.
     waitTimeout: 3600                           # OPTIONAL, default=600 - If "waitForCompletion" is set to true, the timeout can be set here.
     onTimeout: fail                             # OPTIONAL, default=fail - Set the failure behavior. Valid options: "fail" or "continue"
-    boto3Options:                               # Refer to https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudformation.html#CloudFormation.Client.create_stack
+    boto3DeploymentOptions:                     # Refer to https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudformation.html#CloudFormation.Client.create_stack - will trigger if there are no previous successful deployments of this stack 
+      TimeoutInMinutes: 60
+      # NotificationARNs:
+      # - xxx
+      # Capabilities:
+      # - CAPABILITY_IAM
+      # RoleARN: xxx
+      OnFailure: DELETE
+      EnableTerminationProtection: false
+      # StackPolicyBody: xxx
+      # StackPolicyURL: xxx
+    boto3UpdateOptions:                         # Refer to https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudformation.html#CloudFormation.Client.update_stack - Triggers when there are a previous successful deployment
       TimeoutInMinutes: 60
       # NotificationARNs:
       # - xxx
@@ -323,6 +334,9 @@ spec:
   action:
     type: ShellScript
     name: echoGeneralDeploymentInfo
+  providerConfiguration:
+      runEveryDeployment: false                 # OPTIONAL: Default=false - ShellScript always run on the first deployment, but this setting determines if it should also run with subsequent deployments, where the previous deployment was successful
+      returnResultWhenSkipped: success          # OPTIONAL: Default=true - If "runEveryDeployment" is false, determine if the skipped action must result in a "success" or "fail" response
 ---
 apiVersion: v1-alpha
 kind: Task
@@ -335,6 +349,8 @@ spec:
   action:
     type: ShellScript
     name: emptyS3Bucket
+    providerConfiguration:
+      runEveryDeployment: true                  # OPTIONAL: Default=false - ShellScript always run on the first deployment, but this setting determines if it should also run with subsequent deployments, where the previous deployment was successful
 ---
 apiVersion: v1-alpha
 kind: Task
@@ -347,6 +363,8 @@ spec:
   action:
     type: ShellScript
     name: deleteS3Bucket
+    providerConfiguration:
+      runEveryDeployment: true                  # OPTIONAL: Default=false - ShellScript always run on the first deployment, but this setting determines if it should also run with subsequent deployments, where the previous deployment was successful
 ---
 apiVersion: v1-alpha
 kind: Task
@@ -363,9 +381,9 @@ spec:
     provider: AWS-CloudFormation                # Each cloud provider must have a provide that knows how to deploy an infrastructure template
     providerConfiguration:
       stackName: S3ArtifactBucket
-      parameters:
-      - parameterName: XXX
-        parameterValue: XXX
+      noManifestChangesAction: skip-success     # OPTIONAL: Default=skp-success - which is currently the only option. Will skip the step and return success.
+      manifestChangesAction: change-set         # OPTIONAL: Default=change-set - Can be either "skip-success" or "change-set"
+      deleteAction: delete                      # OPTIONAL: Default=delete - Either "delete" or "skip". The "delete" option, deletes the CloudFOrmation stack
     rollbackAction:
       provider: AWS
 ---
@@ -401,7 +419,7 @@ spec:
       Message: "Deployment 'deployS3Bucket' deployed"
     - Provider: REST
       Message: '{"Deployment": "deployS3Bucket", "Status": "deployed", "Environment": "${Environment:name}"}}'
-  tasks:
+  deploymentTasks:
   - order: 100                                  # All tasks will be executed in numerical order. To make change management and change tracking easier, you can keep gaps between numbers.
     task: echoGeneralDeploymentInfo
     preExecution:
@@ -473,6 +491,68 @@ spec:
       notification: 
       - Provider: REST
         Message: '{"Task": "deployS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
+    onSuccess:
+      notification:
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "success", "Environment": "${Environment:name}"}}'
+  deleteDeploymentTasks:
+  - order: 100
+    task: deployS3Bucket
+    preExecution:
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "deleting", "Environment": "${Environment:name}"}}'
+    onError:
+      stopExecution: true
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "delete-failed", "Environment": "${Environment:name}"}}'
+    onSuccess:
+      notification:
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "deleted", "Environment": "${Environment:name}"}}'
+  - order: 200                                  # Tasks not linked to this environment will be skipped automatically
+    task: emptyS3Bucket
+    preExecution:
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "emptyS3Bucket", "Status": "deleting", "Environment": "${Environment:name}"}}'
+    onError:
+      stopExecution: true
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "emptyS3Bucket", "Status": "delete-failed", "Environment": "${Environment:name}"}}'
+    onSuccess:
+      notification:
+      - Provider: REST
+        Message: '{"Task": "emptyS3Bucket", "Status": "deleted", "Environment": "${Environment:name}"}}'
+  - order: 300
+    task: deleteS3Bucket
+    preExecution:
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deleteS3Bucket", "Status": "deleting", "Environment": "${Environment:name}"}}'
+    onError:
+      stopExecution: true
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deleteS3Bucket", "Status": "delete-failed", "Environment": "${Environment:name}"}}'
+    onSuccess:
+      notification:
+      - Provider: REST
+        Message: '{"Task": "deleteS3Bucket", "Status": "deleted", "Environment": "${Environment:name}"}}'
+  updateDeploymentTasks:                        # Run only on subsequent deployments if there was at least one successful deployment in the past
+  - order: 100
+    task: deployS3Bucket
+    preExecution:
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "updating", "Environment": "${Environment:name}"}}'
+    onError:
+      stopExecution: true
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "update-failed", "Environment": "${Environment:name}"}}'
     onSuccess:
       notification:
       - Provider: REST
