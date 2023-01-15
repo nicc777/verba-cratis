@@ -57,7 +57,7 @@ Order of parsing of configuration:
 
 There is a global configuration for the application, either in `$HOME/.acfop/config` or that can be specified using the `--config` parameter to specify the location of the configuration.
 
-The configuration itself is also YAML with the following structure:
+The configuration itself is also YAML with the following example:
 
 ```yaml
 apiVersion: v1-alpha
@@ -98,3 +98,25 @@ spec:
                 parameterValue: '%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d - %(message)s'
 
 ```
+
+If no configuration is available, the following will be set as default:
+
+```yaml
+apiVersion: v1-alpha
+kind: GlobalConfiguration
+metadata:
+    name: acfop
+spec:
+    stateStore:
+        provider: sqlalchemy
+        dbConfig:
+            url: "sqlite:///acfop.db"
+    logging:
+        handlers:
+        -   name: StreamHandler
+            parameters:
+            -   parameterName: format
+                parameterType: str
+                parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+```
+
