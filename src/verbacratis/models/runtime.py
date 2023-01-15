@@ -3,16 +3,16 @@
 
     This file is licensed under GPLv3 and a copy of the license should be included in the project (look for the file 
     called LICENSE), or alternatively view the license text at 
-    https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+    https://raw.githubusercontent.com/nicc777/verbacratis/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
 
 import traceback
-from acfop.utils import get_logger
-from acfop.utils.parser import variable_snippet_extract, validate_configuration
-from acfop.utils.os_integration import exec_shell_cmd
-from acfop.utils.function_runner import execute_function
-from acfop.functions import user_function_factory
+from verbacratis.utils import get_logger
+from verbacratis.utils.parser import variable_snippet_extract, validate_configuration
+from verbacratis.utils.os_integration import exec_shell_cmd
+from verbacratis.utils.function_runner import execute_function
+from verbacratis.functions import user_function_factory
 import subprocess, shlex
 import hashlib
 import tempfile
@@ -355,7 +355,7 @@ def extract_logging_configuration(logging_configuration: dict, variable_state_st
         )
     else:   # Use default name in case any of the file handlers are required
         variable_state_store.add_variable(
-            var=Variable(id='logging.filename', initial_value='acfop.log', classification='build-variable')
+            var=Variable(id='logging.filename', initial_value='verbacratis.log', classification='build-variable')
         )
 
     if 'format' in logging_configuration:

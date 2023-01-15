@@ -1,10 +1,10 @@
 import traceback
 import boto3
-from acfop.aws import get_client
-from acfop.utils import get_logger
+from verbacratis.infrastructure_providers.aws import get_client
+from verbacratis.utils import get_logger
 
 # USER FUNCTIONS
-from acfop.functions.aws_helpers import get_aws_identity
+from verbacratis.infrastructure_providers.aws.aws_helpers import get_aws_identity
 
 def user_function_factory(
     boto3_clazz: object=boto3,

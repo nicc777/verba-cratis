@@ -3,11 +3,11 @@
 
     This file is licensed under GPLv3 and a copy of the license should be included in the project (look for the file 
     called LICENSE), or alternatively view the license text at 
-    https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+    https://raw.githubusercontent.com/nicc777/verbacratis/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
 import traceback
-from acfop.utils.file_io import get_file_contents
+from verbacratis.utils.file_io import get_file_contents
 import yaml
 try:    # pragma: no cover
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -15,7 +15,7 @@ except ImportError: # pragma: no cover
     from yaml import Loader, Dumper
 from cerberus import Validator
 import json
-from acfop.utils import get_logger
+from verbacratis.utils import get_logger
 
 
 def parse_configuration_file(file_path: str, get_file_contents_function: object=get_file_contents, logger=get_logger())->dict:

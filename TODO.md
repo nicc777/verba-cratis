@@ -55,7 +55,7 @@ Order of parsing of configuration:
 
 ## Deployment State
 
-There is a global configuration for the application, either in `$HOME/.acfop/config` or that can be specified using the `--config` parameter to specify the location of the configuration.
+There is a global configuration for the application, either in `$HOME/.verbacratis/config` or that can be specified using the `--config` parameter to specify the location of the configuration.
 
 The configuration itself is also YAML with the following example:
 
@@ -63,7 +63,7 @@ The configuration itself is also YAML with the following example:
 apiVersion: v1-alpha
 kind: GlobalConfiguration
 metadata:
-    name: acfop
+    name: verbacratis
 spec:
     stateStore:
         provider: sqlalchemy
@@ -105,12 +105,12 @@ If no configuration is available, the following will be set as default:
 apiVersion: v1-alpha
 kind: GlobalConfiguration
 metadata:
-    name: acfop
+    name: verbacratis
 spec:
     stateStore:
         provider: sqlalchemy
         dbConfig:
-            url: "sqlite:///acfop.db"
+            url: "sqlite:///verbacratis.db"
     logging:
         handlers:
         -   name: StreamHandler

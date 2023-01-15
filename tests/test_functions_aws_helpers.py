@@ -3,7 +3,7 @@
 
     This file is licensed under GPLv3 and a copy of the license should be included in the project (look for the file 
     called LICENSE), or alternatively view the license text at 
-    https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+    https://raw.githubusercontent.com/nicc777/verbacratis/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
 import sys
@@ -14,8 +14,8 @@ print('sys.path={}'.format(sys.path))
 import unittest
 
 
-from acfop.functions.aws_helpers import get_aws_identity
-from acfop.utils import *
+from verbacratis.infrastructure_providers.aws.aws_helpers import get_aws_identity
+from verbacratis.utils import *
 
 
 class StsClientMock:    # pragma: no cover

@@ -6,6 +6,7 @@
         "boto",
         "clazz",
         "Coetzee",
+        "cratis",
         "datafor",
         "datagram",
         "DGRAM",
@@ -15,7 +16,9 @@
         "levelname",
         "socktype",
         "sqlalchemy",
-        "urllib"
+        "urllib",
+        "verba",
+        "verbacratis"
     ],
     "python.testing.unittestArgs": [
         "-v",

@@ -3,7 +3,7 @@
 
     This file is licensed under GPLv3 and a copy of the license should be included in the project (look for the file 
     called LICENSE), or alternatively view the license text at 
-    https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+    https://raw.githubusercontent.com/nicc777/verbacratis/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
 import sys
@@ -13,9 +13,9 @@ print('sys.path={}'.format(sys.path))
 
 import unittest
 
-from acfop.models.runtime import VariableStateStore
-from acfop.utils.cli_arguments import parse_command_line_arguments
-from acfop.utils.parse_config_file import *
+from verbacratis.models.runtime import VariableStateStore
+from verbacratis.utils.cli_arguments import parse_command_line_arguments
+from verbacratis.utils.parse_config_file import *
 
 
 @unittest.skip("Deprecated")

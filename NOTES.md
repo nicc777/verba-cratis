@@ -97,7 +97,7 @@ Configuration:
         "logLevel": "debug"
       },
       "templateParametersOverrides": {
-        "tableName": "acfop-test-001-table"
+        "tableName": "verbacratis-test-001-table"
       },
       "dependsOnProfile": [
         "None"
@@ -170,7 +170,7 @@ Configuration:
       "templateParameters": [
         {
           "ParameterName": "TableName",
-          "ParameterValue": "acfop-test-table"
+          "ParameterValue": "verbacratis-test-table"
         }
       ],
       "changeSetIfExists": true,
@@ -179,7 +179,7 @@ Configuration:
       "taskExports": [
         {
           "ExportName": "tableArn",
-          "ExportValue": "${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'}"
+          "ExportValue": "${shell:aws dynamodb describe-table --table-name verbacratis-test-table | jq '.Table.TableArn'}"
         },
         {
           "ExportName": "initialRecordCount",
@@ -204,7 +204,7 @@ Configuration:
       "templateParameters": [
         {
           "ParameterName": "FunctionName",
-          "ParameterValue": "acfop-example-01-${func:get_username()}"
+          "ParameterValue": "verbacratis-example-01-${func:get_username()}"
         },
         {
           "ParameterName": "FunctionZipFile",

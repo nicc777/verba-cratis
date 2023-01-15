@@ -7,7 +7,7 @@ deployments:
     logFilename: deployment-${build-variable:build_uuid}-testing.log
     logLevel: debug
   templateParametersOverrides:      # Overrides tasks.*.templateParameters
-    tableName: acfop-test-001-table
+    tableName: verbacratis-test-001-table
   dependsOnProfile:                 # List of dependant profiles that will be run first. Only of all dependant profiles complete successfully will this profile run
   - None                            # Run this profile only after the unittest profile completed successfully
   preDeploymentScript: |
@@ -72,7 +72,7 @@ tasks:
     stackName: example-01-001                                                     # The CloudFormation stack name.
   templateParameters:                                                             # CloudFormation template parameters
   - ParameterName: TableName
-    ParameterValue: acfop-test-table
+    ParameterValue: verbacratis-test-table
   changeSetIfExists: true                                                         # If the named stack already exist, automatically create a change set?
   preDeploymentScript: |
     echo "Starting on task ${build-variable:current_task_name}"
@@ -82,7 +82,7 @@ tasks:
     echo "Successfully deployed template ${ref:tasks.dynamoDbTable.template} with ${exports:dynamoDbTable.initialRecordCount} initial records"
   taskExports:                                                                    # Task exports are processed after CloudFormation deployment but before postDeploymentScript
   - ExportName: tableArn
-    ExportValue: ${shell:aws dynamodb describe-table --table-name acfop-test-table | jq '.Table.TableArn'} 
+    ExportValue: ${shell:aws dynamodb describe-table --table-name verbacratis-test-table | jq '.Table.TableArn'} 
   - ExportName: initialRecordCount
     ExportValue: ${shell:aws dynamodb scan --table-name messaging --select "COUNT" | jq '.Count'}  
 - name: lambdaFunction
@@ -96,7 +96,7 @@ tasks:
     ParameterValue: LOWER
   templateParameters:
   - ParameterName: FunctionName
-    ParameterValue: acfop-example-01-${func:get_username()}
+    ParameterValue: verbacratis-example-01-${func:get_username()}
   - ParameterName: FunctionZipFile
     ParameterValue: ${ref:globalVariables.cloudFormationS3Bucket}/example-01-lambda.zip
   - ParameterName: DeploymentVersion                                              # We add this parameter (and also as a Lambda Environment Variable) to force CHange Sets for code changes, even if nothing else in the template changes

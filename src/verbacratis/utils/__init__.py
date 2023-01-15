@@ -3,7 +3,7 @@
 
     This file is licensed under GPLv3 and a copy of the license should be included in the project (look for the file 
     called LICENSE), or alternatively view the license text at 
-    https://raw.githubusercontent.com/nicc777/acfop/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+    https://raw.githubusercontent.com/nicc777/verbacratis/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
 
@@ -22,12 +22,12 @@ DEFAULT_LOGGING_HANDLER_CONFIG = {
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
     'FileHandler': {
-        'filename': 'acfop.log',
+        'filename': 'verbacratis.log',
         'level': logging.INFO,
         'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
     },
     'TimedRotatingFileHandler': {
-        'filename': 'acfop.log',
+        'filename': 'verbacratis.log',
         'when': 'D',
         'interval': 1,
         'backupCount': 5,
@@ -51,7 +51,7 @@ DEFAULT_LOGGING_HANDLER_CONFIG = {
 
 
 def get_logging_file_handler(
-    filename: str='acfop.log',
+    filename: str='verbacratis.log',
     level=logging.INFO,
     formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 )->logging.FileHandler:
@@ -66,7 +66,7 @@ def get_logging_file_handler(
 
 
 def get_timed_rotating_file_handler(    # See: https://docs.python.org/3/library/logging.handlers.html#timedrotatingfilehandler
-    filename: str='acfop.log',
+    filename: str='verbacratis.log',
     when: str='D',
     interval: int=1,
     backupCount: int= 5,
