@@ -255,7 +255,10 @@ spec:
   - dev
   - test
   - prod
-  #source: /path/to/template.yaml               # If set, "data" is ignored. Relative paths are processed from the current working directory
+  #source: /path/to/template.yaml               
+  sourceType: data                              # REQUIRED - Determines the source of the template. Valid values: "data" (see data section below), "local-file" (path to a file name, absolute or relative to current working directory), or "url", with the "source" pointing to a URL to which a GET request will be executed.
+  # urlHeaders:                                   # OPTIONAL, Default=None - only useful when "sourceType" is "url".
+  #   Authorization: bearer xyz
   data: >
     AWSTemplateFormatVersion: "2010-09-09"
     Description: >
