@@ -52,3 +52,49 @@ Order of parsing of configuration:
 4. InfrastructureTemplate
 5. Task
 6. Deployment
+
+## Deployment State
+
+There is a global configuration for the application, either in `$HOME/.acfop/config` or that can be specified using the `--config` parameter to specify the location of the configuration.
+
+The configuration itself is also YAML with the following structure:
+
+```yaml
+apiVersion: v1-alpha
+kind: GlobalConfiguration
+metadata:
+    name: acfop
+spec:
+    stateStore:
+        provider: sqlalchemy
+        dbConfig:
+            url: "sqlite:////tmp/db1.db"
+    logging:
+        handlers:
+        -   name: TimedRotatingFileHandler
+            parameters:                     # Overrides/Sets parameter values for the handler
+            -   parameterName: filename
+                parameterType: string
+                parameterValue: /tmp/out.log
+            -   parameterName: when
+                parameterType: string
+                parameterValue: H
+            -   parameterName: interval
+                parameterType: int
+                parameterValue: 6
+            -   parameterName: backupCount
+                parameterType: int
+                parameterValue: 120
+            -   parameterName: level
+                parameterType: str
+                parameterValue: debug
+            -   parameterName: format
+                parameterType: str
+                parameterValue: '%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d - %(message)s'
+        -   name: StreamHandler
+            parameters:
+            -   parameterName: format
+                parameterType: str
+                parameterValue: '%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d - %(message)s'
+
+```
