@@ -44,6 +44,10 @@ kind: ShellScript
 metadata:
   name: generateS3BucketName
 spec:
+  environments:
+  - dev
+  - test
+  - prod
   interpreter: python3
   outputParser: string                          # The output will be stored in a string value and will be available in the variable named "generateS3BucketName"
   onFail:
@@ -72,22 +76,30 @@ kind: ShellScript
 metadata:
   name: echoGeneralDeploymentInfo
 spec:
+  environments:
+  - dev
+  - test
+  - prod
   interpreter: sh
   outputParser: none                            # none -> The output will not be parsed
   onFail:
     returnSuccess: true                         # Or FALSE - will result in Exception being thrown
     returnValue: ""                             # Only required if returnSuccess is TRUE
   data: >
-    echo "Running in Environment                : ${Environment:raw:metadata.name}"
+    echo "Running in Environment                : ${Environment:name}"
     echo "Bucket name to be created             : ${ShellScript:computed:generateS3BucketName}"
     echo "Environment Bucket Name               : ${EnvironmentVariables:computed:S3ArtifactBucket}"
-    echo "Environment                           : ${Environment:raw:metadata.name}"
+    echo "Environment                           : ${Environment:name}"
 ---
 apiVersion: v1-alpha
 kind: ShellScript
 metadata:
   name: emptyS3Bucket
 spec:
+  environments:
+  - dev
+  - test
+  - prod
   interpreter: sh
   outputParser: none                            # none -> The output will not be parsed
   onFail:
@@ -102,6 +114,10 @@ kind: ShellScript
 metadata:
   name: deleteS3Bucket
 spec:
+  environments:
+  - dev
+  - test
+  - prod
   interpreter: sh
   outputParser: none                            # none -> The output will not be parsed
   onFail:
@@ -115,9 +131,9 @@ apiVersion: v1-alpha
 kind: EnvironmentVariables
 metadata:
   name: dev-environment-variables
-  labels:
-    environment: dev                            # Links to Environment.metadata.name - iof not set, defaults to "default"
 spec:
+  environments:
+  - dev
   staticValues:
   - name: awsRegion
     value: eu-central-1
@@ -152,9 +168,9 @@ apiVersion: v1-alpha
 kind: EnvironmentVariables
 metadata:
   name: test-environment-variables
-  labels:
-    environment: test                           # Links to Environment.metadata.name - if not set, defaults to "default"
 spec:
+  environments:
+  - test
   staticValues:
   - name: awsRegion
     value: eu-central-1
@@ -197,9 +213,9 @@ apiVersion: v1-alpha
 kind: EnvironmentVariables
 metadata:
   name: prod-environment-variables
-  labels:
-    environment: prod                           # Links to Environment.metadata.name - iof not set, defaults to "default"
 spec:
+  environments:
+  - prod
   staticValues:
   - name: awsRegion
     value: eu-central-1
@@ -235,6 +251,10 @@ kind: InfrastructureTemplate                    # During deployment, this will c
 metadata:
   name: s3-artifact-bucket-template
 spec:
+  environments:
+  - dev
+  - test
+  - prod
   #source: /path/to/template.yaml               # If set, "data" is ignored. Relative paths are processed from the current working directory
   data: >
     AWSTemplateFormatVersion: "2010-09-09"
@@ -270,6 +290,26 @@ spec:
         name: USER                              # Will get the value of the environment variable $USER
   ifExists:                                     # What actions to take if the template was already deployed. This is a default action and can be overridden during actual deployments
     update: false                               # OPTIONAL: Default=false - If the template has been deployed previously, should changes be applied with a change-set (AWS). If value is false, essentially already deployed stacks will be ignored
+  providers:
+    deployment: AWS-CloudFormation-Deployment
+    rollBack: none                              # For AWS no roll back providers are defined - we rely on the boto3 configuration (see below)
+  providerConfiguration:                        # AWS Specific Configuration
+    stackName: S3ArtifactBucket
+    ifStackExists: ChangeSet                    # OPTIONAL, default=Skip - There are two options: "Skip" or "ChangeSet"
+    waitForCompletion: true                     # OPTIONAL, default=true - If false, the deployment will continue in the background and the function will return. Otherwise, we wait until the stack is deployed.
+    waitTimeout: 3600                           # OPTIONAL, default=600 - If "waitForCompletion" is set to true, the timeout can be set here.
+    onTimeout: fail                             # OPTIONAL, default=fail - Set the failure behavior. Valid options: "fail" or "continue"
+    boto3Options:                               # Refer to https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudformation.html#CloudFormation.Client.create_stack
+      TimeoutInMinutes: 60
+      # NotificationARNs:
+      # - xxx
+      # Capabilities:
+      # - CAPABILITY_IAM
+      # RoleARN: xxx
+      OnFailure: DELETE
+      EnableTerminationProtection: false
+      # StackPolicyBody: xxx
+      # StackPolicyURL: xxx
 ---
 apiVersion: v1-alpha
 kind: Task
@@ -319,8 +359,15 @@ spec:
   - prod
   action:
     type: InfrastructureTemplate
-    provider: AWS                               # Each cloud provider must have a provide that knows how to deploy an infrastructure template
-    name: s3-artifact-bucket-template
+    name: s3-artifact-bucket-template           # Reference to the InfrastructureTemplate name
+    provider: AWS-CloudFormation                # Each cloud provider must have a provide that knows how to deploy an infrastructure template
+    providerConfiguration:
+      stackName: S3ArtifactBucket
+      parameters:
+      - parameterName: XXX
+        parameterValue: XXX
+    rollbackAction:
+      provider: AWS
 ---
 apiVersion: v1-alpha
 kind: Deployment
@@ -331,12 +378,108 @@ spec:
   - dev
   - test
   - prod
+  notifications:
+  - provider: AWS-SNS                           # OPTIONAL, default=None - providers: "AWS-SNS" (using Boto3) or "REST"
+    globalConfiguration:                        # OPTIONAL, default=None - for SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+      PhoneNumber: 1234567890
+      Subject: "Resource 'deployS3Bucket' Deployment Notification"
+      TopicArn: xxx
+  - provider: REST                              # OPTIONAL, default=None - providers: "AWS-SNS" (using Boto3) or "REST"
+    globalConfiguration:                        # For REST, we use Python3 urllib
+      URL: "http://localhost:5000/test"
+      method: POST
+      ContentType: "application/json"
+  preDeployment:
+    notification:                               
+    - Provider: AWS-SNS
+      Message: "Deployment 'deployS3Bucket' starting"
+    - Provider: REST
+      Message: '{"Deployment": "deployS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}'
+  postDeployment:
+    notification:                               
+    - Provider: AWS-SNS
+      Message: "Deployment 'deployS3Bucket' deployed"
+    - Provider: REST
+      Message: '{"Deployment": "deployS3Bucket", "Status": "deployed", "Environment": "${Environment:name}"}}'
   tasks:
   - order: 100                                  # All tasks will be executed in numerical order. To make change management and change tracking easier, you can keep gaps between numbers.
     task: echoGeneralDeploymentInfo
-  - order: 200
+    preExecution:
+      notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+      - Provider: AWS-SNS
+        TopicArn: xxx                             # Global configuration can be overridden here
+        Message: "Task 'echoGeneralDeploymentInfo' starting"
+      - Provider: REST
+        Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "starting", "Environment": "${Environment:name}"}}'
+    onError:
+      stopExecution: true
+      notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+      - Provider: AWS-SNS
+        TopicArn: xxx                             # Global configuration can be overridden here
+        Message: "Task 'echoGeneralDeploymentInfo' failed"
+      - Provider: REST
+        Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "failed", "Environment": "${Environment:name}"}}'
+    onSuccess:
+      notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+      - Provider: AWS-SNS
+        TopicArn: xxx                             # Global configuration can be overridden here
+        Message: "Task 'echoGeneralDeploymentInfo' completed"
+      - Provider: REST
+        Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "success", "Environment": "${Environment:name}"}}'
+  - order: 200                                  # Tasks not linked to this environment will be skipped automatically
     task: emptyS3Bucket
+    preExecution:
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "emptyS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
+    onError:
+      stopExecution: true
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "emptyS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
+    onSuccess:
+      notification:
+      - Provider: REST
+        Message: '{"Task": "emptyS3Bucket", "Status": "success", "Environment": "${Environment:name}"}}'
   - order: 300
     task: deleteS3Bucket
+    preExecution:
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deleteS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
+    onError:
+      stopExecution: true
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deleteS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
+    onSuccess:
+      notification:
+      - Provider: REST
+        Message: '{"Task": "deleteS3Bucket", "Status": "success", "Environment": "${Environment:name}"}}'
   - order: 400
     task: deployS3Bucket
+    preExecution:
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
+    onError:
+      stopExecution: true
+      rollbackDelay: 300                        # Time to wait for before rollback tasks commence. This is handy for AWS CloudFOrmation rollbacks that may be running in the background
+      rollBackTasks:                            # The tasks to execute during rollback
+      - order: 100                                  
+        task: emptyS3Bucket
+      - order: 200                                  
+        task: deleteS3Bucket
+      notification: 
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
+    onSuccess:
+      notification:
+      - Provider: REST
+        Message: '{"Task": "deployS3Bucket", "Status": "success", "Environment": "${Environment:name}"}}'
+  rules:
+    tasksNotLinkedToEnvironment: skip           # Optional, DEFAULT=skip - for now this is the only option
+    runNotificationOnSkippedTasks: false        # Optional, DEFAULT=false - If false, do not process "preExecution" or "onError" or "onSuccess" NOTIFICATIONS
+  # dependencies:                                 # All named deployments listed here will be executed first.
+  # - deploymentName: dummy1
+  # - deploymentName: dummy2

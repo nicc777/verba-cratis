@@ -55,9 +55,10 @@ class ConfigurationDefinition:
 
 class ConfigurationStore:
 
-    def __init__(self) -> None:
-        self.store = dict()
-        self.kind_store_map = dict()    # Stores the user friendly name of each configuration object, grouped by it's kind, with a link to the store identifier
+    def __init__(self, environment: str='default') -> None:
+        self.environment = environment
+        self.store = dict()             # Stores references to all ConfigurationDefinition manifests indexed by a calculated identifier in ConfigurationDefinition
+        self.kind_store_map = dict()    # Stores the user friendly name of each configuration manifest, grouped by it's kind, with a link to the store identifier
         self.kind_store_map[Kinds.KIND_DEPLOYMENT] = dict()
         self.kind_store_map[Kinds.KIND_ENVIRONMENT] = dict()
         self.kind_store_map[Kinds.KIND_ENVIRONMENT_VARIABLES] = dict()
