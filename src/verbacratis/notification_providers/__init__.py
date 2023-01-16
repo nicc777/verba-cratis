@@ -44,7 +44,7 @@ class NotificationProviderBaseClass:
             parameter_overrides=self._get_final_parameters(parameter_overrides=parameter_overrides)
         )
 
-    def _send_message_implementation(self, message: str, parameter_overrides: dict)->bool:
+    def _send_message_implementation(self, message: str, parameter_overrides: dict)->bool:  # pragma: no cover
         """
             Implement the actual sending of the message.
         """
