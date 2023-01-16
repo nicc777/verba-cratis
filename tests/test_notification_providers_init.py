@@ -66,6 +66,14 @@ class TestNotificationProviderBaseClass(unittest.TestCase):    # pragma: no cove
         result = en.get_parameter_value(name='test')
         self.assertIsNone(result)
 
+    def test_base_implementation_parameter_override(self):
+        en = EchoNotifier(logger=get_logger())
+        en.set_parameter(name='test', value='test-value')
+        result = en._get_final_parameters(parameter_overrides={'test': 'new-value'})
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        self.assertEqual('new-value', result['test'])
+
 
 if __name__ == '__main__':
     unittest.main()
