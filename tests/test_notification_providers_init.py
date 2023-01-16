@@ -61,6 +61,11 @@ class TestNotificationProviderBaseClass(unittest.TestCase):    # pragma: no cove
         self.assertIsInstance(result, str)
         self.assertEqual('test-value', result)
 
+    def test_base_implementation_get_parameter_that_was_not_set_returns_none(self):
+        en = EchoNotifier(logger=get_logger())
+        result = en.get_parameter_value(name='test')
+        self.assertIsNone(result)
+
 
 if __name__ == '__main__':
     unittest.main()
