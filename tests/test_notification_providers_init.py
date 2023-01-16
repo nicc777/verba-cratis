@@ -46,6 +46,13 @@ class TestNotificationProviderBaseClass(unittest.TestCase):    # pragma: no cove
         self.assertIsInstance(result, bool)
         self.assertTrue(result)
 
+    def test_base_implementation_duplicate_parameter_raises_exception(self):
+        en = EchoNotifier(logger=get_logger())
+        en.set_parameter(name='URL', value='http://localhost:8089/anything')
+        with self.assertRaises(Exception) as context:
+            en.set_parameter(name='URL', value='https://google.com')
+        self.assertTrue('Parameter already defined' in str(context.exception))
+
 
 if __name__ == '__main__':
     unittest.main()

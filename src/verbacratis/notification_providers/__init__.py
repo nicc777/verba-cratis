@@ -17,7 +17,7 @@ class NotificationProviderBaseClass:
         self,
         logger=None
     )->None:
-        if logger is None:
+        if logger is None:          # pragma: no cover
             logger = get_logger()
         self.logger = logger
         self.parameters = dict()
