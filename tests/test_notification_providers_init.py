@@ -53,6 +53,14 @@ class TestNotificationProviderBaseClass(unittest.TestCase):    # pragma: no cove
             en.set_parameter(name='URL', value='https://google.com')
         self.assertTrue('Parameter already defined' in str(context.exception))
 
+    def test_base_implementation_get_parameter_that_was_set(self):
+        en = EchoNotifier(logger=get_logger())
+        en.set_parameter(name='test', value='test-value')
+        result = en.get_parameter_value(name='test')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual('test-value', result)
+
 
 if __name__ == '__main__':
     unittest.main()
