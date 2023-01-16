@@ -48,3 +48,9 @@ Run Tests
 ```shell
 sh run_tests.sh
 ```
+
+# Resources and References
+
+* Python Documentation:
+  * https://realpython.com/documenting-python-code/
+  * https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
