@@ -4,6 +4,8 @@
 
 docker run --name echo_server -d -p 8089:80 kennethreitz/httpbin
 
+coverage run -a tests/test_notification_providers_init.py
+coverage run -a tests/test_notification_providers_rest_init.py
 # coverage run tests/test_utils_file_io.py
 # coverage run -a tests/test_utils_parser.py
 coverage run -a tests/test_utils_parser2.py
