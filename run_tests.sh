@@ -5,6 +5,9 @@
 docker run --name echo_server -d -p 8089:80 kennethreitz/httpbin
 
 # For the OpenAPI UI, visit http://localhost:8089/#/Anything/post_anything__anything_ when using the above docker image
+# References: 
+#   https://httpbin.org/#/Anything/post_anything__anything_
+#   https://github.com/postmanlabs/httpbin
 
 coverage run -a tests/test_notification_providers_init.py
 coverage run -a tests/test_notification_providers_rest_init.py
