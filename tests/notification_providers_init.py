@@ -28,7 +28,23 @@ class EchoNotifier(NotificationProviderBaseClass):
 class TestNotificationProviderBaseClass(unittest.TestCase):    # pragma: no cover
 
     def test_base_implementation_basic(self):
-        sm = SendRestMessage(logger=get_logger())
+        en = EchoNotifier(logger=get_logger())
+
+        self.assertIsNotNone(en)
+        self.assertIsInstance(en, NotificationProviderBaseClass)
+        self.assertIsInstance(en, EchoNotifier)
+
+        en.set_parameter(name='URL', value='http://localhost:8089/anything')
+
+        self.assertIsNotNone(en.parameters)
+        self.assertIsInstance(en.parameters, dict)
+        self.assertTrue('URL' in en.parameters)
+
+        result = en.send_message(message='test')
+
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
 
 
 if __name__ == '__main__':
