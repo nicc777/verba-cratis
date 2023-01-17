@@ -15,7 +15,7 @@ from verbacratis import ApplicationState
 # from verbacratis.utils.parser import parse_configuration_file
 
 
-def main(cli_args: list=sys.argv[1:], logger=get_logger())->dict:
+def main(cli_args: list=list(), logger=get_logger())->dict:
     result = dict()
 
     ###
@@ -47,5 +47,4 @@ def main(cli_args: list=sys.argv[1:], logger=get_logger())->dict:
 
 
 if __name__ == '__main__':  # pragma: no cover
-    logger=get_logger()
-    main(cli_args=sys.argv[1:], logger=logger)
+    main(cli_args=sys.argv[1:])
