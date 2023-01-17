@@ -18,15 +18,17 @@ from verbacratis.utils import get_logger
 def get_directory_from_path(input_path: str)->str:
     """Returns the directory portion of a path
     
-    The function first tests if the path exists. If it does not exist, the assumption is that the path consists of a directory and filename.
+    The function first tests if the path exists. If it does not exist, the assumption is that the path consists of a 
+    directory and filename.
 
-    If the path does exist, it will be determined if it is a directory or a normal file. Only the directory portion will be returned.
+    If the path does exist, it will be determined if it is a directory or a normal file. Only the directory portion will
+    be returned.
 
-        Args:
-            path: (required) String of a full path (directory and/or filename)
+    Args:
+        path: (required) String of a full path (directory and/or filename)
 
-        Returns:
-            A STRING with the calculated directory portion of the input path
+    Returns:
+        A STRING with the calculated directory portion of the input path
     """
     p = Path(input_path)
     if p.exists() is True:
@@ -46,6 +48,30 @@ def get_directory_from_path(input_path: str)->str:
         final_path
     )
     return final_path
+
+
+def get_file_from_path(input_path: str)->str:
+    """Returns the filename portion of a path
+    
+    The function first tests if the path exists. If it does exist, and it is found to be an existing directory, an 
+    exception will be thrown
+
+    Args:
+            path: (required) String of a full path (directory and filename)
+
+    Returns:
+            A STRING with the calculated file name portion of the input path
+
+    Raises:
+        Exception: If the path exists but is found to be a directory
+    """
+    p = Path(input_path)
+    if p.exists() is True:
+        if p.is_dir() is True:
+            raise Exception('Expected a file but got an existing directory')
+    elements = input_path.split(os.sep)
+    file_name = elements[-1]
+    return file_name
 
 
 class ApplicationState:
@@ -79,5 +105,11 @@ class ApplicationState:
 
     def set_custom_logger(self, logger=get_logger()):
         self.logger = logger
+
+    def update_config_file(self, config_file: str):
+        self.config_directory = get_directory_from_path(input_path=config_file)
+        self.config_file = get_file_from_path(input_path=config_file)
+        self.cli_args['config_file'] = config_file
+        
 
 

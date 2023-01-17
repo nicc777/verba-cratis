@@ -6,7 +6,7 @@
     https://raw.githubusercontent.com/nicc777/verbacratis/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
-
+import traceback
 import sys
 import argparse
 from verbacratis import ApplicationState
@@ -97,7 +97,12 @@ def parse_command_line_arguments(
         sys.exit(2)
 
     state.logger.info('args={}'.format(args))
-    state.cli_args = args
+    try:
+        state.update_config_file(config_file=args['config_file'])
+    except:
+        state.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
+        parser.print_usage()
+        sys.exit(2)
 
     return state
 
