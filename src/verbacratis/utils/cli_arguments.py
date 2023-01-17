@@ -9,15 +9,14 @@
 
 import sys
 import argparse
-from verbacratis.utils import get_logger
-from verbacratis.models.runtime import Variable, VariableStateStore
+from verbacratis import ApplicationState
 
 
 def parse_command_line_arguments(
+    state:ApplicationState,
     cli_args: list=sys.argv[1:],
     overrides: dict=dict(),
-    logger=get_logger()
-)->dict:
+)->ApplicationState:
     """Helper function to parse command line arguments
 
     Args:
@@ -27,8 +26,8 @@ def parse_command_line_arguments(
     Returns:
         Returns an updated :class:`VariableStateStore` object with all the parsed command line arguments
     """
-    logger.debug('overrides={}'.format(overrides))
-    logger.debug('cli_args={}'.format(cli_args))
+    state.logger.info('overrides={}'.format(overrides))
+    state.logger.info('cli_args={}'.format(cli_args))
     args = dict()
     args['conf'] = None
     parser = argparse.ArgumentParser(description='Processes and execute an AWS CloudFormation deployment based on the supplied configuration')
@@ -42,16 +41,12 @@ def parse_command_line_arguments(
         help='The path and filename of the configuration file. REQUIRED'
     )
     parsed_args, unknown_args = parser.parse_known_args(cli_args)
-    logger.debug('parsed_args={}'.format(parsed_args))
 
     if parsed_args.config_file is not None:
         args['config_file'] = parsed_args.config_file[0]
-    logger.debug('args={}'.format(args))
 
     for k,v in overrides.items():
         args[k] = v
-
-    logger.debug('args={}'.format(args))
 
     if 'config_file' not in args:
         parser.print_usage()
@@ -61,7 +56,8 @@ def parse_command_line_arguments(
         parser.print_usage()
         sys.exit(2)
 
-    logger.debug('args={}'.format(args))
+    state.logger.info('args={}'.format(args))
+    state.cli_args = args
 
-    return args
+    return state
 

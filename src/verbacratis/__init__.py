@@ -8,7 +8,43 @@
 
 import hashlib
 import uuid
+from pathlib import Path
+import os
+import traceback
+from sqlalchemy import create_engine
+from verbacratis.utils import get_logger
 
 
-BUILD_ID = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
+class ApplicationState:
+
+    def __init__(self) -> None:
+        self.environment = 'default'
+        self.project = 'default'
+        self.config_directory = '{}{}{}'.format(
+            str(Path.home()),
+            os.sep,
+            '.verbacratis'
+        )
+        self.config_file = 'config'
+        self.state_db_url = 'sqlite:///{}{}db1.db'.format(
+            self.config_directory,
+            os.sep
+        )
+        self.logger = self.set_custom_logger(logger=get_logger())
+        self.cli_args = {
+            'config_file': '{}{}{}{}config'.format(
+                str(Path.home()),
+                os.sep,
+                '.verbacratis',
+                os.sep
+            )
+        }
+        self.build_id = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
+
+    def get_db_connection(self):
+        return create_engine(url=self.state_db_url)
+
+    def set_custom_logger(self, logger=get_logger()):
+        self.logger = logger
+
 

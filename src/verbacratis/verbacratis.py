@@ -10,9 +10,9 @@ import sys
 import json
 from verbacratis.utils import get_logger
 from verbacratis.utils.cli_arguments import parse_command_line_arguments
-from verbacratis import BUILD_ID
-from verbacratis.models.runtime import Variable, VariableStateStore
-from verbacratis.utils.parser import parse_configuration_file
+from verbacratis import ApplicationState
+# from verbacratis.models.runtime import Variable, VariableStateStore
+# from verbacratis.utils.parser import parse_configuration_file
 
 
 def main(cli_args: list=sys.argv[1:], logger=get_logger())->dict:
@@ -23,13 +23,8 @@ def main(cli_args: list=sys.argv[1:], logger=get_logger())->dict:
     ###
     # state_store = VariableStateStore()
     # state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
-    logger.info('Started with build ID {}'.format(BUILD_ID))
-    logger.debug('Started in DEBUG mode')
-    
-    ###
-    ### Parse command line arguments (update state_store)
-    ###
-    cli_args = parse_command_line_arguments(cli_args=cli_args, logger=logger)
+    state: ApplicationState = parse_command_line_arguments(state=ApplicationState(), cli_args=cli_args, logger=logger)
+    state.logger.info('Started with build ID {}'.format(state.build_id))
     
     ###
     ### Read and parse the configuration
