@@ -119,12 +119,14 @@ spec:
                 parameterType: str
                 parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
     projects:
-    -   name: Test Project
+    -   name: Main Project
         locations:
             -   type: ListOfFiles
                 files:
                 -   path: /path/to/infrastructure_manifest_file.yaml
                     type: YAML
+        environments:
+        -   name: default
     -   name: Another Project
         locations:
             -   type: ListOfDirectories
@@ -133,13 +135,19 @@ spec:
                     type: YAML
                 -   path: /path2
                     type: YAML
-                includeYamlFileRegex: 
+                includeFileRegex: 
                 -   "*\.yaml"
                 -   "*\.yml"
             -   type: ListOfFiles
                 files:
                 -   path: /path/to/infrastructure_manifest_file.yaml
                     type: YAML
+        environments:
+        -   name: default
+            dependencies:
+                projects:
+                -   name: Main Project
+        -   name: somethingElse
 ```
 
 ## Basic Application Logic
