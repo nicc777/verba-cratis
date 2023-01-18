@@ -145,4 +145,11 @@ def get_file_from_path(input_path: str)->str:
     return file_name
 
 
-    
+def expand_to_full_path(original_path: str)->str:
+    if original_path.startswith(os.sep):
+        return original_path
+    return '{}{}{}'.format(
+        os.getcwd(),
+        os.sep,
+        original_path
+    )

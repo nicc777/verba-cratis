@@ -10,6 +10,7 @@ import traceback
 import sys
 import argparse
 from verbacratis import ApplicationState
+from verbacratis.utils.file_io import expand_to_full_path
 
 
 def _get_arg_parser(
@@ -70,14 +71,14 @@ def parse_command_line_arguments(
     args = dict()
     args['conf'] = None
     parser = _get_arg_parser(
-        default_config_file=state.cli_args['config_file'],
+        default_config_file=None,
         default_environment=state.environment,
         default_project=state.project
     )
     parsed_args, unknown_args = parser.parse_known_args(cli_args)
 
     if parsed_args.config_file is not None:
-        args['config_file'] = parsed_args.config_file[0]
+        args['config_file'] = expand_to_full_path(original_path=parsed_args.config_file[0])
 
     if parsed_args.environment is not None:
         state.environment =  parsed_args.environment[0]

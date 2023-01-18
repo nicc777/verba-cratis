@@ -6,6 +6,7 @@
     https://raw.githubusercontent.com/nicc777/verbacratis/main/LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 """
 
+from logging import Logger
 import traceback
 import hashlib
 import uuid
@@ -95,7 +96,7 @@ class ApplicationConfiguration:
     def parse_global_configuration(self):
         try:
             self.logger.info('Parsing Application Global Configuration')
-            config_as_dict = yaml.load(self.raw_global_configuration)
+            config_as_dict = yaml.load_all(self.raw_global_configuration, Loader=yaml.FullLoader)
         except:
             self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
             sys.exit(2)
@@ -103,13 +104,16 @@ class ApplicationConfiguration:
 
 class ApplicationState:
 
-    def __init__(self) -> None:
+    def __init__(self, logger=None) -> None:
         self.environment = 'default'
         self.project = 'default'
         self.config_directory = DEFAULT_CONFIG_DIR
         self.config_file = 'config'
         self.state_db_url = DEFAULT_STATE_DB
         self.logger = self.set_custom_logger(logger=get_logger())
+        if logger is not None:
+            if isinstance(logger, Logger):
+                self.logger = logger
         self.build_id = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
         self.application_configuration = ApplicationConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
 

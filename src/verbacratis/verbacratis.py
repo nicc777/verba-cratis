@@ -19,7 +19,7 @@ def main(cli_args: list=list(), logger=get_logger())->dict:
     ###
     ### Start the build
     ###
-    state: ApplicationState = parse_command_line_arguments(state=ApplicationState(), cli_args=cli_args, logger=logger)
+    state: ApplicationState = parse_command_line_arguments(state=ApplicationState(logger=logger), cli_args=cli_args)
     state.logger.info('Started with build ID {}'.format(state.build_id))
     
     ###
@@ -30,4 +30,4 @@ def main(cli_args: list=list(), logger=get_logger())->dict:
 
 
 if __name__ == '__main__':  # pragma: no cover
-    main(cli_args=sys.argv[1:])
+    main(cli_args=sys.argv[1:], logger=get_logger())
