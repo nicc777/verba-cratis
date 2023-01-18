@@ -64,6 +64,7 @@ class StateStore:
         self.enable_state = True
 
     def get_db_connection(self):
+        conn = None
         try:
             conn = create_engine(url=self.connection_url)
             self.logger.info('Connected to Database: {}'.format(conn.url))

@@ -15,6 +15,7 @@ import unittest
 
 
 from verbacratis import *
+from sqlalchemy.engine import Engine
 
 
 class TestClassStateStore(unittest.TestCase):    # pragma: no cover
@@ -23,6 +24,22 @@ class TestClassStateStore(unittest.TestCase):    # pragma: no cover
         result = StateStore()
         self.assertIsNotNone(result)
         self.assertIsInstance(result, StateStore)
+
+    def test_state_store_get_connection_sqlite_memory(self):
+        result = StateStore(connection_url='sqlite+pysqlite:///:memory:')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, StateStore)
+        conn = result.get_db_connection()
+        self.assertIsNotNone(conn)
+        self.assertIsInstance(conn, Engine)
+        self.assertTrue(result.enable_state)
+
+    def test_state_store_get_connection_sqlite_invalid_url_disables_state(self):
+        result = StateStore(connection_url='not-valid')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, StateStore)
+        conn = result.get_db_connection()
+        self.assertFalse(result.enable_state)
 
 
 if __name__ == '__main__':
