@@ -66,7 +66,7 @@ class StateStore:
     def get_db_connection(self):
         try:
             conn = create_engine(url=self.connection_url)
-            self.logger.info('Connected to Database')
+            self.logger.info('Connected to Database: {}'.format(conn.url))
         except:
             self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
             self.enable_state = False

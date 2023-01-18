@@ -18,6 +18,7 @@ coverage run -a tests/test_notification_providers_rest_init.py
 coverage run -a tests/test_utils_parser2.py
 # coverage run -a tests/test_utils.py
 coverage run -a tests/test_verbacratis.py
+coverage run -a tests/test_verbacratis_init.py
 # coverage run -a tests/test_models_runtime.py
 # coverage run -a tests/test_aws.py
 # coverage run -a tests/test_functions.py
