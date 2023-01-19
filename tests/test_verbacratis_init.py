@@ -42,5 +42,13 @@ class TestClassStateStore(unittest.TestCase):    # pragma: no cover
         self.assertFalse(result.enable_state)
 
 
+class TestApplicationConfiguration(unittest.TestCase):    # pragma: no cover
+
+    def test_application_configuration_init_with_defaults(self):
+        result = ApplicationConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=get_logger())
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, ApplicationConfiguration)
+
+
 if __name__ == '__main__':
     unittest.main()

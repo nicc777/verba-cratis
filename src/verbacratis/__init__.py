@@ -79,6 +79,7 @@ class ApplicationConfiguration:
 
     def __init__(self, raw_global_configuration: str, logger) -> None:
         self.raw_global_configuration = raw_global_configuration
+        self.parsed_configuration = dict()
         self.logger = logger
         self.state_store = StateStore(logger=self.logger)
         self.parse_global_configuration()
@@ -94,10 +95,33 @@ class ApplicationConfiguration:
             if 'url' in state_store_section['dbConfig']:
                 self.state_store.connection_url = state_store_section['dbConfig']['url']
 
+    def _get_spec(self, raw_config: dict):
+        spec = dict()
+        if 'spec' in raw_config:
+            spec = raw_config['spec']
+        return spec
+
+    def _parse_state_store_config(self, spec: dict):
+        provider = self.state_store.provider
+        url = self.state_store.connection_url
+        if 'provider' in spec:
+            provider = spec['provider']
+        if 'dbConfig' in spec:
+            if 'url' in spec['dbConfig']:
+                url = spec['dbConfig']['url']
+        self.state_store = StateStore(provider=provider, connection_url=url, logger=self.logger)
+
     def parse_global_configuration(self):
         try:
             self.logger.info('Parsing Application Global Configuration')
-            config_as_dict = yaml.load_all(self.raw_global_configuration, Loader=yaml.FullLoader)
+            parsed_config = yaml.load_all(self.raw_global_configuration, Loader=yaml.FullLoader)
+            spec = self._get_spec(raw_config=parsed_config)
+            if 'stateStore' in spec:
+                self._parse_state_store_config(spec=spec)
+            if 'logging' in spec:
+                pass
+            if 'projects' in spec:
+                pass
         except:
             self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
             sys.exit(2)
