@@ -13,6 +13,7 @@ import uuid
 from pathlib import Path
 import os
 import sys
+import copy
 from sqlalchemy import create_engine
 import yaml
 from verbacratis.utils import get_logger
@@ -48,6 +49,84 @@ spec:
       parameterType: str
       parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
 """.format(DEFAULT_STATE_DB)
+
+
+class Project:
+
+    def __init__(self, name: str):
+        self.name = name
+        self.environments = list()
+        self.environment_specific_parent_project_names = dict()
+        self.manifest_directories = list()
+        self.manifest_files = list()
+        self.include_file_regex = ('*\.yml', '*\.yaml')
+
+    def add_environment(self, environment_name: str):
+        self.environments.append(environment_name)
+
+    def add_environment_specific_parent_project(self, environment_name: str, parent_project_name: str):
+        if environment_name not in self.environment_specific_parent_project_names:
+            self.environment_specific_parent_project_names[environment_name] = list()
+        self.environment_specific_parent_project_names[environment_name].append(parent_project_name)
+
+    def add_manifest_directory(self, directory: str):
+        self.manifest_directories.append(directory)
+
+    def override_include_file_regex(self, include_file_regex: tuple):
+        self.include_file_regex = include_file_regex
+
+    def add_manifest_file(self, file: str):
+        self.manifest_files.append(file)
+
+
+def _get_parent_projects(environment_name: str, projects: dict, project: Project, ordered_project_names: list=list())->list:
+    current_project_index_position = ordered_project_names.index(project.name)
+    for parent_project_name in project.environment_specific_parent_project_names[environment_name]:
+        ordered_project_names.insert(current_project_index_position, parent_project_name)
+        current_project_index_position = ordered_project_names.index(project.name)
+        if parent_project_name in projects:
+            ordered_project_names = _get_parent_projects(
+                environment_name=environment_name,
+                projects=projects,
+                project=projects[parent_project_name],
+                ordered_project_names=copy.deepcopy(ordered_project_names)
+            )
+    return ordered_project_names
+
+class Projects:
+
+    def __init__(self):
+        self.projects = dict()
+        self.projects_per_environment = dict()
+
+    def add_project(self, project: Project):
+        if project.name not in self.projects:
+            self.projects[project.name] = project
+            environments = project.environments
+            if len(environments) == 0:
+                environments = ['default', ]
+            for env in environments:
+                if env not in self.projects_per_environment:
+                    self.projects_per_environment[env] = list()
+                self.projects_per_environment[env].append(project.name)
+        else:
+            raise Exception('Project "{}" Already Defined'.format(project.name))
+
+    def get_ordered_projects_for_environment(self, environment_name: str)->list:
+        ordered_project_names = list()
+        if environment_name in self.projects_per_environment:
+            copied_projects_per_environment = dict()
+            for project_name in self.projects_per_environment[environment_name]:
+                ordered_project_names.append(project_name)
+                copied_projects_per_environment[project_name] = self.projects[project_name]
+            for project_name in copy.deepcopy(ordered_project_names):
+                ordered_project_names = _get_parent_projects(
+                    environment_name=environment_name
+                    ordered_project_names=ordered_project_names
+                    projects=copied_projects_per_environment,
+                    project=self.project[project_name]
+                )
+        return ordered_project_names
 
 
 class StateStore:
