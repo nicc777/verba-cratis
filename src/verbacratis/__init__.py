@@ -61,23 +61,24 @@ class StateStore:
         self.provider = provider
         self.connection_url = connection_url
         self.logger = logger
-        self.enable_state = True
+        self.enable_state = False
+        self.engine = None
+        self.create_db_engine()
 
-    def get_db_connection(self):
-        conn = None
+    def create_db_engine(self):
         try:
-            conn = create_engine(url=self.connection_url)
-            self.logger.info('Connected to Database: {}'.format(conn.url))
+            self.engine = create_engine(url=self.connection_url, echo=True)
+            self.enable_state = True
+            self.logger.info('DB Engine created to Database: {}'.format(self.engine.url))
         except:
             self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
             self.enable_state = False
             self.logger.info('State Persistance Disabled')
-        return conn
 
 
 class ApplicationConfiguration:
 
-    def __init__(self, raw_global_configuration: str, logger) -> None:
+    def __init__(self, raw_global_configuration: str=DEFAULT_GLOBAL_CONFIG, logger=get_logger()) -> None:
         self.raw_global_configuration = raw_global_configuration
         self.parsed_configuration = dict()
         self.logger = logger
