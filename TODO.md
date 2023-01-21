@@ -127,6 +127,8 @@ spec:
                     type: YAML
         environments:
         -   name: default
+        parentProjects:   # Only parent projects in the same environment will be deployed
+        -   name: Main Project
     -   name: Another Project
         locations:
             -   type: ListOfDirectories
@@ -144,9 +146,6 @@ spec:
                     type: YAML
         environments:
         -   name: default
-            dependencies:
-                projects:
-                -   name: Main Project
         -   name: somethingElse
 ```
 

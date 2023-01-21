@@ -56,18 +56,18 @@ class Project:
     def __init__(self, name: str):
         self.name = name
         self.environments = list()
-        self.environment_specific_parent_project_names = dict()
         self.manifest_directories = list()
         self.manifest_files = list()
         self.include_file_regex = ('*\.yml', '*\.yaml')
+        self.parent_project_names = list()
 
     def add_environment(self, environment_name: str):
         self.environments.append(environment_name)
 
-    def add_environment_specific_parent_project(self, environment_name: str, parent_project_name: str):
-        if environment_name not in self.environment_specific_parent_project_names:
-            self.environment_specific_parent_project_names[environment_name] = list()
-        self.environment_specific_parent_project_names[environment_name].append(parent_project_name)
+    def add_parent_project(self, environment_name: str, parent_project_name: str):
+        if environment_name not in self.parent_project_names:
+            self.parent_project_names[environment_name] = list()
+        self.parent_project_names.append(parent_project_name)
 
     def add_manifest_directory(self, directory: str):
         self.manifest_directories.append(directory)
@@ -93,6 +93,7 @@ def _get_parent_projects(environment_name: str, projects: dict, project: Project
             )
     return ordered_project_names
 
+
 class Projects:
 
     def __init__(self):
@@ -115,16 +116,16 @@ class Projects:
     def get_ordered_projects_for_environment(self, environment_name: str)->list:
         ordered_project_names = list()
         if environment_name in self.projects_per_environment:
-            copied_projects_per_environment = dict()
+            copied_project_classes_per_environment = dict()
             for project_name in self.projects_per_environment[environment_name]:
                 ordered_project_names.append(project_name)
-                copied_projects_per_environment[project_name] = self.projects[project_name]
+                copied_project_classes_per_environment[project_name] = self.projects[project_name]
             for project_name in copy.deepcopy(ordered_project_names):
                 ordered_project_names = _get_parent_projects(
-                    environment_name=environment_name
+                    environment_name=environment_name,
+                    projects=copied_project_classes_per_environment,
+                    project=self.projects[project_name],
                     ordered_project_names=ordered_project_names
-                    projects=copied_projects_per_environment,
-                    project=self.project[project_name]
                 )
         return ordered_project_names
 
