@@ -85,5 +85,65 @@ class TestItems(unittest.TestCase):    # pragma: no cover
         self.assertEqual(result.items['item1'].parent_item_names[0], 'item2')
 
 
+class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragma: no cover
+
+    def test_basic(self):
+        items.add_item(item=Item(name='item1'))
+        items.add_item(item=Item(name='item2'))
+        items.add_item_scope(item_name='item1', scope_name='scope1')
+        items.add_item_scope(item_name='item2', scope_name='scope1')
+        items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
+        result = get_ordered_item_list_for_named_scope(scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 2)
+        self.assertTrue('item1' in result)
+        self.assertTrue('item2' in result)
+        self.assertEqual(result[0], 'item2')
+        self.assertEqual(result[1], 'item1')
+
+    def test_handle_circular_references(self):
+        items.add_item(item=Item(name='item1'))
+        items.add_item(item=Item(name='item2'))
+        items.add_item_scope(item_name='item1', scope_name='scope1')
+        items.add_item_scope(item_name='item2', scope_name='scope1')
+        items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
+        items.add_link_to_parent_item(parent_item_name='item1', sibling_item_name='item2')
+        result = get_ordered_item_list_for_named_scope(scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 2)
+        self.assertTrue('item1' in result)
+        self.assertTrue('item2' in result)
+        self.assertEqual(result[0], 'item2')
+        self.assertEqual(result[1], 'item1')
+
+    def test_more_complex(self):
+        items.add_item(item=Item(name='item1'))
+        items.add_item(item=Item(name='item2'))
+        items.add_item(item=Item(name='item3'))
+        items.add_item(item=Item(name='item4'))
+        items.add_item_scope(item_name='item1', scope_name='scope1')
+        items.add_item_scope(item_name='item2', scope_name='scope1')
+        items.add_item_scope(item_name='item3', scope_name='scope1')
+        items.add_item_scope(item_name='item4', scope_name='scope1')
+        items.add_link_to_parent_item(sibling_item_name='item1', parent_item_name='item2')
+        items.add_link_to_parent_item(sibling_item_name='item1', parent_item_name='item3')
+        items.add_link_to_parent_item(sibling_item_name='item2', parent_item_name='item4')
+        items.add_link_to_parent_item(sibling_item_name='item3', parent_item_name='item4')
+        result = get_ordered_item_list_for_named_scope(scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 4)
+        self.assertTrue('item1' in result)
+        self.assertTrue('item2' in result)
+        self.assertTrue('item3' in result)
+        self.assertTrue('item4' in result)
+        self.assertEqual(result[0], 'item4')
+        self.assertEqual(result[1], 'item2')
+        self.assertEqual(result[2], 'item3')
+        self.assertEqual(result[3], 'item1')
+
+
 if __name__ == '__main__':
     unittest.main()
