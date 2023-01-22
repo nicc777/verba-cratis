@@ -52,7 +52,7 @@ class Items:
             raise Exception('No item named "{}" found'.format(sibling_item_name))
         any_scope_matches = False
         for parent_scope_name in self.items[parent_item_name].scopes:
-            if parent_scope_name in self.items[sibling_item_name]:
+            if parent_scope_name in self.items[sibling_item_name].scopes:
                 any_scope_matches = True
         if any_scope_matches is False:
             self.logger.info('Parent scopes: {}'.format(self.items[parent_item_name].scopes))

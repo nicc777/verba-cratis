@@ -74,6 +74,16 @@ class TestItems(unittest.TestCase):    # pragma: no cover
         self.assertFalse('default' in result.items['item1'].scopes)
         self.assertTrue('scope1' in result.items['item1'].scopes)
 
+    def test_items_add_parent(self):
+        result = Items()
+        result.add_item(item=Item(name='item1'))
+        result.add_item(item=Item(name='item2'))
+        result.add_item_scope(item_name='item1', scope_name='scope1')
+        result.add_item_scope(item_name='item2', scope_name='scope1')
+        result.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
+        self.assertEqual(len(result.items['item1'].parent_item_names), 1)
+        self.assertEqual(result.items['item1'].parent_item_names[0], 'item2')
+
 
 if __name__ == '__main__':
     unittest.main()
