@@ -41,6 +41,10 @@ class Items:
         if item.name not in self.items:
             self.items[item.name] = item
 
+    def add_item_scope(self, item_name: str, scope_name: str, replace_default_if_exists: bool=True):
+        if item_name in self.items:
+            self.items[item_name].add_scope(scope_name=scope_name, replace_default_if_exists=replace_default_if_exists)
+
     def add_link_to_parent_item(self, parent_item_name: str, sibling_item_name: str):
         if parent_item_name not in self.items:
             raise Exception('No item named "{}" found'.format(parent_item_name))

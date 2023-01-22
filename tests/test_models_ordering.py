@@ -48,5 +48,32 @@ class TestItem(unittest.TestCase):    # pragma: no cover
         self.assertTrue('scope1' in result.scopes)
 
 
+class TestItems(unittest.TestCase):    # pragma: no cover
+
+    def test_items_with_defaults(self):
+        result = Items()
+        result.add_item(item=Item(name='item1'))
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, Items)
+        self.assertTrue('item1' in result.items)
+        self.assertEqual(len(result.items), 1)
+
+    def test_items_add_scope_to_item_with_default_scope(self):
+        result = Items()
+        result.add_item(item=Item(name='item1'))
+        result.add_item_scope(item_name='item1', scope_name='scope1', replace_default_if_exists=False)
+        self.assertEqual(len(result.items['item1'].scopes), 2)
+        self.assertTrue('default' in result.items['item1'].scopes)
+        self.assertTrue('scope1' in result.items['item1'].scopes)
+
+    def test_items_add_item_scope_with_no_default_scope(self):
+        result = Items()
+        result.add_item(item=Item(name='item1'))
+        result.add_item_scope(item_name='item1', scope_name='scope1')
+        self.assertEqual(len(result.items['item1'].scopes), 1)
+        self.assertFalse('default' in result.items['item1'].scopes)
+        self.assertTrue('scope1' in result.items['item1'].scopes)
+
+
 if __name__ == '__main__':
     unittest.main()
