@@ -81,7 +81,7 @@ items = Items()
 #     return item
 
 
-def get_ordered_item_list_in_scope(scope_name: str, start_item: Item, ordered_item_names: list=list(), logger: GenericLogger=GenericLogger())->list:
+def get_ordered_item_list_for_named_scope(scope_name: str, start_item: Item, ordered_item_names: list=list(), logger: GenericLogger=GenericLogger())->list:
     logger.debug('   Evaluating item named "{}"'.format(start_item.name))
     parent_added = False
     if scope_name in start_item.scopes:
@@ -96,7 +96,7 @@ def get_ordered_item_list_in_scope(scope_name: str, start_item: Item, ordered_it
                     ordered_item_names.insert(start_item_idx, item.name)
                     logger.debug('      Inserting item "{}" to ordered list before "{}"'.format(item.name, start_item.name))
                     parent_added = True
-                    ordered_item_names = get_ordered_item_list_in_scope(
+                    ordered_item_names = get_ordered_item_list_for_named_scope(
                         scope_name=scope_name,
                         start_item=item,
                         ordered_item_names=copy.deepcopy(ordered_item_names)
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     items.add_item(item = item2)
     items.add_item(item = item3)
     items.add_item(item = item4)
-    
+
     items.add_link_to_parent_item(sibling_item_name=item1.name, parent_item_name=item2.name)
     items.add_link_to_parent_item(sibling_item_name=item1.name, parent_item_name=item3.name)
     items.add_link_to_parent_item(sibling_item_name=item2.name, parent_item_name=item4.name)
@@ -169,20 +169,20 @@ if __name__ == '__main__':
 
     print('Running Test 1')
     start_item = items.get_item_by_name(name='1')
-    ordered_item_names = get_ordered_item_list_in_scope(scope_name='A', start_item=start_item, ordered_item_names=[start_item.name])
+    ordered_item_names = get_ordered_item_list_for_named_scope(scope_name='A', start_item=start_item, ordered_item_names=[start_item.name])
     print('   TEST 1: Scope A, Ordered items for start item {}: {}'.format(start_item.name, ordered_item_names))
     print()
 
     print('Running Test 2')
     start_item_name = items.find_first_matching_item_name_by_scope_name(scope_name='A')
     start_item = items.items[start_item_name]
-    ordered_item_names = get_ordered_item_list_in_scope(scope_name='A', start_item=start_item,  ordered_item_names=[start_item.name])
+    ordered_item_names = get_ordered_item_list_for_named_scope(scope_name='A', start_item=start_item,  ordered_item_names=[start_item.name])
     print('   TEST 2: Scope A, Ordered items for start item {}: {}'.format(start_item.name, ordered_item_names))
     print()
 
     print('Running Test 3')
     start_item_name = items.find_first_matching_item_name_by_scope_name(scope_name='B')
     start_item = items.items[start_item_name]
-    ordered_item_names = get_ordered_item_list_in_scope(scope_name='B', start_item=start_item, ordered_item_names=[start_item.name])
+    ordered_item_names = get_ordered_item_list_for_named_scope(scope_name='B', start_item=start_item, ordered_item_names=[start_item.name])
     print('   TEST 3: Scope B, Ordered items for start item {}: {}'.format(start_item.name, ordered_item_names))
 
