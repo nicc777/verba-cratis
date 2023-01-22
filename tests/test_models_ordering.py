@@ -116,6 +116,16 @@ class TestItems(unittest.TestCase):    # pragma: no cover
             items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
         self.assertTrue('At least one scope name must be present in both parent and sibling' in str(context.exception))
 
+    def test_items_get_item_by_name_raises_exception_when_searching_for_item_not_in_list_of_items(self):
+        items = Items()
+        items.add_item(item=Item(name='item1'))
+        items.add_item(item=Item(name='item2'))
+        items.add_item_scope(item_name='item1', scope_name='scope1')
+        items.add_item_scope(item_name='item2', scope_name='scope2')
+        with self.assertRaises(Exception) as context:
+            items.get_item_by_name(name='item3')
+        self.assertTrue('Item named "item3" not found' in str(context.exception))
+
 
 class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragma: no cover
 
