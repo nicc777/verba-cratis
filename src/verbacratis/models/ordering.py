@@ -12,30 +12,49 @@ from verbacratis.models import GenericLogger
 
 class Item:
 
-    def __init__(self, name, logger: GenericLogger=None):
+    def __init__(self, name, logger: GenericLogger=GenericLogger(), use_default_scope: bool=True):
         self.name = name
         self.parent_item_names = list()
         self.scopes = list()
+        if use_default_scope is True:
+            self.scopes.append('default')
         self.logger = logger
 
     def add_parent_item_name(self, parent_item_name:str):
         if parent_item_name not in self.parent_item_names:
             self.parent_item_names.append(parent_item_name)
 
-    def add_scope(self, scope_name: str):
+    def add_scope(self, scope_name: str, replace_default_if_exists: bool=True):
         if scope_name not in self.scopes:
             self.scopes.append(scope_name)
+        if replace_default_if_exists is True and 'default' in self.scopes:
+            self.scopes.remove('default')
 
 
 class Items:
 
-    def __init__(self, logger: GenericLogger=None):
+    def __init__(self, logger: GenericLogger=GenericLogger()):
         self.items = dict()
         self.logger = logger
 
     def add_item(self, item: Item):
         if item.name not in self.items:
             self.items[item.name] = item
+
+    def add_link_to_parent_item(self, parent_item_name: str, sibling_item_name: str):
+        if parent_item_name not in self.items:
+            raise Exception('No item named "{}" found'.format(parent_item_name))
+        if sibling_item_name not in self.items:
+            raise Exception('No item named "{}" found'.format(sibling_item_name))
+        any_scope_matches = False
+        for parent_scope_name in self.items[parent_item_name].scopes:
+            if parent_scope_name in self.items[sibling_item_name]:
+                any_scope_matches = True
+        if any_scope_matches is False:
+            self.logger.info('Parent scopes: {}'.format(self.items[parent_item_name].scopes))
+            self.logger.info('Sibling scopes: {}'.format(self.items[sibling_item_name].scopes))
+            raise Exception('At least one scope name must be present in both parent and sibling')
+        self.items[sibling_item_name].add_parent_item_name(parent_item_name)
 
     def get_item_by_name(self, name: str)->Item:
         if name in self.items:
@@ -52,9 +71,9 @@ class Items:
 items = Items()
 
 
-def add_item_parent(item: Item, parent_item: Item, logger: GenericLogger=GenericLogger())->Item:
-    item.add_parent_item_name(parent_item_name=parent_item.name)
-    return item
+# def add_item_parent(item: Item, parent_item: Item, logger: GenericLogger=GenericLogger())->Item:
+#     item.add_parent_item_name(parent_item_name=parent_item.name)
+#     return item
 
 
 def add_item_scope(item: Item, scope_name: str, logger: GenericLogger=GenericLogger())->Item:
@@ -130,10 +149,15 @@ if __name__ == '__main__':
 
         Item 3, Item 1
     """
-    item1 = add_item_parent(item=item1, parent_item=item2)
-    item1 = add_item_parent(item=item1, parent_item=item3)
-    item2 = add_item_parent(item=item2, parent_item=item4)
-    item3 = add_item_parent(item=item3, parent_item=item4)
+    # item1 = add_item_parent(item=item1, parent_item=item2)
+    # item1 = add_item_parent(item=item1, parent_item=item3)
+    # item2 = add_item_parent(item=item2, parent_item=item4)
+    # item3 = add_item_parent(item=item3, parent_item=item4)
+
+    items.add_link_to_parent_item(sibling_item_name=item1.name, parent_item_name=item2.name)
+    items.add_link_to_parent_item(sibling_item_name=item1.name, parent_item_name=item3.name)
+    items.add_link_to_parent_item(sibling_item_name=item2.name, parent_item_name=item4.name)
+    items.add_link_to_parent_item(sibling_item_name=item3.name, parent_item_name=item4.name)
 
     
     items.add_item(item = item1)
