@@ -15,7 +15,7 @@ import unittest
 
 
 from verbacratis.models import GenericLogger
-from verbacratis.models.ordering import *
+from verbacratis.models.ordering import Item, Items, get_ordered_item_list_for_named_scope
 
 
 class Dummy:
@@ -85,6 +85,7 @@ class TestItems(unittest.TestCase):    # pragma: no cover
         self.assertEqual(result.items['item1'].parent_item_names[0], 'item2')
 
     def test_items_add_link_to_parent_item_parent_item_not_found(self):
+        items = Items()
         items.add_item(item=Item(name='item1'))
         items.add_item(item=Item(name='item2'))
         items.add_item_scope(item_name='item1', scope_name='scope1')
@@ -92,9 +93,10 @@ class TestItems(unittest.TestCase):    # pragma: no cover
         items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
         with self.assertRaises(Exception) as context:
             items.add_link_to_parent_item(parent_item_name='item3', sibling_item_name='item1')
-        self.assertTrue('No item named' in str(context.exception))
+        self.assertTrue('No item named' in str(context.exception), 'Expected not to find item3 in {}'.format(items.items))
 
     def test_items_add_link_to_parent_item_sibling_item_not_found(self):
+        items = Items()
         items.add_item(item=Item(name='item1'))
         items.add_item(item=Item(name='item2'))
         items.add_item_scope(item_name='item1', scope_name='scope1')
@@ -102,18 +104,19 @@ class TestItems(unittest.TestCase):    # pragma: no cover
         items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
         with self.assertRaises(Exception) as context:
             items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item3')
-        self.assertTrue('No item named' in str(context.exception))
+        self.assertTrue('No item named' in str(context.exception), 'Expected not to find item3 in {}'.format(items.items))
 
 
 class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragma: no cover
 
     def test_basic(self):
+        items = Items()
         items.add_item(item=Item(name='item1'))
         items.add_item(item=Item(name='item2'))
         items.add_item_scope(item_name='item1', scope_name='scope1')
         items.add_item_scope(item_name='item2', scope_name='scope1')
         items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
-        result = get_ordered_item_list_for_named_scope(scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
+        result = get_ordered_item_list_for_named_scope(items=items, scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
         self.assertIsNotNone(result)
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 2)
@@ -123,13 +126,14 @@ class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragm
         self.assertEqual(result[1], 'item1')
 
     def test_handle_circular_references(self):
+        items = Items()
         items.add_item(item=Item(name='item1'))
         items.add_item(item=Item(name='item2'))
         items.add_item_scope(item_name='item1', scope_name='scope1')
         items.add_item_scope(item_name='item2', scope_name='scope1')
         items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
         items.add_link_to_parent_item(parent_item_name='item1', sibling_item_name='item2')
-        result = get_ordered_item_list_for_named_scope(scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
+        result = get_ordered_item_list_for_named_scope(items=items, scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
         self.assertIsNotNone(result)
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 2)
@@ -139,6 +143,7 @@ class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragm
         self.assertEqual(result[1], 'item1')
 
     def test_more_complex(self):
+        items = Items()
         items.add_item(item=Item(name='item1'))
         items.add_item(item=Item(name='item2'))
         items.add_item(item=Item(name='item3'))
@@ -151,7 +156,7 @@ class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragm
         items.add_link_to_parent_item(sibling_item_name='item1', parent_item_name='item3')
         items.add_link_to_parent_item(sibling_item_name='item2', parent_item_name='item4')
         items.add_link_to_parent_item(sibling_item_name='item3', parent_item_name='item4')
-        result = get_ordered_item_list_for_named_scope(scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
+        result = get_ordered_item_list_for_named_scope(items=items, scope_name='scope1', start_item=items.get_item_by_name(name='item1'))
         self.assertIsNotNone(result)
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 4)
@@ -165,6 +170,7 @@ class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragm
         self.assertEqual(result[3], 'item1')
 
     def test_more_complex_scoped(self):
+        items = Items()
         items.add_item(item=Item(name='item1'))
         items.add_item(item=Item(name='item2'))
         items.add_item(item=Item(name='item3'))
@@ -179,7 +185,7 @@ class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragm
         items.add_link_to_parent_item(sibling_item_name='item1', parent_item_name='item3')
         items.add_link_to_parent_item(sibling_item_name='item2', parent_item_name='item4')
         items.add_link_to_parent_item(sibling_item_name='item3', parent_item_name='item4')
-        result = get_ordered_item_list_for_named_scope(scope_name='scope2', start_item=items.get_item_by_name(name='item1'))
+        result = get_ordered_item_list_for_named_scope(items=items, scope_name='scope2', start_item=items.get_item_by_name(name='item1'))
         self.assertIsNotNone(result)
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 2)

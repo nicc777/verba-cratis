@@ -47,9 +47,9 @@ class Items:
 
     def add_link_to_parent_item(self, parent_item_name: str, sibling_item_name: str):
         if parent_item_name not in self.items:
-            raise Exception('No item named "{}" found'.format(parent_item_name))
+            raise Exception('No item named "{}" found. Current items: {}'.format(parent_item_name, list(self.items.keys())))
         if sibling_item_name not in self.items:
-            raise Exception('No item named "{}" found'.format(sibling_item_name))
+            raise Exception('No item named "{}" found. Current items: {}'.format(sibling_item_name, list(self.items.keys())))
         any_scope_matches = False
         for parent_scope_name in self.items[parent_item_name].scopes:
             if parent_scope_name in self.items[sibling_item_name].scopes:
@@ -63,7 +63,7 @@ class Items:
     def get_item_by_name(self, name: str)->Item:
         if name in self.items:
             return self.items[name]
-        raise Exception('Item named "{}" not found'.format(name))
+        raise Exception('Item named "{}" not found, Current items: {}'.format(name, list(self.items.keys())))
 
     def find_first_matching_item_name_by_scope_name(self, scope_name: str)->str:
         for item_name, item_obj in self.items.items():
@@ -85,7 +85,7 @@ items = Items()
 #     return item
 
 
-def get_ordered_item_list_for_named_scope(scope_name: str, start_item: Item, ordered_item_names: list=list(), logger: GenericLogger=GenericLogger())->list:
+def get_ordered_item_list_for_named_scope(items: Items, scope_name: str, start_item: Item, ordered_item_names: list=list(), logger: GenericLogger=GenericLogger())->list:
     logger.debug('   Evaluating item named "{}"'.format(start_item.name))
     parent_added = False
     if scope_name in start_item.scopes:
@@ -101,6 +101,7 @@ def get_ordered_item_list_for_named_scope(scope_name: str, start_item: Item, ord
                     logger.debug('      Inserting item "{}" to ordered list before "{}"'.format(item.name, start_item.name))
                     parent_added = True
                     ordered_item_names = get_ordered_item_list_for_named_scope(
+                        items=items,
                         scope_name=scope_name,
                         start_item=item,
                         ordered_item_names=copy.deepcopy(ordered_item_names)
