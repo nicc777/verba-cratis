@@ -14,6 +14,7 @@ import socket
 import sys
 import copy
 import os
+from verbacratis.models import GenericLogger
 
 
 DEFAULT_LOGGING_HANDLER_CONFIG = {  
@@ -240,7 +241,7 @@ def get_logger(
         logger.addHandler(get_logging_stream_handler())
     
     logger.setLevel(level)
-    return logger
+    return GenericLogger(logger=logger)
 
 
 def get_logging_level_from_string(level: str):
