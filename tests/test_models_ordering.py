@@ -84,6 +84,26 @@ class TestItems(unittest.TestCase):    # pragma: no cover
         self.assertEqual(len(result.items['item1'].parent_item_names), 1)
         self.assertEqual(result.items['item1'].parent_item_names[0], 'item2')
 
+    def test_items_add_link_to_parent_item_parent_item_not_found(self):
+        items.add_item(item=Item(name='item1'))
+        items.add_item(item=Item(name='item2'))
+        items.add_item_scope(item_name='item1', scope_name='scope1')
+        items.add_item_scope(item_name='item2', scope_name='scope1')
+        items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
+        with self.assertRaises(Exception) as context:
+            items.add_link_to_parent_item(parent_item_name='item3', sibling_item_name='item1')
+        self.assertTrue('No item named' in str(context.exception))
+
+    def test_items_add_link_to_parent_item_sibling_item_not_found(self):
+        items.add_item(item=Item(name='item1'))
+        items.add_item(item=Item(name='item2'))
+        items.add_item_scope(item_name='item1', scope_name='scope1')
+        items.add_item_scope(item_name='item2', scope_name='scope1')
+        items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item1')
+        with self.assertRaises(Exception) as context:
+            items.add_link_to_parent_item(parent_item_name='item2', sibling_item_name='item3')
+        self.assertTrue('No item named' in str(context.exception))
+
 
 class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragma: no cover
 
