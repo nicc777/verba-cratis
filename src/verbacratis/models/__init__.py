@@ -7,5 +7,50 @@
 """
 
 
+class GenericLogger:
+
+    def __init__(self, logger=None):
+        self.enable_logging = False
+        self.logger = None
+        if logger is not None:
+            self.logger = logger
+            self.enable_logging = True
+
+    def info(self, message):
+        if self.enable_logging:
+            try:
+                self.logger.info(message)
+                return
+            except:
+                self.enable_logging = False
+        print('INFO: {}'.format(message))
+
+    def debug(self, message):
+        if self.enable_logging:
+            try:
+                self.logger.debug(message)
+                return
+            except:
+                self.enable_logging = False
+        print('DEBUG: {}'.format(message))
+
+    def warn(self, message):
+        if self.enable_logging:
+            try:
+                self.logger.warn(message)
+                return
+            except:
+                self.enable_logging = False
+        print('WARN: {}'.format(message))
+
+    def error(self, message):
+        if self.enable_logging:
+            try:
+                self.logger.error(message)
+                return
+            except:
+                self.enable_logging = False
+        print('ERROR: {}'.format(message))
+
 
 
