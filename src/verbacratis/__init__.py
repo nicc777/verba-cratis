@@ -18,6 +18,7 @@ from sqlalchemy import create_engine
 import yaml
 from verbacratis.utils import get_logger
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path
+from verbacratis.models import GenericLogger
 
 
 DEFAULT_CONFIG_DIR = '{}{}{}'.format(
@@ -136,7 +137,7 @@ class StateStore:
         self,
         provider: str='sqlalchemy',
         connection_url: str='sqlite:///verbacratis.db',
-        logger=get_logger()
+        logger=GenericLogger()
     )->None:
         self.provider = provider
         self.connection_url = connection_url
@@ -149,7 +150,7 @@ class StateStore:
         try:
             self.engine = create_engine(url=self.connection_url, echo=True)
             self.enable_state = True
-            self.logger.info('DB Engine created to Database: {}'.format(self.engine.url))
+            # self.logger.info('DB Engine created to Database: {}'.format(self.engine.url))
         except:
             self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
             self.enable_state = False
@@ -158,7 +159,7 @@ class StateStore:
 
 class ApplicationConfiguration:
 
-    def __init__(self, raw_global_configuration: str=DEFAULT_GLOBAL_CONFIG, logger=get_logger()) -> None:
+    def __init__(self, raw_global_configuration: str=DEFAULT_GLOBAL_CONFIG, logger=GenericLogger()) -> None:
         self.raw_global_configuration = raw_global_configuration
         self.parsed_configuration = dict()
         self.logger = logger
@@ -210,21 +211,15 @@ class ApplicationConfiguration:
 
 class ApplicationState:
 
-    def __init__(self, logger=None) -> None:
+    def __init__(self, logger=GenericLogger()) -> None:
         self.environment = 'default'
         self.project = 'default'
         self.config_directory = DEFAULT_CONFIG_DIR
         self.config_file = 'config'
         self.state_db_url = DEFAULT_STATE_DB
-        self.logger = self.set_custom_logger(logger=get_logger())
-        if logger is not None:
-            if isinstance(logger, Logger):
-                self.logger = logger
+        self.logger = logger
         self.build_id = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
         self.application_configuration = ApplicationConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
-
-    def set_custom_logger(self, logger=get_logger()):
-        self.logger = logger
 
     def _read_global_configuration_file_content(self):
         self.application_configuration = ApplicationConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
@@ -240,7 +235,6 @@ class ApplicationState:
                 f.write(DEFAULT_GLOBAL_CONFIG)
         with open(config_path, 'r') as f:
             self.application_configuration.raw_global_configuration = f.read()
-        
 
     def update_config_file(self, config_file: str):
         self.config_directory = get_directory_from_path(input_path=config_file)

@@ -16,41 +16,41 @@ class GenericLogger:
             self.logger = logger
             self.enable_logging = True
 
-    def info(self, message):
+    def info(self, message_str):
         if self.enable_logging:
             try:
-                self.logger.info(message)
+                self.logger.info(message_str)
                 return
             except:
                 self.enable_logging = False
-        print('INFO: {}'.format(message))
+        print('INFO: {}'.format(message_str))
 
-    def debug(self, message):
+    def debug(self, message_str):
         if self.enable_logging:
             try:
-                self.logger.debug(message)
+                self.logger.debug(message_str)
                 return
             except:
                 self.enable_logging = False
-        print('DEBUG: {}'.format(message))
+        print('DEBUG: {}'.format(message_str))
 
-    def warn(self, message):
+    def warn(self, message_str):
         if self.enable_logging:
             try:
-                self.logger.warn(message)
+                self.logger.warn(message_str)
                 return
             except:
                 self.enable_logging = False
-        print('WARN: {}'.format(message))
+        print('WARN: {}'.format(message_str))
 
-    def error(self, message):
+    def error(self, message_str):
         if self.enable_logging:
             try:
-                self.logger.error(message)
+                self.logger.error(message_str)
                 return
             except:
                 self.enable_logging = False
-        print('ERROR: {}'.format(message))
+        print('ERROR: {}'.format(message_str))
 
 
 
