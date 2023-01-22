@@ -72,19 +72,6 @@ class Items:
         raise Exception('No matching items found for scope named "{}"'.format(scope_name))
 
 
-items = Items()
-
-
-# def add_item_parent(item: Item, parent_item: Item, logger: GenericLogger=GenericLogger())->Item:
-#     item.add_parent_item_name(parent_item_name=parent_item.name)
-#     return item
-
-
-# def add_item_scope(item: Item, scope_name: str, logger: GenericLogger=GenericLogger())->Item:
-#     item.add_scope(scope_name=scope_name)
-#     return item
-
-
 def get_ordered_item_list_for_named_scope(items: Items, scope_name: str, start_item: Item, ordered_item_names: list=list(), logger: GenericLogger=GenericLogger())->list:
     logger.debug('   Evaluating item named "{}"'.format(start_item.name))
     parent_added = False
