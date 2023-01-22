@@ -76,9 +76,9 @@ items = Items()
 #     return item
 
 
-def add_item_scope(item: Item, scope_name: str, logger: GenericLogger=GenericLogger())->Item:
-    item.add_scope(scope_name=scope_name)
-    return item
+# def add_item_scope(item: Item, scope_name: str, logger: GenericLogger=GenericLogger())->Item:
+#     item.add_scope(scope_name=scope_name)
+#     return item
 
 
 def get_ordered_item_list_in_scope(scope_name: str, start_item: Item, ordered_item_names: list=list(), logger: GenericLogger=GenericLogger())->list:
@@ -110,18 +110,18 @@ def get_ordered_item_list_in_scope(scope_name: str, start_item: Item, ordered_it
 
 if __name__ == '__main__':
     item1 = Item(name='1')
-    item1 = add_item_scope(item=item1, scope_name="A")
-    item1 = add_item_scope(item=item1, scope_name="B")
+    item1.add_scope(scope_name='A')
+    item1.add_scope(scope_name='B')
     
     item2 = Item(name='2')
-    item2 = add_item_scope(item=item2, scope_name="A")
+    item2.add_scope(scope_name='A')
     
     item3 = Item(name='3')
-    item3 = add_item_scope(item=item3, scope_name="A")
-    item3 = add_item_scope(item=item3, scope_name="B")
+    item3.add_scope(scope_name='A')
+    item3.add_scope(scope_name='B')
     
     item4 = Item(name='4')
-    item4 = add_item_scope(item=item4, scope_name="A")
+    item4.add_scope(scope_name='A')
 
     """
     Item Hierarchy in scope A:
@@ -154,16 +154,15 @@ if __name__ == '__main__':
     # item2 = add_item_parent(item=item2, parent_item=item4)
     # item3 = add_item_parent(item=item3, parent_item=item4)
 
-    items.add_link_to_parent_item(sibling_item_name=item1.name, parent_item_name=item2.name)
-    items.add_link_to_parent_item(sibling_item_name=item1.name, parent_item_name=item3.name)
-    items.add_link_to_parent_item(sibling_item_name=item2.name, parent_item_name=item4.name)
-    items.add_link_to_parent_item(sibling_item_name=item3.name, parent_item_name=item4.name)
-
-    
     items.add_item(item = item1)
     items.add_item(item = item2)
     items.add_item(item = item3)
     items.add_item(item = item4)
+    
+    items.add_link_to_parent_item(sibling_item_name=item1.name, parent_item_name=item2.name)
+    items.add_link_to_parent_item(sibling_item_name=item1.name, parent_item_name=item3.name)
+    items.add_link_to_parent_item(sibling_item_name=item2.name, parent_item_name=item4.name)
+    items.add_link_to_parent_item(sibling_item_name=item3.name, parent_item_name=item4.name)
 
     print('Item 1 parents: {}'.format(item1.parent_item_names))
     print('Items : Item 1 parents: {}'.format(items.items[item1.name].parent_item_names))
