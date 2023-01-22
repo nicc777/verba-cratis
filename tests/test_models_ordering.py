@@ -126,6 +126,51 @@ class TestItems(unittest.TestCase):    # pragma: no cover
             items.get_item_by_name(name='item3')
         self.assertTrue('Item named "item3" not found' in str(context.exception))
 
+    def test_items_find_first_matching_item_name_by_scope_name_returns_valid_item(self):
+        items = Items()
+        items.add_item(item=Item(name='item1'))
+        items.add_item(item=Item(name='item2'))
+        items.add_item(item=Item(name='item3'))
+        items.add_item(item=Item(name='item4'))
+        items.add_item_scope(item_name='item1', scope_name='scope1')
+        items.add_item_scope(item_name='item1', scope_name='scope2')
+        items.add_item_scope(item_name='item1', scope_name='scope3')
+        items.add_item_scope(item_name='item2', scope_name='scope1')
+        items.add_item_scope(item_name='item2', scope_name='scope2')
+        items.add_item_scope(item_name='item2', scope_name='scope3')
+        items.add_item_scope(item_name='item3', scope_name='scope4')
+        items.add_item_scope(item_name='item3', scope_name='scope5')
+        items.add_item_scope(item_name='item3', scope_name='scope6')
+        items.add_item_scope(item_name='item4', scope_name='scope4')
+        items.add_item_scope(item_name='item4', scope_name='scope5')
+        items.add_item_scope(item_name='item4', scope_name='scope6')
+        result = items.find_first_matching_item_name_by_scope_name(scope_name='scope4')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue(result in ('item3', 'item4'))
+
+    def test_items_find_first_matching_item_name_by_non_matching_scope_name_throws_exception(self):
+        items = Items()
+        items.add_item(item=Item(name='item1'))
+        items.add_item(item=Item(name='item2'))
+        items.add_item(item=Item(name='item3'))
+        items.add_item(item=Item(name='item4'))
+        items.add_item_scope(item_name='item1', scope_name='scope1')
+        items.add_item_scope(item_name='item1', scope_name='scope2')
+        items.add_item_scope(item_name='item1', scope_name='scope3')
+        items.add_item_scope(item_name='item2', scope_name='scope1')
+        items.add_item_scope(item_name='item2', scope_name='scope2')
+        items.add_item_scope(item_name='item2', scope_name='scope3')
+        items.add_item_scope(item_name='item3', scope_name='scope4')
+        items.add_item_scope(item_name='item3', scope_name='scope5')
+        items.add_item_scope(item_name='item3', scope_name='scope6')
+        items.add_item_scope(item_name='item4', scope_name='scope4')
+        items.add_item_scope(item_name='item4', scope_name='scope5')
+        items.add_item_scope(item_name='item4', scope_name='scope6')
+        with self.assertRaises(Exception) as context:
+            items.find_first_matching_item_name_by_scope_name(scope_name='scope9')
+        self.assertTrue('No matching items found for scope named "scope9"' in str(context.exception))
+
 
 class TestFunctionGetOrderedItemListForNamedScope(unittest.TestCase):    # pragma: no cover
 
