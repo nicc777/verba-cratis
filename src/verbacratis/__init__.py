@@ -62,6 +62,9 @@ class Project(Item):
         self.manifest_files = list()
         self.include_file_regex = ('*\.yml', '*\.yaml')
         self.parent_project_names = list()
+        self.project_effective_manifest = None      # The manifest for the particular scopes
+        self.previous_project_checksum = dict()     # Checksum of the previous effective manifest, per environment (scope)
+        self.current_project_checksum = None        # The current checksum of the project_effective_manifest
 
     def add_environment(self, environment_name: str):
         self.add_scope(scope_name=environment_name)
