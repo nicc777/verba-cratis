@@ -53,12 +53,6 @@ spec:
 """.format(DEFAULT_STATE_DB)
 
 
-class E(Items):
-
-    def __init__(self, logger: GenericLogger = GenericLogger()):
-        super().__init__(logger)
-
-
 class Project(Item):
 
     def __init__(self, name: str, logger: GenericLogger = GenericLogger(), use_default_scope: bool = True):
