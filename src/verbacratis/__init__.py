@@ -50,6 +50,11 @@ spec:
     - parameterName: format
       parameterType: str
       parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+  infrastructureAccounts:
+  - accountName: deployment-host
+    accountProvider: ShellScript
+    authentication:
+      runOnDeploymentHost: true
 """.format(DEFAULT_STATE_DB)
 
 

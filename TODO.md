@@ -96,28 +96,48 @@ spec:
             -   parameterName: format
                 parameterType: str
                 parameterValue: '%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d - %(message)s'
-
-```
-
-If no configuration is available, the following will be set as default:
-
-```yaml
-apiVersion: v1-alpha
-kind: GlobalConfiguration
-metadata:
-    name: verbacratis
-spec:
-    stateStore:
-        provider: sqlalchemy
-        dbConfig:
-            url: "sqlite:///verbacratis.db"
-    logging:
-        handlers:
-        -   name: StreamHandler
-            parameters:
-            -   parameterName: format
-                parameterType: str
-                parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+    infrastructureAccounts:
+    -   accountName: deployment-host
+        accountProvider: ShellScript
+        authentication:
+            runOnDeploymentHost: true
+        environments:
+        -   dev
+        -   test
+        -   prod
+    -   accountName: some-remote-host
+        accountProvider: ShellScript
+        authentication:
+            runOnDeploymentHost: false
+            authenticationType: SSH
+            username: username
+            privateKeyLocation: /path/to/key
+            #password: ${EnvironmentVariables:computed:systemXyzPassword}   # If private key authentication is not used.
+        environments:
+        -   dev
+        -   test
+        -   prod
+    -   accountName: aws-dev
+        accountProvider: AWS
+        authentication:
+            useProfile: true                # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
+            profileName: AwsDevProfileName  # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+            region: eu-central-1            # OPTIONAL, default=eu-central-1
+        environments:
+        -   dev
+    -   accountName: aws-test
+        accountProvider: AWS
+        authentication:
+            awsAccessKeyId: ${EnvironmentVariables:computed:awsAccessKeyId}
+            awsSecretAccessKey: ${EnvironmentVariables:computed:awsSecretAccessKey}
+        environments:
+        -   test
+    notifications:
+    -   notificationTargetName: REST        # OPTIONAL, default=None - providers must be defined in src/verbacratis/notification_providers/registered_providers.py 
+        configuration:  # For REST, we use Python3 urllib. If you need to send AWS SNS messages, expose the with a Lambda URL or some other HTTP end-point and that way you can also send e-mails, SMS etc.
+            URL: "http://localhost:5000/test"
+            method: POST
+            ContentType: "application/json"
     projects:
     -   name: Main Project
         locations:
@@ -147,42 +167,33 @@ spec:
         environments:
         -   name: default
         -   name: somethingElse
+
+```
+
+If no configuration is available, the following will be set as default:
+
+```yaml
+apiVersion: v1-alpha
+kind: GlobalConfiguration
+metadata:
+    name: verbacratis
+spec:
+    stateStore:
+        provider: sqlalchemy
+        dbConfig:
+            url: "sqlite:///verbacratis.db"
+    logging:
+        handlers:
+        -   name: StreamHandler
+            parameters:
+            -   parameterName: format
+                parameterType: str
+                parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
     infrastructureAccounts:
     -   accountName: deployment-host
         accountProvider: ShellScript
         authentication:
             runOnDeploymentHost: true
-            # BELOW is only required if runOnDeploymentHost is False
-            #authenticationType: SSH
-            #username: username
-            #privateKeyLocation: /path/to/key
-            #password: ${EnvironmentVariables:computed:systemXyzPassword}   # If private key authentication is not used.
-        environments:
-        -   dev
-        -   test
-        -   prod
-    # Below is only examples....
-    -   accountName: aws-dev
-        accountProvider: AWS
-        authentication:
-            useProfile: true                # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
-            profileName: AwsDevProfileName  # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
-            region: eu-central-1            # OPTIONAL, default=eu-central-1
-        environments:
-        -   dev
-    -   accountName: aws-test
-        accountProvider: AWS
-        authentication:
-            awsAccessKeyId: ${EnvironmentVariables:computed:awsAccessKeyId}
-            awsSecretAccessKey: ${EnvironmentVariables:computed:awsSecretAccessKey}
-        environments:
-        -   test
-    notifications:
-    -   notificationTargetName: REST        # OPTIONAL, default=None - providers must be defined in src/verbacratis/notification_providers/registered_providers.py 
-        configuration:  # For REST, we use Python3 urllib. If you need to send AWS SNS messages, expose the with a Lambda URL or some other HTTP end-point and that way you can also send e-mails, SMS etc.
-            URL: "http://localhost:5000/test"
-            method: POST
-            ContentType: "application/json"
 ```
 
 ## Basic Application Logic
