@@ -352,6 +352,18 @@ spec:
   providerConfiguration:
       runEveryDeployment: false                 # OPTIONAL: Default=false - ShellScript always run on the first deployment, but this setting determines if it should also run with subsequent deployments, where the previous deployment was successful
       returnResultWhenSkipped: success          # OPTIONAL: Default=true - If "runEveryDeployment" is false, determine if the skipped action must result in a "success" or "fail" response
+  preExecutionNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "starting", "Environment": "${Environment:name}"}}'
+  postExecutionNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "completed", "Environment": "${Environment:name}"}}'
+  onErrorNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "failed", "Environment": "${Environment:name}"}}'
 ---
 apiVersion: v1-alpha
 kind: Task
@@ -366,6 +378,18 @@ spec:
     name: emptyS3Bucket
     providerConfiguration:
       runEveryDeployment: true                  # OPTIONAL: Default=false - ShellScript always run on the first deployment, but this setting determines if it should also run with subsequent deployments, where the previous deployment was successful
+  preExecutionNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "emptyS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
+  postExecutionNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "emptyS3Bucket", "Status": "completed", "Environment": "${Environment:name}"}}'
+  onErrorNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "emptyS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
 ---
 apiVersion: v1-alpha
 kind: Task
@@ -380,6 +404,18 @@ spec:
     name: deleteS3Bucket
     providerConfiguration:
       runEveryDeployment: true                  # OPTIONAL: Default=false - ShellScript always run on the first deployment, but this setting determines if it should also run with subsequent deployments, where the previous deployment was successful
+  preExecutionNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "deleteS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
+  postExecutionNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "deleteS3Bucket", "Status": "completed", "Environment": "${Environment:name}"}}'
+  onErrorNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "deleteS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
 ---
 apiVersion: v1-alpha
 kind: Task
@@ -401,6 +437,18 @@ spec:
       deleteAction: delete                      # OPTIONAL: Default=delete - Either "delete" or "skip". The "delete" option, deletes the CloudFOrmation stack
     rollbackAction:
       provider: AWS-CloudFormation
+  preExecutionNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "deployS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
+  postExecutionNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "deployS3Bucket", "Status": "completed", "Environment": "${Environment:name}"}}'
+  onErrorNotification:
+    notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+    - Provider: REST
+      Message: '{"Task": "deployS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
 ---
 apiVersion: v1-alpha
 kind: Deployment
@@ -411,72 +459,27 @@ spec:
   - dev
   - test
   - prod
-  notifications:
-  - provider: REST                              # OPTIONAL, default=None - providers must be defined in src/verbacratis/notification_providers/registered_providers.py 
-    globalConfiguration:                        # For REST, we use Python3 urllib. If you need to send AWS SNS messages, expose the with a Lambda URL or some other HTTP end-point and that way you can also send e-mails, SMS etc.
-      URL: "http://localhost:5000/test"
-      method: POST
-      ContentType: "application/json"
-  preDeployment:
-    notification:                               
-    - Provider: REST
-      Message: '{"Deployment": "deployS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}'
-  postDeployment:
-    notification:                               
-    - Provider: REST
-      Message: '{"Deployment": "deployS3Bucket", "Status": "deployed", "Environment": "${Environment:name}"}}'
+  preDeploymentNotification:
+  - Provider: REST
+    Message: '{"Deployment": "deployS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}'
+  postDeploymentNotification:
+  - Provider: REST
+    Message: '{"Deployment": "deployS3Bucket", "Status": "deployed", "Environment": "${Environment:name}"}}'
   deploymentTasks:
   - order: 100                                  # All tasks will be executed in numerical order. To make change management and change tracking easier, you can keep gaps between numbers.
     task: echoGeneralDeploymentInfo
-    preExecution:
-      notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
-      - Provider: REST
-        Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "starting", "Environment": "${Environment:name}"}}'
     onError:
       stopExecution: true
-      notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
-      - Provider: REST
-        Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "failed", "Environment": "${Environment:name}"}}'
-    onSuccess:
-      notification:                               # Notification Provider Specific configuration. For SNS, see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
-      - Provider: REST
-        Message: '{"Task": "echoGeneralDeploymentInfo", "Status": "success", "Environment": "${Environment:name}"}}'
   - order: 200                                  # Tasks not linked to this environment will be skipped automatically
     task: emptyS3Bucket
-    preExecution:
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "emptyS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
     onError:
       stopExecution: true
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "emptyS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
-    onSuccess:
-      notification:
-      - Provider: REST
-        Message: '{"Task": "emptyS3Bucket", "Status": "success", "Environment": "${Environment:name}"}}'
   - order: 300
     task: deleteS3Bucket
-    preExecution:
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deleteS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
     onError:
       stopExecution: true
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deleteS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
-    onSuccess:
-      notification:
-      - Provider: REST
-        Message: '{"Task": "deleteS3Bucket", "Status": "success", "Environment": "${Environment:name}"}}'
   - order: 400
     task: deployS3Bucket
-    preExecution:
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}}'
     onError:
       stopExecution: true
       rollbackDelay: 300                        # Time to wait for before rollback tasks commence. This is handy for AWS CloudFOrmation rollbacks that may be running in the background
@@ -485,75 +488,24 @@ spec:
         task: emptyS3Bucket
       - order: 200                                  
         task: deleteS3Bucket
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "failed", "Environment": "${Environment:name}"}}'
-    onSuccess:
-      notification:
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "success", "Environment": "${Environment:name}"}}'
   deleteDeploymentTasks:
   - order: 100
     task: deployS3Bucket
-    preExecution:
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "deleting", "Environment": "${Environment:name}"}}'
     onError:
       stopExecution: true
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "delete-failed", "Environment": "${Environment:name}"}}'
-    onSuccess:
-      notification:
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "deleted", "Environment": "${Environment:name}"}}'
   - order: 200                                  # Tasks not linked to this environment will be skipped automatically
     task: emptyS3Bucket
-    preExecution:
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "emptyS3Bucket", "Status": "deleting", "Environment": "${Environment:name}"}}'
     onError:
       stopExecution: true
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "emptyS3Bucket", "Status": "delete-failed", "Environment": "${Environment:name}"}}'
-    onSuccess:
-      notification:
-      - Provider: REST
-        Message: '{"Task": "emptyS3Bucket", "Status": "deleted", "Environment": "${Environment:name}"}}'
   - order: 300
     task: deleteS3Bucket
-    preExecution:
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deleteS3Bucket", "Status": "deleting", "Environment": "${Environment:name}"}}'
     onError:
       stopExecution: true
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deleteS3Bucket", "Status": "delete-failed", "Environment": "${Environment:name}"}}'
-    onSuccess:
-      notification:
-      - Provider: REST
-        Message: '{"Task": "deleteS3Bucket", "Status": "deleted", "Environment": "${Environment:name}"}}'
   updateDeploymentTasks:                        # Run only on subsequent deployments if there was at least one successful deployment in the past
   - order: 100
     task: deployS3Bucket
-    preExecution:
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "updating", "Environment": "${Environment:name}"}}'
     onError:
       stopExecution: true
-      notification: 
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "update-failed", "Environment": "${Environment:name}"}}'
-    onSuccess:
-      notification:
-      - Provider: REST
-        Message: '{"Task": "deployS3Bucket", "Status": "success", "Environment": "${Environment:name}"}}'
   rules:
     tasksNotLinkedToEnvironment: skip           # Optional, DEFAULT=skip - for now this is the only option
     runNotificationOnSkippedTasks: false        # Optional, DEFAULT=false - If false, do not process "preExecution" or "onError" or "onSuccess" NOTIFICATIONS

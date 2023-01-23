@@ -177,6 +177,12 @@ spec:
             awsSecretAccessKey: ${EnvironmentVariables:computed:awsSecretAccessKey}
         environments:
         -   test
+    notifications:
+    -   notificationTargetName: REST        # OPTIONAL, default=None - providers must be defined in src/verbacratis/notification_providers/registered_providers.py 
+        configuration:  # For REST, we use Python3 urllib. If you need to send AWS SNS messages, expose the with a Lambda URL or some other HTTP end-point and that way you can also send e-mails, SMS etc.
+            URL: "http://localhost:5000/test"
+            method: POST
+            ContentType: "application/json"
 ```
 
 ## Basic Application Logic
