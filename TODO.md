@@ -147,6 +147,36 @@ spec:
         environments:
         -   name: default
         -   name: somethingElse
+    infrastructureAccounts:
+    -   accountName: deployment-host
+        accountProvider: ShellScript
+        authentication:
+            runOnDeploymentHost: true
+            # BELOW is only required if runOnDeploymentHost is False
+            #authenticationType: SSH
+            #username: username
+            #privateKeyLocation: /path/to/key
+            #password: ${EnvironmentVariables:computed:systemXyzPassword}   # If private key authentication is not used.
+        environments:
+        -   dev
+        -   test
+        -   prod
+    # Below is only examples....
+    -   accountName: aws-dev
+        accountProvider: AWS
+        authentication:
+            useProfile: true                # OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
+            profileName: AwsDevProfileName  # OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+            region: eu-central-1            # OPTIONAL, default=eu-central-1
+        environments:
+        -   dev
+    -   accountName: aws-test
+        accountProvider: AWS
+        authentication:
+            awsAccessKeyId: ${EnvironmentVariables:computed:awsAccessKeyId}
+            awsSecretAccessKey: ${EnvironmentVariables:computed:awsSecretAccessKey}
+        environments:
+        -   test
 ```
 
 ## Basic Application Logic

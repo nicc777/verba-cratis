@@ -70,6 +70,8 @@ spec:
     except:
         environment_name = 'none'
     print('some-example-bucket-{}'.format(environment_name))
+  targetInfrastructure:                         # The host where the script will run on
+    name: deployment-host                       # Link to infrastructureAccounts in global configuration
 ---
 apiVersion: v1-alpha
 kind: ShellScript
@@ -90,6 +92,8 @@ spec:
     echo "Bucket name to be created             : ${ShellScript:computed:generateS3BucketName}"
     echo "Environment Bucket Name               : ${EnvironmentVariables:computed:S3ArtifactBucket}"
     echo "Environment                           : ${Environment:name}"
+  targetInfrastructure:                         # The host where the script will run on
+    name: deployment-host                       # Link to infrastructureAccounts in global configuration
 ---
 apiVersion: v1-alpha
 kind: ShellScript
@@ -108,6 +112,9 @@ spec:
   data: >
     echo "This script deletes the contents of an S3 bucket
     aws s3 rm s3://${EnvironmentVariables:computed:S3ArtifactBucket} --recursive  --region $AWS_REGION --profile $AWS_PROFILE"
+  targetInfrastructure:                         # The host where the script will run on
+    name: deployment-host                       # Link to infrastructureAccounts in global configuration
+  
 ---
 apiVersion: v1-alpha
 kind: ShellScript
@@ -125,7 +132,9 @@ spec:
     returnValue: "Failed to empty S3 bucket"    # On exception, the returnValue will be printed in the error message
   data: >
     echo "This script deletes a S3 bucket
-    aws s3api delete-bucket --bucket ${EnvironmentVariables:computed:S3ArtifactBucket} --recursive --region $AWS_REGION --profile $AWS_PROFILE"    
+    aws s3api delete-bucket --bucket ${EnvironmentVariables:computed:S3ArtifactBucket} --recursive --region $AWS_REGION --profile $AWS_PROFILE"
+  targetInfrastructure:                         # The host where the script will run on
+    name: deployment-host                       # Link to infrastructureAccounts in global configuration
 ---
 apiVersion: v1-alpha
 kind: EnvironmentVariables
@@ -251,13 +260,16 @@ kind: InfrastructureTemplate                    # During deployment, this will c
 metadata:
   name: s3-artifact-bucket-template
 spec:
-  environments:
-  - dev
-  - test
-  - prod
+  targetInfrastructure:                         # The account where the template will be applied to, per environment (each environment where this template can be applied must have a target account)
+  - environmentName: dev                        # The environment scope name
+    targetInfrastructureName: aws-dev           # Link to infrastructureAccounts in global configuration
+  - environmentName: test                       # The environment scope name
+    targetInfrastructureName: aws-test          # Link to infrastructureAccounts in global configuration
+  - environmentName: prod                       # The environment scope name
+    targetInfrastructureName: aws-prod          # Link to infrastructureAccounts in global configuration
   #source: /path/to/template.yaml               
   sourceType: data                              # REQUIRED - Determines the source of the template. Valid values: "data" (see data section below), "local-file" (path to a file name, absolute or relative to current working directory), or "url", with the "source" pointing to a URL to which a GET request will be executed.
-  # urlHeaders:                                   # OPTIONAL, Default=None - only useful when "sourceType" is "url".
+  # urlHeaders:                                   # OPTIONAL, Default=None - only useful when "sourceType" is "url", for example when getting a template from a web hosted Git server requiring a bearer token
   #   Authorization: bearer xyz
   data: >
     AWSTemplateFormatVersion: "2010-09-09"
@@ -388,7 +400,7 @@ spec:
       manifestChangesAction: change-set         # OPTIONAL: Default=change-set - Can be either "skip-success" or "change-set"
       deleteAction: delete                      # OPTIONAL: Default=delete - Either "delete" or "skip". The "delete" option, deletes the CloudFOrmation stack
     rollbackAction:
-      provider: AWS
+      provider: AWS-CloudFormation
 ---
 apiVersion: v1-alpha
 kind: Deployment
