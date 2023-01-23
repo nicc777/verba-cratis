@@ -19,6 +19,7 @@ import yaml
 from verbacratis.utils import get_logger
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path
 from verbacratis.models import GenericLogger
+from verbacratis.models.ordering import Item, Items, get_ordered_item_list_for_named_scope
 
 
 DEFAULT_CONFIG_DIR = '{}{}{}'.format(
@@ -52,10 +53,16 @@ spec:
 """.format(DEFAULT_STATE_DB)
 
 
-class Project:
+class E(Items):
 
-    def __init__(self, name: str):
-        self.name = name
+    def __init__(self, logger: GenericLogger = GenericLogger()):
+        super().__init__(logger)
+
+
+class Project(Item):
+
+    def __init__(self, name: str, logger: GenericLogger = GenericLogger(), use_default_scope: bool = True):
+        super().__init__(name, logger, use_default_scope)
         self.environments = list()
         self.manifest_directories = list()
         self.manifest_files = list()
@@ -63,12 +70,11 @@ class Project:
         self.parent_project_names = list()
 
     def add_environment(self, environment_name: str):
-        self.environments.append(environment_name)
+        self.add_scope(scope_name=environment_name)
+        # self.environments.append(environment_name)
 
-    def add_parent_project(self, environment_name: str, parent_project_name: str):
-        if environment_name not in self.parent_project_names:
-            self.parent_project_names[environment_name] = list()
-        self.parent_project_names.append(parent_project_name)
+    def add_parent_project(self, parent_project_name: str):
+        self.add_parent_item_name(parent_item_name=parent_project_name)
 
     def add_manifest_directory(self, directory: str):
         self.manifest_directories.append(directory)
@@ -80,55 +86,14 @@ class Project:
         self.manifest_files.append(file)
 
 
-def _get_parent_projects(environment_name: str, projects: dict, project: Project, ordered_project_names: list=list())->list:
-    current_project_index_position = ordered_project_names.index(project.name)
-    for parent_project_name in project.environment_specific_parent_project_names[environment_name]:
-        ordered_project_names.insert(current_project_index_position, parent_project_name)
-        current_project_index_position = ordered_project_names.index(project.name)
-        if parent_project_name in projects:
-            ordered_project_names = _get_parent_projects(
-                environment_name=environment_name,
-                projects=projects,
-                project=projects[parent_project_name],
-                ordered_project_names=copy.deepcopy(ordered_project_names)
-            )
-    return ordered_project_names
+class Projects(Items):
 
-
-class Projects:
-
-    def __init__(self):
-        self.projects = dict()
-        self.projects_per_environment = dict()
+    def __init__(self, logger: GenericLogger = GenericLogger()):
+        super().__init__(logger)
+        self.project_names_per_environment = dict()
 
     def add_project(self, project: Project):
-        if project.name not in self.projects:
-            self.projects[project.name] = project
-            environments = project.environments
-            if len(environments) == 0:
-                environments = ['default', ]
-            for env in environments:
-                if env not in self.projects_per_environment:
-                    self.projects_per_environment[env] = list()
-                self.projects_per_environment[env].append(project.name)
-        else:
-            raise Exception('Project "{}" Already Defined'.format(project.name))
-
-    def get_ordered_projects_for_environment(self, environment_name: str)->list:
-        ordered_project_names = list()
-        if environment_name in self.projects_per_environment:
-            copied_project_classes_per_environment = dict()
-            for project_name in self.projects_per_environment[environment_name]:
-                ordered_project_names.append(project_name)
-                copied_project_classes_per_environment[project_name] = self.projects[project_name]
-            for project_name in copy.deepcopy(ordered_project_names):
-                ordered_project_names = _get_parent_projects(
-                    environment_name=environment_name,
-                    projects=copied_project_classes_per_environment,
-                    project=self.projects[project_name],
-                    ordered_project_names=ordered_project_names
-                )
-        return ordered_project_names
+        self.add_item(item=project)
 
 
 class StateStore:
