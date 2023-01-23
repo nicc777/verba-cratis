@@ -70,7 +70,7 @@ spec:
     except:
         environment_name = 'none'
     print('some-example-bucket-{}'.format(environment_name))
-  targetInfrastructure:                         # The host where the script will run on
+  targetInfrastructure:                         # OPTIONAL - by default shell scripts are run on the localhost, aka "deployment-host"
     name: deployment-host                       # Link to infrastructureAccounts in global configuration
 ---
 apiVersion: v1-alpha
@@ -92,7 +92,7 @@ spec:
     echo "Bucket name to be created             : ${ShellScript:computed:generateS3BucketName}"
     echo "Environment Bucket Name               : ${EnvironmentVariables:computed:S3ArtifactBucket}"
     echo "Environment                           : ${Environment:name}"
-  targetInfrastructure:                         # The host where the script will run on
+  targetInfrastructure:                         # OPTIONAL - by default shell scripts are run on the localhost, aka "deployment-host"
     name: deployment-host                       # Link to infrastructureAccounts in global configuration
 ---
 apiVersion: v1-alpha
@@ -112,7 +112,7 @@ spec:
   data: >
     echo "This script deletes the contents of an S3 bucket
     aws s3 rm s3://${EnvironmentVariables:computed:S3ArtifactBucket} --recursive  --region $AWS_REGION --profile $AWS_PROFILE"
-  targetInfrastructure:                         # The host where the script will run on
+  targetInfrastructure:                         # OPTIONAL - by default shell scripts are run on the localhost, aka "deployment-host"
     name: deployment-host                       # Link to infrastructureAccounts in global configuration
   
 ---
@@ -133,7 +133,7 @@ spec:
   data: >
     echo "This script deletes a S3 bucket
     aws s3api delete-bucket --bucket ${EnvironmentVariables:computed:S3ArtifactBucket} --recursive --region $AWS_REGION --profile $AWS_PROFILE"
-  targetInfrastructure:                         # The host where the script will run on
+  targetInfrastructure:                         # OPTIONAL - by default shell scripts are run on the localhost, aka "deployment-host"
     name: deployment-host                       # Link to infrastructureAccounts in global configuration
 ---
 apiVersion: v1-alpha
@@ -261,11 +261,11 @@ metadata:
   name: s3-artifact-bucket-template
 spec:
   targetInfrastructure:                         # The account where the template will be applied to, per environment (each environment where this template can be applied must have a target account)
-  - environmentName: dev                        # The environment scope name
+  - environmentName: dev                        # The environment scope name - Overrides Deployment defaultTargetInfrastructure setting
     targetInfrastructureName: aws-dev           # Link to infrastructureAccounts in global configuration
-  - environmentName: test                       # The environment scope name
+  - environmentName: test                       # The environment scope name - Overrides Deployment defaultTargetInfrastructure setting
     targetInfrastructureName: aws-test          # Link to infrastructureAccounts in global configuration
-  - environmentName: prod                       # The environment scope name
+  - environmentName: prod                       # The environment scope name - Overrides Deployment defaultTargetInfrastructure setting
     targetInfrastructureName: aws-prod          # Link to infrastructureAccounts in global configuration
   #source: /path/to/template.yaml               
   sourceType: data                              # REQUIRED - Determines the source of the template. Valid values: "data" (see data section below), "local-file" (path to a file name, absolute or relative to current working directory), or "url", with the "source" pointing to a URL to which a GET request will be executed.
@@ -459,6 +459,16 @@ spec:
   - dev
   - test
   - prod
+  defaultTargetInfrastructure:
+  - environment: dev                            
+    shellScript: deployment-host                # OPTIONAL, Default="deployment-host" - a host from where ShellScript will be run, of not otherwise specified.
+    InfrastructureTemplate: aws-dev             # OPTIONAL, Default=None - The default Infrastructure account to target for InfrastructureTemplate deployments
+  - environment: test
+    shellScript: deployment-host                
+    InfrastructureTemplate: aws-test
+  - environment: prod
+    shellScript: deployment-host                
+    InfrastructureTemplate: aws-prod
   preDeploymentNotification:
   - Provider: REST
     Message: '{"Deployment": "deployS3Bucket", "Status": "starting", "Environment": "${Environment:name}"}'

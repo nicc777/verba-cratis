@@ -97,11 +97,11 @@ spec:
                 parameterType: str
                 parameterValue: '%(asctime)s %(levelname)s - %(filename)s %(funcName)s:%(lineno)d - %(message)s'
     infrastructureAccounts:
-    -   accountName: deployment-host
+    -   accountName: deployment-host        # At minimum at least one account must be defined for the local host on which scripts are run (AKA a deployment host, which is assumed to be localhost).
         accountProvider: ShellScript
         authentication:
             runOnDeploymentHost: true
-        environments:
+        environments:                       # All environments must be listed for the local deployment host
         -   dev
         -   test
         -   prod
