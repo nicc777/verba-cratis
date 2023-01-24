@@ -100,7 +100,7 @@ def parse_command_line_arguments(
     state.logger.info('args={}'.format(args))
     try:
         state.update_config_file(config_file=args['config_file'])
-    except:
+    except: # pragma: no cover
         state.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
         parser.print_usage()
         sys.exit(2)
