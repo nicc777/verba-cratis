@@ -16,6 +16,7 @@ import unittest
 
 from verbacratis.utils.cli_arguments import parse_command_line_arguments
 from verbacratis.models.runtime import VariableStateStore
+from verbacratis import ApplicationState
 
 
 class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no cover
@@ -29,17 +30,17 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
 
     def test_basic_invocation_no_args_fail_with_exit(self):
         with self.assertRaises(SystemExit) as cm:
-            parse_command_line_arguments()
+            parse_command_line_arguments(state=ApplicationState())
         self.assertEqual(cm.exception.code, 2)
 
     def test_basic_invocation_args_basic(self):
-        result = parse_command_line_arguments(cli_args=self.cli_args)
+        result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args)
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, dict)
+        self.assertIsInstance(result, ApplicationState)
 
     def test_basic_invocation_invalid_overrides_fail_with_exit(self):
         with self.assertRaises(SystemExit) as cm:
-            parse_command_line_arguments(overrides={'config_file': None})
+            parse_command_line_arguments(state=ApplicationState(), overrides={'config_file': None})
         self.assertEqual(cm.exception.code, 2)
 
 
