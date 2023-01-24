@@ -150,6 +150,9 @@ spec:
         parentProjects:   # Only parent projects in the same environment will be deployed
         -   name: Main Project
     -   name: Another Project
+        includeFileRegex: 
+        -   "*\.yaml"
+        -   "*\.yml"
         locations:
             -   type: ListOfDirectories
                 directories:
@@ -157,9 +160,6 @@ spec:
                     type: YAML
                 -   path: /path2
                     type: YAML
-                includeFileRegex: 
-                -   "*\.yaml"
-                -   "*\.yml"
             -   type: ListOfFiles
                 files:
                 -   path: /path/to/infrastructure_manifest_file.yaml

@@ -68,13 +68,16 @@ spec:
 
 class Project(Item):
 
-    def __init__(self, name: str, logger: GenericLogger = GenericLogger(), use_default_scope: bool = True):
+    def __init__(
+        self,
+        name: str,
+        logger: GenericLogger = GenericLogger(),
+        use_default_scope: bool = True
+    ):
         super().__init__(name, logger, use_default_scope)
-        self.environments = list()
-        self.manifest_directories = list()
-        self.manifest_files = list()
+        self.manifest_directories = list()  # List of dict with items "path" and "type", where type can only be YAML (for now at least)
+        self.manifest_files = list()        # List of dict with items "path" and "type", where type can only be YAML (for now at least)
         self.include_file_regex = ('*\.yml', '*\.yaml')
-        self.parent_project_names = list()
         self.project_effective_manifest = None      # The manifest for the particular scopes
         self.previous_project_checksum = dict()     # Checksum of the previous effective manifest, per environment (scope)
         self.current_project_checksum = None        # The current checksum of the project_effective_manifest
@@ -86,14 +89,61 @@ class Project(Item):
     def add_parent_project(self, parent_project_name: str):
         self.add_parent_item_name(parent_item_name=parent_project_name)
 
-    def add_manifest_directory(self, directory: str):
-        self.manifest_directories.append(directory)
+    def add_manifest_directory(self, path: str, type: str='YAML'):
+        self.manifest_directories.append({'path': path, 'type': type})
 
     def override_include_file_regex(self, include_file_regex: tuple):
         self.include_file_regex = include_file_regex
 
-    def add_manifest_file(self, file: str):
-        self.manifest_files.append(file)
+    def add_manifest_file(self, path: str, type: str='YAML'):
+        self.manifest_files.append({'path': path, 'type': type})
+
+    def get_environment_names(self)->list:
+        return self.scopes
+
+    def as_dict(self):
+        data = dict()
+        data['name'] = self.name
+        data['includeFileRegex'] = self.include_file_regex
+        if len(self.manifest_directories) > 0:
+            data['locations'] = list()
+            for directory in self.manifest_directories:
+                if 'path' in directory and 'type' in directory:
+                    directory_data = dict()
+                    directory_data['type'] = 'ListOfDirectories'
+                    directory_data['directories'] = list()
+                    directory_data['directories'].append(
+                        {
+                            'path': directory['path'],
+                            'type': directory['type'],
+                        }
+                    )
+                    data['locations'].append(directory_data)
+        if len(self.manifest_files) > 0:
+            data['ListOfFiles'] = list()
+            for file in self.manifest_files:
+                if 'path' in directory and 'type' in file:
+                    file_data = dict()
+                    file_data['type'] = 'ListOfDirectories'
+                    file_data['directories'] = list()
+                    file_data['directories'].append(
+                        {
+                            'path': file['path'],
+                            'type': file['type'],
+                        }
+                    )
+                    data['ListOfFiles'].append(file_data)
+        data['environments'] = self.scopes
+        if len(data['environments']) == 0:
+            data['environments'] = ['default',]
+        if len(self.parent_item_names) > 0:
+            data['parentProjects'] = list()
+            for parent_name in self.parent_item_names:
+                data['parentProjects'].append({'name': parent_name,})
+        return data
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict(), explicit_start=True)
 
 
 class Projects(Items):

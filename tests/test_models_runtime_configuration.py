@@ -48,5 +48,14 @@ class TestApplicationConfiguration(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, ApplicationConfiguration)
 
 
+class TestProject(unittest.TestCase):    # pragma: no cover
+
+    def test_project_init_with_defaults(self):
+        result = Project(name='test')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, Project)
+        self.assertTrue('default' in result.scopes)
+
+
 if __name__ == '__main__':
     unittest.main()
