@@ -9,7 +9,7 @@
 import traceback
 import sys
 import argparse
-from verbacratis import ApplicationState
+from verbacratis.models.runtime_configuration import ApplicationState
 from verbacratis.utils.file_io import expand_to_full_path
 
 

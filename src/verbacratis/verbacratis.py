@@ -10,7 +10,7 @@ import sys
 import json
 from verbacratis.utils import get_logger
 from verbacratis.utils.cli_arguments import parse_command_line_arguments
-from verbacratis import ApplicationState
+from verbacratis.models.runtime_configuration import ApplicationState
 
 
 def main(cli_args: list=list(), logger=get_logger())->dict:

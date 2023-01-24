@@ -16,7 +16,7 @@ import unittest
 
 from verbacratis.utils.cli_arguments import parse_command_line_arguments
 from verbacratis.models.runtime import VariableStateStore
-from verbacratis import ApplicationState
+from verbacratis.models.runtime_configuration import ApplicationState
 
 
 class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no cover

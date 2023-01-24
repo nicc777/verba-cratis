@@ -14,7 +14,7 @@ print('sys.path={}'.format(sys.path))
 import unittest
 
 
-from verbacratis import *
+from verbacratis.models.runtime_configuration import *
 from sqlalchemy.engine import Engine
 
 

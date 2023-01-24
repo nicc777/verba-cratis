@@ -13,7 +13,7 @@ print('sys.path={}'.format(sys.path))
 
 import unittest
 
-from verbacratis import BUILD_ID
+from verbacratis.models.runtime_configuration import BUILD_ID
 from verbacratis.models.runtime import *
 from verbacratis.functions import user_function_factory
 from verbacratis.utils import get_logger
