@@ -142,7 +142,7 @@ class InfrastructureAccount:
     Attributes:
         account_name: A string containing a unique account name that can be referenced in the deployment configuration
         account_provider: A string contaINING Either "ShellScript" or "AWS" (more providers may be supported in the future)
-        run_on_deployment_host: a boolean value. Only ONE "ShellScript" type host can have the value of TRUE.
+        run_on_deployment_host: a boolean value. Only ONE InfrastructureAccount can have the value of TRUE and it must be of type "ShellScript"
         authentication_config: The authentication parameters depending on the "account_provider" type
         environments: A list of environments for which this infrastructure account is used
     """
@@ -160,6 +160,32 @@ class InfrastructureAccount:
         self.run_on_deployment_host = run_on_deployment_host
         self.authentication_config = authentication_config
         self.environments = environments
+
+
+class InfrastructureAccounts:
+
+    def __init__(self):
+        self.accounts = {'deployment-host': InfrastructureAccount()}
+
+    def find_local_deployment_host_account_name(self):
+        for account_name, infrastructure_account_obj in self.accounts.items():
+            if infrastructure_account_obj.run_on_deployment_host is True:
+                return account_name
+        raise Exception('Critical error: No account found for running on local host')
+
+    def add_infrastructure_account(self, infrastructure_account: InfrastructureAccount):
+        if infrastructure_account.run_on_deployment_host is True:
+            self.accounts.pop(self.find_local_deployment_host_account_name())
+            infrastructure_account.authentication_config = dict()
+            infrastructure_account.account_provider = 'ShellScript'
+        self.accounts[infrastructure_account.account_name] = infrastructure_account
+
+    def update_local_deployment_host_with_all_environments(self, environments: list):
+        if len(environments) is None:
+            raise Exception('At least one environment name must be set')
+        if len(environments) == 0:
+            raise Exception('At least one environment name must be set')
+        self.accounts[self.find_local_deployment_host_account_name()].environments = environments
 
 
 class StateStore:
