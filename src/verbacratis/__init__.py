@@ -55,7 +55,16 @@ spec:
     accountProvider: ShellScript
     authentication:
       runOnDeploymentHost: true
-""".format(DEFAULT_STATE_DB)
+  projects:
+  - name: default
+    locations:
+    - type: ListOfFiles
+      files:
+      - path: {}{}/default_project.yaml
+        type: YAML
+    environments:
+    - name: default
+""".format(DEFAULT_STATE_DB, DEFAULT_CONFIG_DIR, os.sep)
 
 
 class Project(Item):
@@ -96,6 +105,61 @@ class Projects(Items):
 
     def add_project(self, project: Project):
         self.add_item(item=project)
+
+
+class InfrastructureAccount:
+    """Defines an Infrastructure account
+
+    There are a couple of types of Infrastructure accounts, and they may have a number of different configuration attributes:
+
+    * ShellScript type accounts: These are accounts that represent a Unix type host, and can be either the localhost on which the deployment script is run, or a remote host with SSH access
+    * AWS type account: Represents an AWS account (see https://docs.aws.amazon.com/organizations/latest/userguide/orgs_getting-started_concepts.html)
+
+    ShellScript type accounts on remote hosts with SSH access requires the following values in the "authentication_config" attribute:
+
+    * "authenticationType" (must be set to "SSH" as the only value for now)
+    * "username"
+    * "privateKeyLocation" (location to the private key file) OR "password" (the actual password, which can be securely obtained with the value "${EnvironmentVariables:computed:systemXyzPassword}")
+
+    AWS type accounts requires the following values in the "authentication_config" attribute:
+
+    * For authentication using AWS profiles:
+            * useProfile - Boolean Value - OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
+            * profileName - String - OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+            * region - String - OPTIONAL, default=eu-central-1
+    * For authentication using keys, used when "useProfile" is FALSE (and therefore requiring the following values to be set):
+            * awsAccessKeyId - String - can be securely set with the value "${EnvironmentVariables:computed:awsAccessKeyId}"
+            * awsSecretAccessKey - String - can be securely set with the value "${EnvironmentVariables:computed:awsSecretAccessKey}"
+
+    By default there is always at least ONE InfrastructureAccount account with the following configuration:
+
+    * account_name='deployment-host',
+    * account_provider='ShellScript',
+    * run_on_deployment_host=True,
+    * authentication_config=dict(),
+    * environments=['default',]
+
+    Attributes:
+        account_name: A string containing a unique account name that can be referenced in the deployment configuration
+        account_provider: A string contaINING Either "ShellScript" or "AWS" (more providers may be supported in the future)
+        run_on_deployment_host: a boolean value. Only ONE "ShellScript" type host can have the value of TRUE.
+        authentication_config: The authentication parameters depending on the "account_provider" type
+        environments: A list of environments for which this infrastructure account is used
+    """
+
+    def __init__(
+        self,
+        account_name: str='deployment-host',
+        account_provider: str='ShellScript',
+        run_on_deployment_host: bool=True,
+        authentication_config: dict=dict(),
+        environments: list=['default',]
+    ):
+        self.account_name = account_name
+        self.account_provider = account_provider
+        self.run_on_deployment_host = run_on_deployment_host
+        self.authentication_config = authentication_config
+        self.environments = environments
 
 
 class StateStore:
