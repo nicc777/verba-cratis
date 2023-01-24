@@ -56,6 +56,22 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, Project)
         self.assertTrue('default' in result.scopes)
 
+    def test_project_init_with_defaults_dump_as_yaml(self):
+        result = str(Project(name='test'))
+        print('='*80)
+        print('# Project YAML')
+        print(result)
+        print('='*80)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue('name: test' in result)
+        self.assertTrue('environments:' in result)
+        self.assertTrue('- name: default' in result)
+        self.assertTrue('includeFileRegex:' in result)
+        self.assertTrue('- \'*\.yml\'' in result)
+        self.assertTrue('- \'*\.yaml\'' in result)
+        self.assertTrue(result.startswith('---'))
+
 
 if __name__ == '__main__':
     unittest.main()

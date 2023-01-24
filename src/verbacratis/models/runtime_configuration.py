@@ -104,7 +104,10 @@ class Project(Item):
     def as_dict(self):
         data = dict()
         data['name'] = self.name
-        data['includeFileRegex'] = self.include_file_regex
+        data['includeFileRegex'] = list()
+        if len(self.include_file_regex) > 0:
+            for file_regex in self.include_file_regex:
+                data['includeFileRegex'].append(file_regex)
         if len(self.manifest_directories) > 0:
             data['locations'] = list()
             for directory in self.manifest_directories:
@@ -133,9 +136,11 @@ class Project(Item):
                         }
                     )
                     data['ListOfFiles'].append(file_data)
-        data['environments'] = self.scopes
-        if len(data['environments']) == 0:
-            data['environments'] = ['default',]
+        data['environments'] = [{'name': 'default'},]
+        if len(self.scopes) > 0:
+            data['environments'] = list()
+            for scope_name in self.scopes:
+                data['environments'].append({'name': scope_name, })
         if len(self.parent_item_names) > 0:
             data['parentProjects'] = list()
             for parent_name in self.parent_item_names:
