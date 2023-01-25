@@ -161,7 +161,7 @@ class Projects(Items):
 
     def add_project(self, project: Project):
         self.add_item(item=project)
-
+        
 
 class InfrastructureAccount:
     """Defines an Infrastructure account
