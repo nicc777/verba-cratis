@@ -72,6 +72,78 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertTrue('- \'*\.yaml\'' in result)
         self.assertTrue(result.startswith('---'))
 
+    def test_project_method_add_parent_project(self):
+        project_parent = Project(name='test_parent')
+        project_child1 = Project(name='test_child1')
+        project_child1.add_parent_project(parent_project_name=project_parent.name)
+        self.assertEqual(len(project_parent.parent_item_names), 0)
+        self.assertEqual(len(project_child1.parent_item_names), 1)
+        self.assertTrue('test_parent' in project_child1.parent_item_names)
+
+    def test_project_method_add_manifest_directory(self):
+        project = Project(name='test')
+        project.add_manifest_directory(path='/tmp')
+        
+        self.assertEqual(len(project.manifest_directories), 1)
+        
+        directory = project.manifest_directories[0]
+        self.assertIsInstance(directory, dict)
+        self.assertTrue('path' in directory)
+        self.assertTrue('type' in directory)
+        self.assertEqual('/tmp', directory['path'])
+        self.assertEqual('YAML', directory['type'])
+
+        project.add_manifest_directory(path='/something/else', type='ABC')
+        self.assertEqual(len(project.manifest_directories), 2)
+
+        directory1 = project.manifest_directories[0]
+        self.assertIsInstance(directory1, dict)
+        self.assertTrue('path' in directory1)
+        self.assertTrue('type' in directory1)
+        self.assertEqual('/tmp', directory1['path'])
+        self.assertEqual('YAML', directory1['type'])
+
+        directory2 = project.manifest_directories[1]
+        self.assertIsInstance(directory2, dict)
+        self.assertTrue('path' in directory2)
+        self.assertTrue('type' in directory2)
+        self.assertEqual('/something/else', directory2['path'])
+        self.assertEqual('ABC', directory2['type'])
+
+    def test_project_method_override_include_file_regex(self):
+        project = Project(name='test')
+        project.override_include_file_regex(include_file_regex=('a', 'b', 'c'))
+        self.assertIsNotNone(project.include_file_regex)
+        self.assertIsInstance(project.include_file_regex, tuple)
+        self.assertEqual(len(project.include_file_regex), 3)
+        self.assertTrue('a' in project.include_file_regex)
+        self.assertTrue('b' in project.include_file_regex)
+        self.assertTrue('c' in project.include_file_regex)
+
+    def test_project_method_add_manifest_file(self):
+        project = Project(name='test')
+
+        project.add_manifest_file(path='/tmp/file1.yaml')
+        self.assertEqual(len(project.manifest_files), 1)
+        file1 = project.manifest_files[0]
+        self.assertIsInstance(file1, dict)
+        self.assertTrue('path' in file1)
+        self.assertTrue('type' in file1)
+        self.assertEqual('/tmp/file1.yaml', file1['path'])
+        self.assertEqual('YAML', file1['type'])
+
+        project.add_manifest_file(path='/file2', type='ABC')
+        self.assertEqual(len(project.manifest_files), 2)
+        file2 = project.manifest_files[1]
+        self.assertIsInstance(file2, dict)
+        self.assertTrue('path' in file2)
+        self.assertTrue('type' in file2)
+        self.assertEqual('/file2', file2['path'])
+        self.assertEqual('ABC', file2['type'])
+        
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
