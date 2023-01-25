@@ -60,6 +60,28 @@ There is a global configuration for the application, either in `$HOME/.verbacrat
 The configuration itself is also YAML with the following example:
 
 ```yaml
+---
+apiVersion: v1-alpha
+kind: Project
+metadata:
+  name: test
+spec:
+  environments:
+  - name: dev
+  - name: test
+  includeFileRegex:
+  - '*\.yml'
+  - '*\.yaml'
+  locations:
+    directories:
+    - path: /tmp
+      type: YAML
+    files:
+    - path: /file
+      type: YAML
+  parentProjects:
+  - name: test_parent
+---
 apiVersion: v1-alpha
 kind: GlobalConfiguration
 metadata:
@@ -138,36 +160,6 @@ spec:
             URL: "http://localhost:5000/test"
             method: POST
             ContentType: "application/json"
-    projects:
-    -   name: Main Project
-        locations:
-            -   type: ListOfFiles
-                files:
-                -   path: /path/to/infrastructure_manifest_file.yaml
-                    type: YAML
-        environments:
-        -   name: default
-        parentProjects:   # Only parent projects in the same environment will be deployed
-        -   name: Main Project
-    -   name: Another Project
-        includeFileRegex: 
-        -   "*\.yaml"
-        -   "*\.yml"
-        locations:
-            -   type: ListOfDirectories
-                directories:
-                -   path: /path1
-                    type: YAML
-                -   path: /path2
-                    type: YAML
-            -   type: ListOfFiles
-                files:
-                -   path: /path/to/infrastructure_manifest_file.yaml
-                    type: YAML
-        environments:
-        -   name: default
-        -   name: somethingElse
-
 ```
 
 If no configuration is available, the following will be set as default:

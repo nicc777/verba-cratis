@@ -70,7 +70,6 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertTrue('includeFileRegex:' in result)
         self.assertTrue('- \'*\.yml\'' in result)
         self.assertTrue('- \'*\.yaml\'' in result)
-        self.assertTrue(result.startswith('---'))
 
     def test_project_method_add_parent_project(self):
         project_parent = Project(name='test_parent')
@@ -175,53 +174,53 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         project.add_manifest_file(path='/file')
         project.add_parent_item_name(parent_item_name=project_parent.name)
 
-        project_as_dict = project.as_dict()
+        project_as_dict = project.as_dict()['spec']
         self.assertIsNotNone(project_as_dict)
         self.assertIsInstance(project_as_dict, dict)
-        self.assertTrue('name' in project_as_dict)
         self.assertTrue('includeFileRegex' in project_as_dict)
         self.assertTrue('locations' in project_as_dict)
-        self.assertTrue('ListOfFiles' in project_as_dict)
         self.assertTrue('environments' in project_as_dict)
         self.assertTrue('parentProjects' in project_as_dict)
 
         result = str(project)
         print('='*80)
         print('# Project YAML')
+        """
+            environments:
+            - name: dev
+            - name: test
+            includeFileRegex:
+            - '*\.yml'
+            - '*\.yaml'
+            locations:
+              directories:
+              - path: /tmp
+                type: YAML
+              files:
+              - path: /file
+                type: YAML
+            parentProjects:
+            - name: test_parent
+        """
         print(result)
         print('='*80)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
-        self.assertTrue('name: test' in result)
         self.assertTrue('environments:' in result)
         self.assertTrue('- name: dev' in result)
         self.assertTrue('- name: test' in result)
         self.assertTrue('includeFileRegex:' in result)
         self.assertTrue('- \'*\.yml\'' in result)
         self.assertTrue('- \'*\.yaml\'' in result)
-        self.assertTrue('locations:' in result)
-        self.assertTrue('- type: ListOfDirectories' in result)
+        self.assertTrue('locations:' in result)        
         self.assertTrue('directories:' in result)
         self.assertTrue('- path: /tmp' in result)
         self.assertTrue('  type: YAML' in result)
-        self.assertTrue('- type: ListOfFiles' in result)
         self.assertTrue('files:' in result)
         self.assertTrue('- path: /file' in result)
         self.assertTrue('  type: YAML' in result)
         self.assertTrue('parentProjects' in result)
-        self.assertTrue('- name: dev' in result)
-        self.assertTrue('- name: test' in result)
-        
-        # self.assertTrue('xxxxx' in result)
-        # self.assertTrue('xxxxx' in result)
-        # self.assertTrue('xxxxx' in result)
-        # self.assertTrue('xxxxx' in result)
-        # self.assertTrue('xxxxx' in result)
-        # self.assertTrue('xxxxx' in result)
-        # self.assertTrue('xxxxx' in result)
-
-        self.assertTrue(result.startswith('---'))
-
+        self.assertTrue('- name: test_parent' in result)
 
 
 if __name__ == '__main__':

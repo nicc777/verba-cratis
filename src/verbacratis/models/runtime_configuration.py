@@ -102,40 +102,41 @@ class Project(Item):
         return self.scopes
 
     def as_dict(self):
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'Project'
+        root['metadata'] = dict()
+        root['metadata']['name'] = self.name
+        root['spec'] = dict()
         data = dict()
-        data['name'] = self.name
+        # data['name'] = self.name
         data['includeFileRegex'] = list()
         if len(self.include_file_regex) > 0:
             for file_regex in self.include_file_regex:
                 data['includeFileRegex'].append(file_regex)
         if len(self.manifest_directories) > 0:
-            data['locations'] = list()
+            if 'locations' not in data:
+                data['locations'] = dict()
+            data['locations']['directories'] = list()
             for directory in self.manifest_directories:
                 if 'path' in directory and 'type' in directory:
-                    directory_data = dict()
-                    directory_data['type'] = 'ListOfDirectories'
-                    directory_data['directories'] = list()
-                    directory_data['directories'].append(
-                        {
-                            'path': directory['path'],
-                            'type': directory['type'],
-                        }
-                    )
-                    data['locations'].append(directory_data)
+                    directory_data = {
+                        'path': directory['path'],
+                        'type': directory['type'],
+                    }
+                    data['locations']['directories'].append(directory_data)
         if len(self.manifest_files) > 0:
-            data['ListOfFiles'] = list()
+            if 'locations' not in data:
+                data['locations'] = dict()
+            data['locations']['files'] = list()
             for file in self.manifest_files:
                 if 'path' in directory and 'type' in file:
-                    file_data = dict()
-                    file_data['type'] = 'ListOfDirectories'
-                    file_data['directories'] = list()
-                    file_data['directories'].append(
-                        {
-                            'path': file['path'],
-                            'type': file['type'],
-                        }
-                    )
-                    data['ListOfFiles'].append(file_data)
+                    file_data = {
+                        'path': file['path'],
+                        'type': file['type'],
+                    }
+                    data['locations']['files'].append(file_data)
         data['environments'] = [{'name': 'default'},]
         if len(self.scopes) > 0:
             data['environments'] = list()
@@ -145,10 +146,11 @@ class Project(Item):
             data['parentProjects'] = list()
             for parent_name in self.parent_item_names:
                 data['parentProjects'].append({'name': parent_name,})
-        return data
+        root['spec'] = data
+        return root
 
     def __str__(self)->str:
-        return yaml.dump(self.as_dict(), explicit_start=True)
+        return yaml.dump(self.as_dict())
 
 
 class Projects(Items):
