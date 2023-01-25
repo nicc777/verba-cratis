@@ -140,9 +140,31 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertTrue('type' in file2)
         self.assertEqual('/file2', file2['path'])
         self.assertEqual('ABC', file2['type'])
-        
 
+    def test_project_method_get_environment_names_with_defaults(self):
+        project = Project(name='test')
+        envs = project.get_environment_names()
+        self.assertIsInstance(envs, list)
+        self.assertEqual(len(envs), 1)
+        self.assertTrue('default' in envs)
 
+    def test_project_method_get_environment_names_with_defaults_and_extra_environments(self):
+        project = Project(name='test')
+        project.add_environment(environment_name='dev')
+        envs = project.get_environment_names()
+        self.assertIsInstance(envs, list)
+        self.assertEqual(len(envs), 1)
+        self.assertTrue('dev' in envs)
+
+        project.add_environment(environment_name='test')
+        project.add_environment(environment_name='prod')
+
+        envs = project.get_environment_names()
+        self.assertIsInstance(envs, list)
+        self.assertEqual(len(envs), 3)
+        self.assertTrue('dev' in envs)
+        self.assertTrue('test' in envs)
+        self.assertTrue('prod' in envs)
 
 
 if __name__ == '__main__':
