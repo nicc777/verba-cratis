@@ -33,7 +33,23 @@ DEFAULT_STATE_DB = 'sqlite:///{}{}{}'.format(
     '.verbacratis.db'
 )
 
-DEFAULT_GLOBAL_CONFIG = """apiVersion: v1-alpha
+DEFAULT_GLOBAL_CONFIG = """---
+apiVersion: v1-alpha
+kind: Project
+metadata:
+  name: test
+spec:
+  environments:
+  - name: default
+  includeFileRegex:
+  - '*\.yml'
+  - '*\.yaml'
+  locations:
+    files:
+    - path: {}{}/default_project.yaml
+      type: YAML
+---
+apiVersion: v1-alpha
 kind: GlobalConfiguration
 metadata:
   name: verbacratis
@@ -54,15 +70,6 @@ spec:
     accountProvider: ShellScript
     authentication:
       runOnDeploymentHost: true
-  projects:
-  - name: default
-    locations:
-    - type: ListOfFiles
-      files:
-      - path: {}{}/default_project.yaml
-        type: YAML
-    environments:
-    - name: default
 """.format(DEFAULT_STATE_DB, DEFAULT_CONFIG_DIR, os.sep)
 
 
