@@ -12,6 +12,8 @@ import hashlib
 import uuid
 from pathlib import Path
 import os
+# from os import access, R_OK
+# from os.path import isfile
 import sys
 import copy
 from sqlalchemy import create_engine
@@ -254,6 +256,7 @@ class SshCredentialsBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         self.password_is_final = True
         if password.startswith('${') and password.endswith('}'):
             self.password_is_final = False                          # Password still needs to be resolved via Environment...
+        self.authentication_type = 'SshUsingCredentials'
 
     def as_dict(self):
         root = dict()
@@ -280,7 +283,12 @@ class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
 
     def __init__(self, hostname: str, username: str, private_key_path: str) -> None:
         super().__init__(hostname, username)
+        if os.path.isfile(private_key_path) is False:
+            raise Exception('Private Key file "{}" does not exist'.format(private_key_path))
+        if os.access(private_key_path, os.R_OK) is False:
+            raise Exception('Private Key file "{}" cannot be read'.format(private_key_path))
         self.private_key_path = private_key_path
+        self.authentication_type = 'SshUsingPrivateKey'
 
     def as_dict(self):
         root = dict()
