@@ -223,5 +223,70 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertTrue('- name: test_parent' in result)
 
 
+class TestProjects(unittest.TestCase):    # pragma: no cover
+
+    def test_projects_init_with_defaults(self):
+        result = Projects()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, Projects)
+
+    def test_projects_add_2_projects(self):
+        p1 = Project(name='proj01', use_default_scope=False)
+        p2 = Project(name='proj02', use_default_scope=False)
+
+        p1.add_environment(environment_name='dev')
+        p1.add_environment(environment_name='test')
+        p1.add_environment(environment_name='prod')
+
+        p2.add_environment(environment_name='dev')
+        p2.add_environment(environment_name='test')
+
+        p1.add_parent_item_name(parent_item_name=p2.name)
+
+        projects = Projects()
+        projects.add_project(project=p1)
+        projects.add_project(project=p2)
+
+        self.assertIsNotNone(projects)
+        self.assertIsInstance(projects, Projects)
+
+    def test_projects_method_get_project_names_for_named_environment(self):
+        p1 = Project(name='proj01', use_default_scope=False)
+        p2 = Project(name='proj02', use_default_scope=False)
+
+        p1.add_environment(environment_name='dev')
+        p1.add_environment(environment_name='test')
+        p1.add_environment(environment_name='prod')
+
+        p2.add_environment(environment_name='dev')
+        p2.add_environment(environment_name='test')
+
+        p1.add_parent_item_name(parent_item_name=p2.name)
+
+        projects = Projects()
+        projects.add_project(project=p1)
+        projects.add_project(project=p2)
+
+        dev_env_project_names = projects.get_project_names_for_named_environment(environment_name='dev')
+        self.assertIsNotNone(dev_env_project_names)
+        self.assertIsInstance(dev_env_project_names, list)
+        self.assertEqual(len(dev_env_project_names), 2)
+        self.assertTrue('proj01' in dev_env_project_names)
+        self.assertTrue('proj02' in dev_env_project_names)
+
+        test_env_project_names = projects.get_project_names_for_named_environment(environment_name='test')
+        self.assertIsNotNone(test_env_project_names)
+        self.assertIsInstance(test_env_project_names, list)
+        self.assertEqual(len(test_env_project_names), 2)
+        self.assertTrue('proj01' in test_env_project_names)
+        self.assertTrue('proj02' in test_env_project_names)
+
+        prod_env_project_names = projects.get_project_names_for_named_environment(environment_name='prod')
+        self.assertIsNotNone(prod_env_project_names)
+        self.assertIsInstance(prod_env_project_names, list)
+        self.assertEqual(len(prod_env_project_names), 1)
+        self.assertTrue('proj01' in prod_env_project_names)
+
+
 if __name__ == '__main__':
     unittest.main()

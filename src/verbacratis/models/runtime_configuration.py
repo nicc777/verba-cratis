@@ -171,7 +171,8 @@ class Projects(Items):
         for environment_name in project.scopes:
             if environment_name not in self.project_names_per_environment:
                 self.project_names_per_environment[environment_name] = list()
-                self.project_names_per_environment[environment_name].append(project.name)
+            self.project_names_per_environment[environment_name].append(project.name)
+            
 
     def get_project_names_for_named_environment(self, environment_name: str='default')->list:
         if environment_name in self.project_names_per_environment:
