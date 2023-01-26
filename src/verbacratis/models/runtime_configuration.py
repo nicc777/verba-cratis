@@ -178,6 +178,9 @@ class Projects(Items):
             return self.project_names_per_environment[environment_name]
         raise Exception('Environment named "{}" not found in collection of projects'.format(environment_name))
 
+    def get_project_by_name(self, project_name: str)->Project:
+        return self.get_item_by_name(name=project_name)
+
     def __str__(self)->str:
         yaml_str = ''
         for project in self.items:
