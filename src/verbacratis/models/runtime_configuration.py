@@ -177,6 +177,11 @@ class Projects(Items):
         if environment_name in self.project_names_per_environment:
             return self.project_names_per_environment[environment_name]
         raise Exception('Environment named "{}" not found in collection of projects'.format(environment_name))
+
+    def __str__(self)->str:
+        yaml_str = ''
+        for project in self.items:
+            yaml_str += '{}---\n{}'.format(yaml_str, str(project))
         
 
 class InfrastructureAccount:
