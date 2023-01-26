@@ -328,6 +328,33 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         p_test = projects.get_project_by_name(project_name='proj01')
         self.assertEqual(p1, p_test)
 
+    def test_projects_method_to_string(self):
+        p1 = Project(name='proj01', use_default_scope=False)
+        p2 = Project(name='proj02', use_default_scope=False)
+
+        p1.add_environment(environment_name='dev')
+        p1.add_environment(environment_name='test')
+        p1.add_environment(environment_name='prod')
+
+        p2.add_environment(environment_name='dev')
+        p2.add_environment(environment_name='test')
+
+        p1.add_parent_item_name(parent_item_name=p2.name)
+
+        projects = Projects()
+        projects.add_project(project=p1)
+        projects.add_project(project=p2)
+
+        projects_yaml = str(projects)
+        self.assertIsNotNone(projects_yaml)
+        self.assertIsInstance(projects_yaml, str)
+        self.assertTrue(len(projects_yaml) > 10)
+        self.assertTrue('---' in projects_yaml)
+        print('='*80)
+        print('# Projects YAML')
+        print(projects_yaml)
+        print('='*80)
+
 
 if __name__ == '__main__':
     unittest.main()
