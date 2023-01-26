@@ -187,7 +187,115 @@ class Projects(Items):
         for project_name, project in self.items.items():
             yaml_str = '{}---\n{}'.format(yaml_str, str(project))
         return yaml_str
-        
+
+
+
+class UnixHostAuthentication:
+
+    def __init__(self, hostname: str) -> None:
+        self.authentication_type = None
+        self.hostname = hostname
+
+    def as_dict(self):
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'InfrastructureAccount'
+        root['metadata'] = dict()
+        root['metadata']['name'] = self.hostname
+        root['spec'] = dict()
+        data = dict()
+        data['authenticationType'] = self.authentication_type
+        root['spec'] = data
+        return root
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict())
+
+
+class SshHostBasedAuthenticationConfig(UnixHostAuthentication): 
+    """For hosts with configuration defined in /etc/ssh
+    
+    """
+
+    def __init__(self, hostname: str, username: str) -> None:
+        super().__init__(hostname)
+        if username is None:
+            raise Exception('username is required')
+        if not isinstance(username, str):
+            raise Exception('username must be a string value')
+        if len(username) == 0:
+            raise Exception('username is required')
+        self.authentication_type = 'SshUsingHostConfig'
+        self.username = username
+
+    def as_dict(self):
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'InfrastructureAccount'
+        root['metadata'] = dict()
+        root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
+        root['spec'] = dict()
+        data = dict()
+        data['authenticationType'] = self.authentication_type
+        root['spec'] = data
+        return root
+
+
+class SshCredentialsBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
+    """For hosts requiring SSH with password based authentication
+    
+    """
+
+    def __init__(self, hostname: str, username: str, password: str) -> None:
+        super().__init__(hostname, username)
+        self.password = password
+        self.password_is_final = True
+        if password.startswith('${') and password.endswith('}'):
+            self.password_is_final = False                          # Password still needs to be resolved via Environment...
+
+    def as_dict(self):
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'InfrastructureAccount'
+        root['metadata'] = dict()
+        root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
+        root['spec'] = dict()
+        data = dict()
+        data['authenticationType'] = self.authentication_type
+        if len(self.password) > 0:
+            data['password'] = '*'*len(self.password)
+            if self.password_is_final is False:
+                data['password'] = self.password
+        root['spec'] = data
+        return root
+
+
+class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
+    """For hosts requiring SSH with authentication using a private key
+    
+    """
+
+    def __init__(self, hostname: str, username: str, private_key_path: str) -> None:
+        super().__init__(hostname, username)
+        self.private_key_path = private_key_path
+
+    def as_dict(self):
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'InfrastructureAccount'
+        root['metadata'] = dict()
+        root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
+        root['spec'] = dict()
+        data = dict()
+        data['authenticationType'] = self.authentication_type
+        data['privateKeyPath'] = self.private_key_path
+        root['spec'] = data
+        return root
+
 
 class InfrastructureAccount:
     """Defines an Infrastructure account
@@ -234,14 +342,37 @@ class InfrastructureAccount:
         account_name: str='deployment-host',
         account_provider: str='ShellScript',
         run_on_deployment_host: bool=True,
-        authentication_config: dict=dict(),
+        authentication_config: UnixHostAuthentication = UnixHostAuthentication(),
         environments: list=['default',]
     ):
+        if account_provider not in ('SHellScript', 'AWS'):
+            raise Exception('account_provider not supported')
         self.account_name = account_name
         self.account_provider = account_provider
         self.run_on_deployment_host = run_on_deployment_host
         self.authentication_config = authentication_config
         self.environments = environments
+
+    def as_dict(self)->dict:
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'InfrastructureAccount'
+        root['metadata'] = dict()
+        root['metadata']['name'] = self.account_name
+        root['spec'] = dict()
+        data = dict()
+        data['accountProvider'] = self.account_provider
+        data['environments'] = self.environments
+        if self.run_on_deployment_host is True:
+            data['runOnDeploymentHost'] = True
+        if self.authentication_config.authentication_type is not None and self.run_on_deployment_host is False:
+            data['authentication'] = self.authentication_config.as_dict()
+        root['spec'] = data
+        return root
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict())
 
 
 class InfrastructureAccounts:
@@ -249,7 +380,7 @@ class InfrastructureAccounts:
     def __init__(self):
         self.accounts = {'deployment-host': InfrastructureAccount()}
 
-    def find_local_deployment_host_account_name(self):
+    def find_local_deployment_host_account_name(self)->str:
         for account_name, infrastructure_account_obj in self.accounts.items():
             if infrastructure_account_obj.run_on_deployment_host is True:
                 return account_name
