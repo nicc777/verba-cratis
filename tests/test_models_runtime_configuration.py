@@ -287,6 +287,27 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         self.assertEqual(len(prod_env_project_names), 1)
         self.assertTrue('proj01' in prod_env_project_names)
 
+    def test_projects_method_get_project_names_for_named_environment_with_incorrect_environment_name_throwing_exception(self):
+        p1 = Project(name='proj01', use_default_scope=False)
+        p2 = Project(name='proj02', use_default_scope=False)
+
+        p1.add_environment(environment_name='dev')
+        p1.add_environment(environment_name='test')
+        p1.add_environment(environment_name='prod')
+
+        p2.add_environment(environment_name='dev')
+        p2.add_environment(environment_name='test')
+
+        p1.add_parent_item_name(parent_item_name=p2.name)
+
+        projects = Projects()
+        projects.add_project(project=p1)
+        projects.add_project(project=p2)
+
+        with self.assertRaises(Exception) as context:
+            projects.get_project_names_for_named_environment(environment_name='i-dont-exist')
+        self.assertTrue('Environment named "i-dont-exist" not found in collection of projects' in str(context.exception))
+
 
 if __name__ == '__main__':
     unittest.main()
