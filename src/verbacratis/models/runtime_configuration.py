@@ -202,6 +202,7 @@ class UnixHostAuthentication:
     def __init__(self, hostname: str) -> None:
         self.authentication_type = None
         self.hostname = hostname
+        self.username = None
 
     def as_dict(self):
         root = dict()
@@ -400,9 +401,15 @@ class InfrastructureAccount:
         if self.run_on_deployment_host is True:
             data['runOnDeploymentHost'] = True
         if self.authentication_config.authentication_type is not None and self.run_on_deployment_host is False:
-            data['authentication'] = self.authentication_config.as_dict()
+            data['authentication'] = self.authentication_config.hostname
         root['spec'] = data
         return root
+
+    def auth_id(self)->str:
+        if self.authentication_config.username is None:
+            return '{}'.format(self.authentication_config.hostname)
+        else:
+            return '{}@{}'.format(self.authentication_config.username, self.authentication_config.hostname)
 
     def __str__(self)->str:
         return yaml.dump(self.as_dict())
@@ -411,7 +418,10 @@ class InfrastructureAccount:
 class InfrastructureAccounts:
 
     def __init__(self):
-        self.accounts = {'deployment-host': InfrastructureAccount()}
+        self.accounts = {'deployment-host': InfrastructureAccount(),}
+        self.host_authentication_configurations = {
+            self.accounts['deployment-host'].authentication_config.hostname: self.accounts['deployment-host'].authentication_config,
+        }
 
     def find_local_deployment_host_account_name(self)->str:
         for account_name, infrastructure_account_obj in self.accounts.items():
@@ -425,6 +435,8 @@ class InfrastructureAccounts:
             infrastructure_account.authentication_config = dict()
             infrastructure_account.account_provider = 'ShellScript'
         self.accounts[infrastructure_account.account_name] = infrastructure_account
+        if infrastructure_account.auth_id() not in self.host_authentication_configurations:
+            self.host_authentication_configurations[infrastructure_account.auth_id()] = infrastructure_account.authentication_config
 
     def update_local_deployment_host_with_all_environments(self, environments: list):
         if len(environments) is None:
@@ -432,6 +444,30 @@ class InfrastructureAccounts:
         if len(environments) == 0:
             raise Exception('At least one environment name must be set')
         self.accounts[self.find_local_deployment_host_account_name()].environments = environments
+
+    def as_dict(self)->dict:
+        accounts_list =list()
+        host_authentication_configurations_list = list()
+
+        for inf_acc_name, inf_acc_obj in self.accounts.items():
+            accounts_list.append(inf_acc_obj)
+
+        for host_auth_conf_name, host_auth_conf_obj in self.accounts.items():
+            host_authentication_configurations_list.append(host_auth_conf_obj)
+
+        return {
+            'infrastructure_accounts': accounts_list,
+            'host_authentication_configurations': host_authentication_configurations_list,
+        }
+
+    def __str__(self)->str:
+        config_as_str = ''
+        data = self.as_dict()
+        for host_auth_conf_obj in data['host_authentication_configurations']:
+            config_as_str = '{}\n---\n{}'.format(config_as_str, str(host_auth_conf_obj))
+        for inf_acc_obj in data['infrastructure_accounts']:
+            config_as_str = '{}\n---\n{}'.format(config_as_str, str(inf_acc_obj))
+        return config_as_str
 
 
 class StateStore:
