@@ -473,12 +473,17 @@ class TextSshPrivateKeyBasedAuthenticationConfig(unittest.TestCase):    # pragma
             except:
                 traceback.print_exc()
 
-    def test_ssh_credentials_based_authentication_config_init_with_defaults(self):
+    def test_ssh_private_key_based_authentication_config_init_with_defaults(self):
         result = SshPrivateKeyBasedAuthenticationConfig(hostname='example.tld', username='testuser', private_key_path=self.private_key_file)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, UnixHostAuthentication)
         self.assertIsInstance(result, SshHostBasedAuthenticationConfig)
         self.assertIsInstance(result, SshPrivateKeyBasedAuthenticationConfig)
+
+    def test_ssh_private_key_based_authentication_config_init_with_non_existing_key_file(self):
+        with self.assertRaises(Exception) as context:
+            SshPrivateKeyBasedAuthenticationConfig(hostname='example.tld', username='testuser', private_key_path='/does/not/exists')
+        self.assertTrue('Private Key file "/does/not/exists" does not exist' in str(context.exception))
 
 
 if __name__ == '__main__':
