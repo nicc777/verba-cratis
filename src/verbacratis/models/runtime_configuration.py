@@ -23,6 +23,28 @@ from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items, get_ordered_item_list_for_named_scope
 
 
+AWS_REGIONS = (
+    "af-south-1",
+    "ap-south-1",
+    "eu-north-1",
+    "eu-west-3",
+    "eu-west-2",
+    "eu-west-1",
+    "ap-northeast-3",
+    "ap-northeast-2",
+    "ap-northeast-1",
+    "ca-central-1",
+    "sa-east-1",
+    "ap-southeast-1",
+    "ap-southeast-2",
+    "eu-central-1",
+    "us-east-1",
+    "us-east-2",
+    "us-west-1",
+    "us-west-2",
+)
+
+
 DEFAULT_CONFIG_DIR = '{}{}{}'.format(
     str(Path.home()),
     os.sep,
@@ -191,7 +213,6 @@ class Projects(Items):
         return yaml_str
 
 
-
 class UnixHostAuthentication:
     """Base class for remote Unix host authentication
 
@@ -268,7 +289,6 @@ class SshCredentialsBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         username: The username to authenticate against
         password: The password for authentication WARNING: Never store password in version control or in clear text files!
     """
-
     def __init__(self, hostname: str, username: str, password: str) -> None:
         super().__init__(hostname, username)
         self.password = password
@@ -306,7 +326,6 @@ class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
     Raises:
         Exception: If the private key value is not valid or the file cannot be read when creating an instance of this object, and exception will be thrown
     """
-
     def __init__(self, hostname: str, username: str, private_key_path: str) -> None:
         super().__init__(hostname, username)
         if os.path.isfile(private_key_path) is False:
@@ -329,6 +348,119 @@ class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         data['privateKeyPath'] = self.private_key_path
         root['spec'] = data
         return root
+
+
+class AwsAuthentication:
+
+    def __init__(
+        self,
+        account_reference: str,
+        region: str=os.getenv('AWS_DEFAULT_REGION', 'eu-central-1')
+    ):
+        self.account_reference = account_reference
+        self.region = region.lower()
+        if os.getenv('AWS_REGION', None) is not None:
+            if os.getenv('AWS_REGION').lower() in AWS_REGIONS:
+                self.region = os.getenv('AWS_REGION').lower()
+
+    def as_dict(self):
+        root = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'AwsAuthentication'
+        root['metadata'] = dict()
+        root['metadata']['name'] = '{}'.format(self.account_reference)
+        root['spec'] = dict()
+        root['spec']['region'] = self.region
+        return root
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict())
+
+
+class AwsKeyBasedAuthentication(AwsAuthentication):
+    """For AWS accounts not defined as profiles and not using environment variables but access and secret keys instead
+    
+    The secret_key attribute can contain an environment variable directive for example: 
+    `{EnvironmentVariables:computed:someSecret}` - this environment variable will have to be defined in the 
+    `EnvironmentVariables` kind manifest.
+
+    Attributes:
+        account_reference: A string with a name that can be referenced by other resources
+        access_key: A string containing the access key value
+        secret_key: A string containing the secret key value
+        region: The AWS region for this config. Must be one as defined in `AWS_REGIONS`
+    """
+    def __init__(
+        self,
+        account_reference: str,
+        access_key: str = os.getenv('AWS_ACCESS_KEY_ID', ''),
+        secret_key: str = os.getenv('AWS_SECRET_ACCESS_KEY', ''),
+        region: str = os.getenv('AWS_DEFAULT_REGION', 'eu-central-1')
+    ):
+        super().__init__(account_reference, region)
+        self.access_key = access_key
+        self.secret_key = secret_key
+        self.secret_key_is_final = True
+        if secret_key.startswith('${') and secret_key.endswith('}'):
+            self.secret_key_is_final = False                        # Secret key still needs to be resolved via Environment...
+
+    def as_dict(self):
+        root = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'AwsKeyBasedAuthentication'
+        root['metadata'] = dict()
+        root['metadata']['name'] = '{}'.format(self.account_reference)
+        root['spec'] = dict()
+        root['spec']['region'] = self.region
+        root['spec']['access_key'] = self.access_key
+        if len(self.secret_key) > 0:
+            root['spec']['secret_key'] = '*'*len(self.secret_key)
+            if self.secret_key_is_final is False:
+                root['spec']['secret_key'] = self.secret_key
+        return root
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict())
+
+
+class AwsProfileBasedAuthentication(AwsAuthentication):
+    """For AWS accounts not defined as profiles and not using environment variables but access and secret keys instead
+    
+    The secret_key attribute can contain an environment variable directive for example: 
+    `{EnvironmentVariables:computed:someSecret}` - this environment variable will have to be defined in the 
+    `EnvironmentVariables` kind manifest.
+
+    Attributes:
+        account_reference: A string with a name that can be referenced by other resources
+        access_key: A string containing the access key value
+        secret_key: A string containing the secret key value
+        region: The AWS region for this config. Must be one as defined in `AWS_REGIONS`
+    """
+    def __init__(
+        self,
+        account_reference: str,
+        profile_name: str = os.getenv('AWS_PROFILE', ''),
+        region: str = os.getenv('AWS_DEFAULT_REGION', 'eu-central-1')
+    ):
+        super().__init__(account_reference, region)
+        self.profile_name = profile_name
+        if len(self.profile_name) == 0:
+            raise Exception('Profile name cannot have zero length')
+
+    def as_dict(self):
+        root = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'AwsProfileBasedAuthentication'
+        root['metadata'] = dict()
+        root['metadata']['name'] = '{}'.format(self.account_reference)
+        root['spec'] = dict()
+        root['spec']['region'] = self.region
+        root['spec']['profile_name'] = self.profile_name
+        return root
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict())
+
 
 
 class InfrastructureAccount:
@@ -365,33 +497,88 @@ class InfrastructureAccount:
 
     Attributes:
         account_name: A string containing a unique account name that can be referenced in the deployment configuration
-        account_provider: A string contaINING Either "ShellScript" or "AWS" (more providers may be supported in the future)
-        run_on_deployment_host: a boolean value. Only ONE InfrastructureAccount can have the value of TRUE and it must be of type "ShellScript"
-        authentication_config: The authentication parameters depending on the "account_provider" type
         environments: A list of environments for which this infrastructure account is used
     """
 
     def __init__(
         self,
         account_name: str='deployment-host',
-        account_provider: str='ShellScript',
-        run_on_deployment_host: bool=True,
-        authentication_config: UnixHostAuthentication = UnixHostAuthentication(hostname='localhost'),
         environments: list=['default',]
     ):
-        if account_provider not in ('SHellScript', 'AWS'):
-            raise Exception('account_provider not supported')
         self.account_name = account_name
-        self.account_provider = account_provider
-        self.run_on_deployment_host = run_on_deployment_host
-        self.authentication_config = authentication_config
         self.environments = environments
+        self.account_provider = None
 
     def as_dict(self)->dict:
         root = dict()
         root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'InfrastructureAccount'
+        root['metadata'] = dict()
+        root['metadata']['name'] = self.account_name
+        return root
+
+    def auth_id(self)->str:
+        return 'no-auth'
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict())
+
+
+class UnixInfrastructureAccount(InfrastructureAccount):
+    """Defines an Infrastructure account
+
+    There are a couple of types of Infrastructure accounts, and they may have a number of different configuration attributes:
+
+    * ShellScript type accounts: These are accounts that represent a Unix type host, and can be either the localhost on which the deployment script is run, or a remote host with SSH access
+    * AWS type account: Represents an AWS account (see https://docs.aws.amazon.com/organizations/latest/userguide/orgs_getting-started_concepts.html)
+
+    ShellScript type accounts on remote hosts with SSH access requires the following values in the "authentication_config" attribute:
+
+    * "authenticationType" (must be set to "SSH" as the only value for now)
+    * "username"
+    * "privateKeyLocation" (location to the private key file) OR "password" (the actual password, which can be securely obtained with the value "${EnvironmentVariables:computed:systemXyzPassword}")
+
+    AWS type accounts requires the following values in the "authentication_config" attribute:
+
+    * For authentication using AWS profiles:
+            * useProfile - Boolean Value - OPTIONAL: Default=false assuming then that the standard AWS CLI Environment Variables are used
+            * profileName - String - OPTIONAL, but required if "useProfile" is "true" - Automatically sets the environment variable "PROFILE". Used by the cloud provider code.
+            * region - String - OPTIONAL, default=eu-central-1
+    * For authentication using keys, used when "useProfile" is FALSE (and therefore requiring the following values to be set):
+            * awsAccessKeyId - String - can be securely set with the value "${EnvironmentVariables:computed:awsAccessKeyId}"
+            * awsSecretAccessKey - String - can be securely set with the value "${EnvironmentVariables:computed:awsSecretAccessKey}"
+
+    By default there is always at least ONE InfrastructureAccount account with the following configuration:
+
+    * account_name='deployment-host',
+    * run_on_deployment_host=True,
+    * authentication_config=dict(),
+    * environments=['default',]
+
+    Attributes:
+        account_name: A string containing a unique account name that can be referenced in the deployment configuration
+        run_on_deployment_host: a boolean value. Only ONE InfrastructureAccount can have the value of TRUE and it must be of type "ShellScript"
+        authentication_config: The authentication parameters depending on the "account_provider" type
+        environments: A list of environments for which this infrastructure account is used
+    """
+    def __init__(
+        self,
+        account_name: str='deployment-host',
+        run_on_deployment_host: bool=True,
+        authentication_config: UnixHostAuthentication = UnixHostAuthentication(hostname='localhost'),
+        environments: list=['default',]
+    ):
+        super().__init__(account_name, environments)
+        self.account_provider = 'ShellScript'
+        self.run_on_deployment_host = run_on_deployment_host
+        self.authentication_config = authentication_config
+
+    def as_dict(self)->dict:
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'UnixInfrastructureAccount'
         root['metadata'] = dict()
         root['metadata']['name'] = self.account_name
         root['spec'] = dict()
@@ -415,10 +602,24 @@ class InfrastructureAccount:
         return yaml.dump(self.as_dict())
 
 
-class InfrastructureAccounts:
+class AwsInfrastructureAccount(InfrastructureAccount):
 
-    def __init__(self):
-        self.accounts = {'deployment-host': InfrastructureAccount(),}
+    def __init__(
+        self,
+        account_name: str = 'default',
+        environments: list = ['default',],
+        authentication_config: AwsAuthentication = AwsAuthentication(),
+    ):
+        super().__init__(account_name, environments)
+        self.account_provider = 'AWS'
+        self.authentication_config = authentication_config
+
+
+class InfrastructureAccounts:
+    """Keeps a collection of Unix and AWS Cloud Infrastructure Accounts
+    """
+    def __init__(self):    
+        self.accounts = {'deployment-host': UnixInfrastructureAccount(),}
         self.host_authentication_configurations = {
             self.accounts['deployment-host'].authentication_config.hostname: self.accounts['deployment-host'].authentication_config,
         }
@@ -429,7 +630,7 @@ class InfrastructureAccounts:
                 return account_name
         raise Exception('Critical error: No account found for running on local host')
 
-    def add_infrastructure_account(self, infrastructure_account: InfrastructureAccount):
+    def add_infrastructure_account(self, infrastructure_account: UnixInfrastructureAccount):
         if infrastructure_account.run_on_deployment_host is True:
             self.accounts.pop(self.find_local_deployment_host_account_name())
             infrastructure_account.authentication_config = dict()
