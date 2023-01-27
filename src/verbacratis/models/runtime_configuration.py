@@ -375,7 +375,7 @@ class InfrastructureAccount:
         account_name: str='deployment-host',
         account_provider: str='ShellScript',
         run_on_deployment_host: bool=True,
-        authentication_config: UnixHostAuthentication = UnixHostAuthentication(),
+        authentication_config: UnixHostAuthentication = UnixHostAuthentication(hostname='localhost'),
         environments: list=['default',]
     ):
         if account_provider not in ('SHellScript', 'AWS'):

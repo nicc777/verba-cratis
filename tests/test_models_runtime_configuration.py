@@ -356,5 +356,22 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         print('='*80)
 
 
+class TextUnixHostAuthentication(unittest.TestCase):    # pragma: no cover
+
+    def test_unix_host_authentication_init_with_defaults(self):
+        result = UnixHostAuthentication(hostname='example.tld')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, UnixHostAuthentication)
+
+        unix_yaml = str(result)
+        self.assertIsNotNone(unix_yaml)
+        self.assertIsInstance(unix_yaml, str)
+        self.assertTrue(len(unix_yaml) > 10)
+        print('='*80)
+        print('# UnixHostAuthentication YAML')
+        print(unix_yaml)
+        print('='*80)
+
+
 if __name__ == '__main__':
     unittest.main()

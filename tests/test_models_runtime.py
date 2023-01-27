@@ -13,7 +13,7 @@ print('sys.path={}'.format(sys.path))
 
 import unittest
 
-from verbacratis.models.runtime_configuration import BUILD_ID
+# from verbacratis.models.runtime_configuration import BUILD_ID
 from verbacratis.models.runtime import *
 from verbacratis.functions import user_function_factory
 from verbacratis.utils import get_logger
@@ -384,24 +384,24 @@ class TestClassVariableStateStoreOperationsMaxDepthTest(unittest.TestCase):    #
         self.assertTrue('Maximum embedded variable parsing depth exceeded' in str(context.exception))
 
 
-@unittest.skip("Deprecated")
-class TestFunctionConfigurationToVariableStateStore(unittest.TestCase):    # pragma: no cover
+# @unittest.skip("Deprecated")
+# class TestFunctionConfigurationToVariableStateStore(unittest.TestCase):    # pragma: no cover
 
-    def setUp(self):
-        self.configuration = parse_configuration_file(file_path='examples/example_01/example_01.yaml')
-        self.initial_state_store = BUILD_ID
+#     def setUp(self):
+#         self.configuration = parse_configuration_file(file_path='examples/example_01/example_01.yaml')
+#         self.initial_state_store = BUILD_ID
 
-    def test_configuration_to_variable_state_store_call_with_defaults(self):
-        state_store = VariableStateStore()
-        state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
-        result = configuration_to_variable_state_store(variable_state_store=state_store, configuration=self.configuration) 
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, VariableStateStore)
+#     def test_configuration_to_variable_state_store_call_with_defaults(self):
+#         state_store = VariableStateStore()
+#         state_store.add_variable(var=Variable(id='build_id', initial_value=BUILD_ID, value_type=str))
+#         result = configuration_to_variable_state_store(variable_state_store=state_store, configuration=self.configuration) 
+#         self.assertIsNotNone(result)
+#         self.assertIsInstance(result, VariableStateStore)
 
-    def test_configuration_to_variable_state_store_call_with_invalid_configuration_expect_exception(self):
-        with self.assertRaises(Exception) as context:
-            configuration_to_variable_state_store(configuration={'test': 'this will never pass'})
-        self.assertTrue('Configuration is invalid' in str(context.exception))
+#     def test_configuration_to_variable_state_store_call_with_invalid_configuration_expect_exception(self):
+#         with self.assertRaises(Exception) as context:
+#             configuration_to_variable_state_store(configuration={'test': 'this will never pass'})
+#         self.assertTrue('Configuration is invalid' in str(context.exception))
 
 
 if __name__ == '__main__':
