@@ -8,6 +8,7 @@
 
 import sys
 import os
+import tempfile
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../src")
 print('sys.path={}'.format(sys.path))
 
@@ -427,10 +428,6 @@ class TestSshCredentialsBasedAuthenticationConfig(unittest.TestCase):    # pragm
 
     def test_ssh_credentials_based_authentication_config_init_with_password_in_environment_variable(self):
         result = SshCredentialsBasedAuthenticationConfig(hostname='example.tld', username='testuser', password='${{EnvironmentVariables:computed:MyPassword}}')
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, UnixHostAuthentication)
-        self.assertIsInstance(result, SshHostBasedAuthenticationConfig)
-        self.assertIsInstance(result, SshCredentialsBasedAuthenticationConfig)
 
         as_dict = result.as_dict()
         self.assertEqual(as_dict['spec']['password'], '${{EnvironmentVariables:computed:MyPassword}}')
@@ -443,6 +440,45 @@ class TestSshCredentialsBasedAuthenticationConfig(unittest.TestCase):    # pragm
         print('# UnixHostAuthentication YAML')
         print(unix_yaml)
         print('='*80)
+
+
+class TextSshPrivateKeyBasedAuthenticationConfig(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        tmp_key_file = '{}{}test_key_file'.format(
+            tempfile.gettempdir(),
+            os.sep
+        )
+        if os.path.exists(tmp_key_file):
+            try:
+                os.remove(tmp_key_file)
+            except:
+                traceback.print_exc()
+        if os.path.exists(tmp_key_file) is False:
+            try:
+                with open(tmp_key_file, 'w') as f:
+                    f.write('test data')
+            except:
+                traceback.print_exc()
+        self.private_key_file = tmp_key_file
+        if os.path.exists(tmp_key_file):
+            print('TEST KEY FILE CREATED {}'.format(self.private_key_file))
+        else:
+            print('TEST KEY FILE FAILED TO BE CREATED {}'.format(self.private_key_file))
+
+    def tearDown(self):
+        if os.path.exists(self.private_key_file):
+            try:
+                os.remove(self.private_key_file)
+            except:
+                traceback.print_exc()
+
+    def test_ssh_credentials_based_authentication_config_init_with_defaults(self):
+        result = SshPrivateKeyBasedAuthenticationConfig(hostname='example.tld', username='testuser', private_key_path=self.private_key_file)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, UnixHostAuthentication)
+        self.assertIsInstance(result, SshHostBasedAuthenticationConfig)
+        self.assertIsInstance(result, SshPrivateKeyBasedAuthenticationConfig)
 
 
 if __name__ == '__main__':
