@@ -193,7 +193,12 @@ class Projects(Items):
 
 
 class UnixHostAuthentication:
+    """Base class for remote Unix host authentication
 
+    Attributes:
+        hostname: A string containing the hostname or IP address of the remote host
+    
+    """
     def __init__(self, hostname: str) -> None:
         self.authentication_type = None
         self.hostname = hostname
@@ -218,6 +223,11 @@ class UnixHostAuthentication:
 class SshHostBasedAuthenticationConfig(UnixHostAuthentication): 
     """For hosts with configuration defined in /etc/ssh
     
+    This would be similar to SSH to a host using the command `ssh username@hostname`
+
+    Attributes:
+        hostname: A string containing the hostname or IP address of the remote host
+        username: The username to authenticate against
     """
 
     def __init__(self, hostname: str, username: str) -> None:
@@ -248,6 +258,14 @@ class SshHostBasedAuthenticationConfig(UnixHostAuthentication):
 class SshCredentialsBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
     """For hosts requiring SSH with password based authentication
     
+    The password attribute can contain an environment variable directive for example: 
+    `{EnvironmentVariables:computed:systemXyzPassword}` - this environment variable will have to be defined in the 
+    `EnvironmentVariables` kind manifest.
+
+    Attributes:
+        hostname: A string containing the hostname or IP address of the remote host
+        username: The username to authenticate against
+        password: The password for authentication WARNING: Never store password in version control or in clear text files!
     """
 
     def __init__(self, hostname: str, username: str, password: str) -> None:
@@ -279,6 +297,13 @@ class SshCredentialsBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
 class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
     """For hosts requiring SSH with authentication using a private key
     
+    Attributes:
+        hostname: A string containing the hostname or IP address of the remote host
+        username: The username to authenticate against
+        private_key_path: Path to the private key
+
+    Raises:
+        Exception: If the private key value is not valid or the file cannot be read when creating an instance of this object, and exception will be thrown
     """
 
     def __init__(self, hostname: str, username: str, private_key_path: str) -> None:
