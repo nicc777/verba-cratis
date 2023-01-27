@@ -356,7 +356,7 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         print('='*80)
 
 
-class TextUnixHostAuthentication(unittest.TestCase):    # pragma: no cover
+class TestUnixHostAuthentication(unittest.TestCase):    # pragma: no cover
 
     def test_unix_host_authentication_init_with_defaults(self):
         result = UnixHostAuthentication(hostname='example.tld')
@@ -371,6 +371,37 @@ class TextUnixHostAuthentication(unittest.TestCase):    # pragma: no cover
         print('# UnixHostAuthentication YAML')
         print(unix_yaml)
         print('='*80)
+
+
+class TestSshHostBasedAuthenticationConfig(unittest.TestCase):    # pragma: no cover
+
+    def test_ssh_host_based_authentication_config_init_with_defaults(self):
+        result = SshHostBasedAuthenticationConfig(hostname='example.tld', username='testuser')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, UnixHostAuthentication)
+        self.assertIsInstance(result, SshHostBasedAuthenticationConfig)
+
+        unix_yaml = str(result)
+        self.assertIsNotNone(unix_yaml)
+        self.assertIsInstance(unix_yaml, str)
+        self.assertTrue(len(unix_yaml) > 10)
+        print('='*80)
+        print('# UnixHostAuthentication YAML')
+        print(unix_yaml)
+        print('='*80)
+
+    def test_ssh_host_based_authentication_config_init_with_username_validation_failures(self):
+        with self.assertRaises(Exception) as context:
+            SshHostBasedAuthenticationConfig(hostname='example.tld', username=None)
+        self.assertTrue('username is required' in str(context.exception))
+
+        with self.assertRaises(Exception) as context:
+            SshHostBasedAuthenticationConfig(hostname='example.tld', username=123)
+        self.assertTrue('username must be a string value' in str(context.exception))
+
+        with self.assertRaises(Exception) as context:
+            SshHostBasedAuthenticationConfig(hostname='example.tld', username='')
+        self.assertTrue('username is required' in str(context.exception))
 
 
 if __name__ == '__main__':
