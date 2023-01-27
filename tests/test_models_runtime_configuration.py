@@ -404,5 +404,46 @@ class TestSshHostBasedAuthenticationConfig(unittest.TestCase):    # pragma: no c
         self.assertTrue('username is required' in str(context.exception))
 
 
+class TestSshCredentialsBasedAuthenticationConfig(unittest.TestCase):    # pragma: no cover
+
+    def test_ssh_credentials_based_authentication_config_init_with_defaults(self):
+        result = SshCredentialsBasedAuthenticationConfig(hostname='example.tld', username='testuser', password='password')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, UnixHostAuthentication)
+        self.assertIsInstance(result, SshHostBasedAuthenticationConfig)
+        self.assertIsInstance(result, SshCredentialsBasedAuthenticationConfig)
+
+        as_dict = result.as_dict()
+        self.assertEqual(as_dict['spec']['password'], '*'*len(result.password))
+
+        unix_yaml = str(result)
+        self.assertIsNotNone(unix_yaml)
+        self.assertIsInstance(unix_yaml, str)
+        self.assertTrue(len(unix_yaml) > 10)
+        print('='*80)
+        print('# UnixHostAuthentication YAML')
+        print(unix_yaml)
+        print('='*80)
+
+    def test_ssh_credentials_based_authentication_config_init_with_password_in_environment_variable(self):
+        result = SshCredentialsBasedAuthenticationConfig(hostname='example.tld', username='testuser', password='${{EnvironmentVariables:computed:MyPassword}}')
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, UnixHostAuthentication)
+        self.assertIsInstance(result, SshHostBasedAuthenticationConfig)
+        self.assertIsInstance(result, SshCredentialsBasedAuthenticationConfig)
+
+        as_dict = result.as_dict()
+        self.assertEqual(as_dict['spec']['password'], '${{EnvironmentVariables:computed:MyPassword}}')
+
+        unix_yaml = str(result)
+        self.assertIsNotNone(unix_yaml)
+        self.assertIsInstance(unix_yaml, str)
+        self.assertTrue(len(unix_yaml) > 10)
+        print('='*80)
+        print('# UnixHostAuthentication YAML')
+        print(unix_yaml)
+        print('='*80)
+
+
 if __name__ == '__main__':
     unittest.main()
