@@ -506,6 +506,11 @@ class TestAwsKeyBasedAuthentication(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(host, AwsAuthentication)
         self.assertIsInstance(host, AwsKeyBasedAuthentication)
 
+    def test_aws_key_based_authentication_init_with_values_secret_insecure(self):
+        host = AwsKeyBasedAuthentication(account_reference='default', access_key='abc', secret_key='def')
+        result = host.as_dict()
+        self.assertEqual(result['spec']['secret_key'], '***')
+
 
 
 if __name__ == '__main__':
