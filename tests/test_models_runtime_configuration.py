@@ -491,6 +491,12 @@ class TextSshPrivateKeyBasedAuthenticationConfig(unittest.TestCase):    # pragma
             SshPrivateKeyBasedAuthenticationConfig(hostname='example.tld', username='testuser', private_key_path='/does/not/exists')
         self.assertTrue('Private Key file "/does/not/exists" does not exist' in str(context.exception))
 
+    def test_ssh_private_key_based_authentication_config_method_as_dict(self):
+        host = SshPrivateKeyBasedAuthenticationConfig(hostname='example.tld', username='testuser', private_key_path=self.private_key_file)
+        result = host.as_dict()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+
 
 if __name__ == '__main__':
     unittest.main()
