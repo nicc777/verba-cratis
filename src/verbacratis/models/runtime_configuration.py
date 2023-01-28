@@ -441,6 +441,16 @@ class AwsProfileBasedAuthentication(AwsAuthentication):
     `{EnvironmentVariables:computed:someSecret}` - this environment variable will have to be defined in the 
     `EnvironmentVariables` kind manifest.
 
+    Manifest format:
+
+        apiVersion: v1-alpha
+        kind: AwsProfileBasedAuthentication
+        metadata:
+            name: abc
+        spec:
+            profile_name: default
+            region: eu-central-1
+
     Attributes:
         account_reference: A string with a name that can be referenced by other resources
         access_key: A string containing the access key value

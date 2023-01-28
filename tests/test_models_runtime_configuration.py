@@ -528,5 +528,31 @@ class TestAwsKeyBasedAuthentication(unittest.TestCase):    # pragma: no cover
         print('='*80)
 
 
+class TestAwsProfileBasedAuthentication(unittest.TestCase):    # pragma: no cover
+
+    def test_aws_profile_based_authentication_init_with_defaults(self):
+        host = AwsProfileBasedAuthentication(account_reference='default', profile_name='default')
+        self.assertIsNotNone(host)
+        self.assertIsInstance(host, AwsAuthentication)
+        self.assertIsInstance(host, AwsProfileBasedAuthentication)
+
+    def test_aws_key_based_authentication_init_with_values_secret_insecure(self):
+        host = AwsProfileBasedAuthentication(account_reference='abc', profile_name='default')
+        result = host.as_dict()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+
+    def test_aws_key_based_authentication_dump_yaml(self):
+        host = AwsProfileBasedAuthentication(account_reference='abc', profile_name='default')
+        yaml_result = str(host)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# AwsKeyBasedAuthentication YAML')
+        print(yaml_result)
+        print('='*80)
+
+
 if __name__ == '__main__':
     unittest.main()
