@@ -516,6 +516,16 @@ class TestAwsKeyBasedAuthentication(unittest.TestCase):    # pragma: no cover
         result = host.as_dict()
         self.assertEqual(result['spec']['secret_key'], '${{EnvironmentVariables:computed:someSecret}}')
 
+    def test_aws_key_based_authentication_dump_yaml(self):
+        host = AwsKeyBasedAuthentication(account_reference='default', access_key='abc', secret_key='${{EnvironmentVariables:computed:someSecret}}')
+        yaml_result = str(host)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# AwsKeyBasedAuthentication YAML')
+        print(yaml_result)
+        print('='*80)
 
 
 if __name__ == '__main__':
