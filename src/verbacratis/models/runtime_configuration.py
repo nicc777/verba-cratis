@@ -381,7 +381,7 @@ class AwsKeyBasedAuthentication(AwsAuthentication):
     """For AWS accounts not defined as profiles and not using environment variables but access and secret keys instead
     
     The secret_key attribute can contain an environment variable directive for example: 
-    `{EnvironmentVariables:computed:someSecret}` - this environment variable will have to be defined in the 
+    `${EnvironmentVariables:computed:someSecret}` - this environment variable will have to be defined in the 
     `EnvironmentVariables` kind manifest.
 
     Attributes:

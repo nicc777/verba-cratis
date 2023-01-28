@@ -511,6 +511,11 @@ class TestAwsKeyBasedAuthentication(unittest.TestCase):    # pragma: no cover
         result = host.as_dict()
         self.assertEqual(result['spec']['secret_key'], '***')
 
+    def test_aws_key_based_authentication_init_with_values_secret_secure(self):
+        host = AwsKeyBasedAuthentication(account_reference='default', access_key='abc', secret_key='${{EnvironmentVariables:computed:someSecret}}')
+        result = host.as_dict()
+        self.assertEqual(result['spec']['secret_key'], '${{EnvironmentVariables:computed:someSecret}}')
+
 
 
 if __name__ == '__main__':
