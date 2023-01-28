@@ -498,5 +498,15 @@ class TextSshPrivateKeyBasedAuthenticationConfig(unittest.TestCase):    # pragma
         self.assertIsInstance(result, dict)
 
 
+class TestAwsKeyBasedAuthentication(unittest.TestCase):    # pragma: no cover
+
+    def test_aws_key_based_authentication_init_with_defaults(self):
+        host = AwsKeyBasedAuthentication(account_reference='default')
+        self.assertIsNotNone(host)
+        self.assertIsInstance(host, AwsAuthentication)
+        self.assertIsInstance(host, AwsKeyBasedAuthentication)
+
+
+
 if __name__ == '__main__':
     unittest.main()
