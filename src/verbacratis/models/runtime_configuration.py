@@ -384,6 +384,17 @@ class AwsKeyBasedAuthentication(AwsAuthentication):
     `${EnvironmentVariables:computed:someSecret}` - this environment variable will have to be defined in the 
     `EnvironmentVariables` kind manifest.
 
+    Manifest Format:
+
+        apiVersion: v1-alpha
+        kind: AwsKeyBasedAuthentication
+        metadata:
+            name: default
+        spec:
+            access_key: abc
+            region: eu-central-1
+            secret_key: ${{EnvironmentVariables:computed:someSecret}}
+
     Attributes:
         account_reference: A string with a name that can be referenced by other resources
         access_key: A string containing the access key value
