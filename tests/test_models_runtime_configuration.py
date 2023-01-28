@@ -373,6 +373,12 @@ class TestUnixHostAuthentication(unittest.TestCase):    # pragma: no cover
         print(unix_yaml)
         print('='*80)
 
+    def test_unix_host_authentication_method_as_dict(self):
+        host = UnixHostAuthentication(hostname='example.tld')
+        result = host.as_dict()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+
 
 class TestSshHostBasedAuthenticationConfig(unittest.TestCase):    # pragma: no cover
 

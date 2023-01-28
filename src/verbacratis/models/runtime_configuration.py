@@ -608,7 +608,7 @@ class AwsInfrastructureAccount(InfrastructureAccount):
         self,
         account_name: str = 'default',
         environments: list = ['default',],
-        authentication_config: AwsAuthentication = AwsAuthentication(),
+        authentication_config: AwsAuthentication = AwsAuthentication(account_reference='default'),
     ):
         super().__init__(account_name, environments)
         self.account_provider = 'AWS'
