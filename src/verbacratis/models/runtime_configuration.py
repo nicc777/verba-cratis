@@ -101,7 +101,7 @@ spec:
     - parameterName: format
       parameterType: str
       parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
-""".format(DEFAULT_STATE_DB, DEFAULT_CONFIG_DIR, os.sep)
+""".format(DEFAULT_CONFIG_DIR, os.sep, DEFAULT_STATE_DB)
 
 
 class Project(Item):
