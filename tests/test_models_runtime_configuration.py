@@ -498,6 +498,34 @@ class TextSshPrivateKeyBasedAuthenticationConfig(unittest.TestCase):    # pragma
         self.assertIsInstance(result, dict)
 
 
+class TestAwsAuthentication(unittest.TestCase):    # pragma: no cover
+
+    def test_aws_authentication_init_with_defaults(self):
+        host = AwsAuthentication()
+        self.assertIsNotNone(host)
+        self.assertIsInstance(host, AwsAuthentication)
+        self.assertEqual(host.region, 'eu-central-1')
+        
+    def test_aws_authentication_method_as_dict(self):
+        host = AwsAuthentication()
+        result = host.as_dict()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        for element in ('apiVersion', 'kind', 'metadata', 'spec'):
+            self.assertTrue(element in result, 'Key "{}" not found'.format(element))
+
+    def test_aws_authentication_dump_yaml(self):
+        host = AwsAuthentication()
+        yaml_result = str(host)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# AwsAuthentication YAML')
+        print(yaml_result)
+        print('='*80)
+
+
 class TestAwsKeyBasedAuthentication(unittest.TestCase):    # pragma: no cover
 
     def test_aws_key_based_authentication_init_with_defaults(self):

@@ -367,7 +367,7 @@ class AwsAuthentication:
 
     def __init__(
         self,
-        account_reference: str,
+        account_reference: str='default',
         region: str=os.getenv('AWS_DEFAULT_REGION', 'eu-central-1')
     ):
         self.account_reference = account_reference
