@@ -72,7 +72,7 @@ class SshHostBasedAuthenticationConfig(UnixHostAuthentication):
         root = dict()
         root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'InfrastructureAccount'
+        root['kind'] = 'SshHostBasedAuthenticationConfig'
         root['metadata'] = dict()
         root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
         root['spec'] = dict()
@@ -106,7 +106,7 @@ class SshCredentialsBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         root = dict()
         root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'InfrastructureAccount'
+        root['kind'] = 'SshCredentialsBasedAuthenticationConfig'
         root['metadata'] = dict()
         root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
         root['spec'] = dict()
@@ -144,7 +144,7 @@ class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         root = dict()
         root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'InfrastructureAccount'
+        root['kind'] = 'SshPrivateKeyBasedAuthenticationConfig'
         root['metadata'] = dict()
         root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
         root['spec'] = dict()
@@ -316,7 +316,7 @@ class InfrastructureAccount:
     By default there is always at least ONE InfrastructureAccount account with the following configuration:
 
     * account_name='deployment-host',
-    * account_provider='ShellScript',
+    * account_provider='RunOnLocalhost',
     * authentication_config=UnixHostAuthentication(hostname='localhost'),
     * environments=['default',]
 
@@ -333,7 +333,7 @@ class InfrastructureAccount:
     ):
         self.account_name = account_name
         self.environments = environments
-        self.account_provider = 'ShellScript'
+        self.account_provider = 'RunOnLocalhost'    # OPTIONS: "RunOnLocalhost" or "RunOnRemoteHost"
         self.authentication_config = authentication_config
 
     def as_dict(self)->dict:

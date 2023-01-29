@@ -40,6 +40,17 @@ class TestClassStateStore(unittest.TestCase):    # pragma: no cover
         result.create_db_engine()
         self.assertFalse(result.enable_state)
 
+    def test_state_store_dump_yaml(self):
+        result = StateStore()
+        state_store_yaml = str(result)
+        self.assertIsNotNone(state_store_yaml)
+        self.assertIsInstance(state_store_yaml, str)
+        self.assertTrue(len(state_store_yaml) > 10)
+        print('='*80)
+        print('# StateStore YAML')
+        print(state_store_yaml)
+        print('='*80)
+
 
 class TestApplicationConfiguration(unittest.TestCase):    # pragma: no cover
 

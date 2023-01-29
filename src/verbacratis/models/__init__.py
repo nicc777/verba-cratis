@@ -46,6 +46,14 @@ DEFAULT_STATE_DB = 'sqlite:///{}{}{}'.format(
 
 DEFAULT_GLOBAL_CONFIG = """---
 apiVersion: v1-alpha
+kind: StateStore
+metadata:
+  name: verbacratis-state-store
+spec:
+  connectionUrl: sqlite:///verbacratis.db
+  provider: sqlalchemy
+---
+apiVersion: v1-alpha
 kind: UnixHostAuthentication
 metadata:
   name: localhost
@@ -56,7 +64,7 @@ metadata:
   name: deployment-host
 spec:
   authenticationHostname: localhost
-  provider: ShellScript
+  provider: RunOnLocalhost
 ---
 apiVersion: v1-alpha
 kind: Project

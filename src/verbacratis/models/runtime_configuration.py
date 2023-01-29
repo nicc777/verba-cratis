@@ -43,6 +43,21 @@ class StateStore:
             self.enable_state = False
             self.logger.info('State Persistance Disabled')
 
+    def as_dict(self):
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'StateStore'
+        root['metadata'] = dict()
+        root['metadata']['name'] = 'verbacratis-state-store'
+        root['spec'] = dict()
+        root['spec']['provider'] = self.provider
+        root['spec']['connectionUrl'] = self.connection_url
+        return root
+
+    def __str__(self):
+        return yaml.dump(self.as_dict())
+
 
 class ApplicationConfiguration:
 

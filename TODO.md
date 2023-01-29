@@ -165,15 +165,20 @@ spec:
 If no configuration is available, the following will be set as default:
 
 ```yaml
+---
+apiVersion: v1-alpha
+kind: StateStore
+metadata:
+  name: verbacratis-state-store
+spec:
+  connectionUrl: sqlite:///verbacratis.db
+  provider: sqlalchemy
+---
 apiVersion: v1-alpha
 kind: GlobalConfiguration
 metadata:
     name: verbacratis
 spec:
-    stateStore:
-        provider: sqlalchemy
-        dbConfig:
-            url: "sqlite:///verbacratis.db"
     logging:
         handlers:
         -   name: StreamHandler
