@@ -140,6 +140,7 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         project.add_environment(environment_name='dev')
         project.add_environment(environment_name='test')
         project.add_manifest_directory(path='/tmp')
+        project.add_manifest_directory(path='/tmp2')
         project.add_manifest_file(path='/file')
         project.add_parent_item_name(parent_item_name=project_parent.name)
 
