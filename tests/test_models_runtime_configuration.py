@@ -360,7 +360,7 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
 class TestUnixHostAuthentication(unittest.TestCase):    # pragma: no cover
 
     def test_unix_host_authentication_init_with_defaults(self):
-        result = UnixHostAuthentication(hostname='example.tld')
+        result = UnixHostAuthentication()
         self.assertIsNotNone(result)
         self.assertIsInstance(result, UnixHostAuthentication)
 
@@ -550,6 +550,32 @@ class TestAwsProfileBasedAuthentication(unittest.TestCase):    # pragma: no cove
         self.assertTrue(len(yaml_result) > 10)
         print('='*80)
         print('# AwsKeyBasedAuthentication YAML')
+        print(yaml_result)
+        print('='*80)
+
+
+class TestInfrastructureAccount(unittest.TestCase):    # pragma: no cover
+
+    def test_infrastructure_account_init_with_defaults(self):
+        result = InfrastructureAccount()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, InfrastructureAccount)
+        self.assertIsNotNone(result.account_name)
+        self.assertEqual(result.account_name, 'deployment-host')
+        self.assertIsNone(result.account_provider)
+        self.assertIsNotNone(result.environments)
+        self.assertIsInstance(result.environments, list)
+        self.assertEqual(len(result.environments), 1)
+        self.assertTrue('default' in result.environments)
+
+    def test_infrastructure_account_dump_yaml(self):
+        result = InfrastructureAccount()
+        yaml_result = str(result)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# InfrastructureAccount YAML')
         print(yaml_result)
         print('='*80)
 

@@ -59,6 +59,18 @@ DEFAULT_STATE_DB = 'sqlite:///{}{}{}'.format(
 
 DEFAULT_GLOBAL_CONFIG = """---
 apiVersion: v1-alpha
+kind: UnixHostAuthentication
+metadata:
+  name: localhost
+---
+apiVersion: v1-alpha
+kind: InfrastructureAccount
+metadata:
+  name: localhost
+spec:
+  authenticationType: localhost
+---
+apiVersion: v1-alpha
 kind: Project
 metadata:
   name: test
@@ -89,11 +101,6 @@ spec:
     - parameterName: format
       parameterType: str
       parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
-  infrastructureAccounts:
-  - accountName: deployment-host
-    accountProvider: ShellScript
-    authentication:
-      runOnDeploymentHost: true
 """.format(DEFAULT_STATE_DB, DEFAULT_CONFIG_DIR, os.sep)
 
 
@@ -216,26 +223,31 @@ class Projects(Items):
 class UnixHostAuthentication:
     """Base class for remote Unix host authentication
 
+    Typical minimal configuration manifest:
+
+        apiVersion: v1-alpha
+        kind: UnixHostAuthentication
+        metadata:
+            name: localhost
+
     Attributes:
         hostname: A string containing the hostname or IP address of the remote host
     
     """
-    def __init__(self, hostname: str) -> None:
+    def __init__(self, hostname: str='localhost') -> None:
         self.authentication_type = None
         self.hostname = hostname
         self.username = None
 
     def as_dict(self):
         root = dict()
-        root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'InfrastructureAccount'
+        root['kind'] = 'UnixHostAuthentication'
         root['metadata'] = dict()
         root['metadata']['name'] = self.hostname
-        root['spec'] = dict()
-        data = dict()
-        data['authenticationType'] = self.authentication_type
-        root['spec'] = data
+        if self.authentication_type is not None:
+            root['spec'] = dict()
+            root['spec']['authenticationType'] = self.authentication_type
         return root
 
     def __str__(self)->str:
@@ -524,11 +536,13 @@ class InfrastructureAccount:
     def __init__(
         self,
         account_name: str='deployment-host',
-        environments: list=['default',]
+        environments: list=['default',],
+        authentication_config: UnixHostAuthentication = UnixHostAuthentication(hostname='localhost')
     ):
         self.account_name = account_name
         self.environments = environments
         self.account_provider = None
+        self.authentication_config = authentication_config
 
     def as_dict(self)->dict:
         root = dict()
@@ -537,10 +551,11 @@ class InfrastructureAccount:
         root['kind'] = 'InfrastructureAccount'
         root['metadata'] = dict()
         root['metadata']['name'] = self.account_name
+        root['spec']['authenticationHostname'] = self.authentication_config.hostname
         return root
 
     def auth_id(self)->str:
-        return 'no-auth'
+        return None
 
     def __str__(self)->str:
         return yaml.dump(self.as_dict())
