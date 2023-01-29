@@ -59,7 +59,11 @@ class StateStore:
         return yaml.dump(self.as_dict())
 
 
-class ApplicationConfiguration:
+class ApplicationRuntimeConfiguration:
+
+    # TODO There is a lot to fix here in order to align with the other classes...
+    #
+    # This should only contain the logging information and the name of the StateStore to use
 
     def __init__(self, raw_global_configuration: str=DEFAULT_GLOBAL_CONFIG, logger=GenericLogger()) -> None:
         self.raw_global_configuration = raw_global_configuration
@@ -121,10 +125,10 @@ class ApplicationState:
         self.state_db_url = DEFAULT_STATE_DB
         self.logger = logger
         self.build_id = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
-        self.application_configuration = ApplicationConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
+        self.application_configuration = ApplicationRuntimeConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
 
     def _read_global_configuration_file_content(self):
-        self.application_configuration = ApplicationConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
+        self.application_configuration = ApplicationRuntimeConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
         if Path(self.config_directory).exists() is False:
             Path(self.config_directory).mkdir(parents=True, exist_ok=True)
         config_path = '{}{}{}'.format(
