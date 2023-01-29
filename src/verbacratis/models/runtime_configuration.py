@@ -66,9 +66,10 @@ metadata:
 apiVersion: v1-alpha
 kind: InfrastructureAccount
 metadata:
-  name: localhost
+  name: deployment-host
 spec:
-  authenticationType: localhost
+  authenticationHostname: localhost
+  provider: ShellScript
 ---
 apiVersion: v1-alpha
 kind: Project
@@ -524,8 +525,7 @@ class InfrastructureAccount:
 
     * account_name='deployment-host',
     * account_provider='ShellScript',
-    * run_on_deployment_host=True,
-    * authentication_config=dict(),
+    * authentication_config=UnixHostAuthentication(hostname='localhost'),
     * environments=['default',]
 
     Attributes:
@@ -541,17 +541,20 @@ class InfrastructureAccount:
     ):
         self.account_name = account_name
         self.environments = environments
-        self.account_provider = None
+        self.account_provider = 'ShellScript'
         self.authentication_config = authentication_config
 
     def as_dict(self)->dict:
         root = dict()
-        root['spec'] = dict()
+        
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'InfrastructureAccount'
         root['metadata'] = dict()
         root['metadata']['name'] = self.account_name
-        root['spec']['authenticationHostname'] = self.authentication_config.hostname
+        root['spec'] = dict()
+        root['spec']['provider'] = self.account_provider
+        if self.authentication_config is not None:
+            root['spec']['authenticationHostname'] = self.authentication_config.hostname
         return root
 
     def auth_id(self)->str:
@@ -588,7 +591,6 @@ class UnixInfrastructureAccount(InfrastructureAccount):
     By default there is always at least ONE InfrastructureAccount account with the following configuration:
 
     * account_name='deployment-host',
-    * run_on_deployment_host=True,
     * authentication_config=dict(),
     * environments=['default',]
 
@@ -601,34 +603,28 @@ class UnixInfrastructureAccount(InfrastructureAccount):
     def __init__(
         self,
         account_name: str='deployment-host',
-        run_on_deployment_host: bool=True,
         authentication_config: UnixHostAuthentication = UnixHostAuthentication(hostname='localhost'),
         environments: list=['default',]
     ):
         super().__init__(account_name, environments)
         self.account_provider = 'ShellScript'
-        self.run_on_deployment_host = run_on_deployment_host
         self.authentication_config = authentication_config
 
     def as_dict(self)->dict:
         root = dict()
-        root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'UnixInfrastructureAccount'
         root['metadata'] = dict()
         root['metadata']['name'] = self.account_name
         root['spec'] = dict()
-        data = dict()
-        data['accountProvider'] = self.account_provider
-        data['environments'] = self.environments
-        if self.run_on_deployment_host is True:
-            data['runOnDeploymentHost'] = True
-        if self.authentication_config.authentication_type is not None and self.run_on_deployment_host is False:
-            data['authentication'] = self.authentication_config.hostname
-        root['spec'] = data
+        root['spec']['provider'] = self.account_provider
+        if self.authentication_config is not None:
+            root['spec']['authenticationHostname'] = self.authentication_config.hostname
         return root
 
     def auth_id(self)->str:
+        if self.authentication_config is None:
+            return None
         if self.authentication_config.username is None:
             return '{}'.format(self.authentication_config.hostname)
         else:
