@@ -254,7 +254,7 @@ class TestInfrastructureAccount(unittest.TestCase):    # pragma: no cover
         self.assertIsNotNone(result.account_name)
         self.assertEqual(result.account_name, 'deployment-host')
         self.assertIsNotNone(result.account_provider)
-        self.assertEqual(result.account_provider, 'ShellScript')
+        self.assertEqual(result.account_provider, 'RunOnLocalhost')
         self.assertIsNotNone(result.environments)
         self.assertIsInstance(result.environments, list)
         self.assertEqual(len(result.environments), 1)
