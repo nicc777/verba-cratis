@@ -6,6 +6,9 @@ rm -frR ~/.verbacratis
 rm -frR ./verbacratis.db
 docker run --name echo_server -d -p 8089:80 kennethreitz/httpbin
 
+# For SSHD Access Testing - password based access - root password: root (see: https://hub.docker.com/r/rastasheep/ubuntu-sshd/#!)
+sudo docker run -d -p 8022:22 --name test_sshd rastasheep/ubuntu-sshd
+
 # For the OpenAPI UI, visit http://localhost:8089/#/Anything/post_anything__anything_ when using the above docker image
 # References: 
 #   https://httpbin.org/#/Anything/post_anything__anything_
@@ -53,3 +56,6 @@ coverage report --omit="tests/test*" -m
 
 docker container stop echo_server
 docker container rm echo_server
+
+docker container stop test_sshd
+docker container rm test_sshd
