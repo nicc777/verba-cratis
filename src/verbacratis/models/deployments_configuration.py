@@ -76,7 +76,7 @@ class Project(Item):
                 data['locations'] = dict()
             data['locations']['files'] = list()
             for file in self.manifest_files:
-                if 'path' in directory and 'type' in file:
+                if 'path' in file and 'type' in file:
                     file_data = {
                         'path': file['path'],
                         'type': file['type'],

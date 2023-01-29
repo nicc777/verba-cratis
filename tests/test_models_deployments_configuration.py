@@ -193,6 +193,26 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertTrue('- name: test_parent' in result)
 
 
+    def test_project_method_as_dict_only_files_no_parent(self):
+        project = Project(name='test')
+        project.add_environment(environment_name='dev')
+        project.add_environment(environment_name='test')
+        project.add_manifest_file(path='/file')
+
+        project_as_dict = project.as_dict()['spec']
+        self.assertIsNotNone(project_as_dict)
+        self.assertIsInstance(project_as_dict, dict)
+        self.assertTrue('includeFileRegex' in project_as_dict)
+        self.assertTrue('locations' in project_as_dict)
+        self.assertTrue('environments' in project_as_dict)
+
+        result = str(project)
+        print('='*80)
+        print('# Project YAML')
+        print(result)
+        print('='*80)
+
+
 class TestProjects(unittest.TestCase):    # pragma: no cover
 
     def test_projects_init_with_defaults(self):

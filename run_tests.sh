@@ -11,26 +11,45 @@ docker run --name echo_server -d -p 8089:80 kennethreitz/httpbin
 #   https://httpbin.org/#/Anything/post_anything__anything_
 #   https://github.com/postmanlabs/httpbin
 
+echo ; echo ; echo "########################################################################################################################"
 coverage run -a tests/test_notification_providers_init.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage run -a tests/test_notification_providers_rest_init.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage run -a tests/test_models_ordering.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage run -a tests/test_models_runtime_configuration.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage run -a tests/test_models_systems_configuration.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage run -a tests/test_models_deployments_configuration.py
-# coverage run tests/test_utils_file_io.py
-# coverage run -a tests/test_utils_parser.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage run -a tests/test_utils_parser2.py
-# coverage run -a tests/test_utils.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage run -a tests/test_verbacratis.py
+
+echo ; echo ; echo "########################################################################################################################"
+coverage run -a tests/test_utils_cli_arguments.py
+
+echo ; echo ; echo "########################################################################################################################"
+coverage report --omit="tests/test*" -m
+
+# coverage run -a tests/test_utils_parse_config_file.py
 # coverage run -a tests/test_verbacratis_init.py
 # coverage run -a tests/test_models_runtime.py
 # coverage run -a tests/test_aws.py
 # coverage run -a tests/test_functions.py
 # coverage run -a tests/test_functions_aws_helpers.py
-coverage run -a tests/test_utils_cli_arguments.py
-# coverage run -a tests/test_utils_parse_config_file.py
-
-coverage report --omit="tests/test*" -m
+# coverage run tests/test_utils_file_io.py
+# coverage run -a tests/test_utils_parser.py
+# coverage run -a tests/test_utils.py
 
 docker container stop echo_server
 docker container rm echo_server
