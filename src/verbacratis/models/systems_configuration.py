@@ -472,14 +472,14 @@ class InfrastructureAccounts:
             return self.accounts['deployment-host']
         for account_name, account in self.accounts.items():
             if isinstance(account, UnixInfrastructureAccount):
-                if isinstance(account.authentication_config, Authentication):
+                if account.authentication_config.__class__.__name__ == 'Authentication':
                     if account.authentication_config.authentication_type is None:
                         return account.account_name
         raise Exception('Critical error: No account found for running on local host')
 
     def add_infrastructure_account(self, infrastructure_account: UnixInfrastructureAccount):
         if isinstance(infrastructure_account, UnixInfrastructureAccount):
-            if isinstance(infrastructure_account.authentication_config, Authentication):
+            if infrastructure_account.authentication_config.__class__.__name__ == 'Authentication':
                 if infrastructure_account.authentication_config.authentication_type is None:
                     self.accounts.pop(self.find_local_deployment_host_account_name())
                     infrastructure_account = UnixInfrastructureAccount()
