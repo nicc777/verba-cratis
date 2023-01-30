@@ -352,7 +352,7 @@ class InfrastructureAccount:
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationHostname'] = self.authentication_config.hostname
+            root['spec']['authenticationHostname'] = self.authentication_config.name
         return root
 
     def auth_id(self)->str:
