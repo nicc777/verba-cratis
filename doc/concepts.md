@@ -51,6 +51,19 @@ The following combinations are typically possible:
 Manifest example:
 
 ```yaml
-TODO
+---
+apiVersion: v1-alpha
+kind: Authentication
+metadata:
+  name: no-auth
+---
+apiVersion: v1-alpha
+kind: InfrastructureAccount
+metadata:
+  name: deployment-host
+spec:
+  authenticationReference: no-auth
+  provider: RunOnLocalhost
 ```
 
+> _**Important**_: The deployment system can only have ONE of these deployment hosts defined. All other hosts must be properly defined with their appropriate credentials. Technically you would never have to define this in a manifest as it is always generated as default internally. You can always refer to it by the name `deployment-host` in objects like a `ShellScript`.

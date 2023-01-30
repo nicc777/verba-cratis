@@ -28,7 +28,7 @@ class Authentication:
         root['metadata']['name'] = self.name
         if self.authentication_type is not None:
             root['spec'] = dict()
-            root['spec']['authenticationType'] = self.authentication_type
+            root['spec']['authenticationType'] = '{}'.format(self.authentication_type)
         return root
 
     def __str__(self)->str:
@@ -49,20 +49,10 @@ class UnixHostAuthentication(Authentication):
         hostname: A string containing the hostname or IP address of the remote host
     
     """
-    def __init__(self, hostname: str='localhost') -> None:
+    def __init__(self, hostname: str='localhost'):
         super().__init__(name=hostname)
-
-    def as_dict(self):
-        root = dict()
-        root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'UnixHostAuthentication'
-        root['metadata'] = dict()
-        root['metadata']['name'] = self.name
-        if self.authentication_type is not None:
-            root['spec'] = dict()
-            root['spec']['authenticationType'] = self.authentication_type
-        return root
-
+        self.authentication_type = 'DefaultHostBasedAuthentication'
+    
     def __str__(self)->str:
         return yaml.dump(self.as_dict())
 
@@ -366,7 +356,7 @@ class InfrastructureAccount:
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationHostname'] = self.authentication_config.name
+            root['spec']['authenticationReference'] = self.authentication_config.name
         return root
 
     def auth_id(self)->str:
