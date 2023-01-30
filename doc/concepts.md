@@ -1,13 +1,18 @@
 
 - [Important Concepts](#important-concepts)
-- [Infrastructure Account](#infrastructure-account)
-- [Authentication](#authentication)
+- [Accounts and Authentication](#accounts-and-authentication)
+  - [Infrastructure Accounts](#infrastructure-accounts)
+  - [Authentication to Infrastructure](#authentication-to-infrastructure)
+  - [Manifests](#manifests)
+    - [Local host with no need for authentication:](#local-host-with-no-need-for-authentication)
 
 # Important Concepts
 
 This page will try to explain some of the concepts used in this project
 
-# Infrastructure Account
+# Accounts and Authentication
+
+## Infrastructure Accounts
 
 An infrastructure account defines something you have to log into to execute deployment commands.
 
@@ -21,7 +26,7 @@ At the moment, the following types of Infrastructure accounts are supported:
 
 > _**Note**_: A Unix account is typically a host that has a SSHD service running with the user account having a BASH compatible shell. Of course (in theory), this could also be a Windows system, but that was not really the intention.
 
-# Authentication
+## Authentication to Infrastructure
 
 Each type on [Infrastructure Account](#infrastructure-account) also require some form of authentication. The following authentication types are supported:
 
@@ -34,4 +39,18 @@ Each type on [Infrastructure Account](#infrastructure-account) also require some
 | Generic AWS Authentication                    | `AwsInfrastructureAccount`      | `AwsAuthentication`                       | AWS Authentication with no specifics defined and credentials are derived from the environment [more info](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).|
 | AWS authentication using keys                 | `AwsInfrastructureAccount`      | `AwsKeyBasedAuthentication`               | Uses AWS access key and secret key values to authenticate.                                                                                                                                |
 | AWS authentication using profiles             | `AwsInfrastructureAccount`      | `AwsProfileBasedAuthentication`           | Uses AWS named profile to authenticate.                                                                                                                                                   |
+
+## Manifests
+
+The above classes each translates to a specific YAML manifest, comparable to Kubernetes manifest files. This makes it easy to convert to and from classes and files.
+
+The following combinations are typically possible:
+
+### Local host with no need for authentication:
+
+Manifest example:
+
+```yaml
+TODO
+```
 
