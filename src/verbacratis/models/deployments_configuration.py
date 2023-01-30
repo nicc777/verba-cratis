@@ -27,6 +27,8 @@ class Project(Item):
         self.previous_project_checksum = dict()     # Checksum of the previous effective manifest, per environment (scope)
         self.current_project_checksum = None        # The current checksum of the project_effective_manifest
 
+        # TODO Needs to point to files/directories on the local file system ~~ OR ~~ to a Git repository, with a local work directory. Need to consider Git credentials...
+
     def add_environment(self, environment_name: str):
         self.add_scope(scope_name=environment_name)
         # self.environments.append(environment_name)

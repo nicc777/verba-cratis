@@ -64,6 +64,8 @@ class ApplicationRuntimeConfiguration:
     # TODO There is a lot to fix here in order to align with the other classes...
     #
     # This should only contain the logging information and the name of the StateStore to use
+    #
+    # TODO We need to be able to locate InfrastructureAccounts (collection of manifest files) and Projects which can be hosted locally in a directory or on Git. Consider how to authenticate to Git... Technically it could also just point to URLS
 
     def __init__(self, raw_global_configuration: str=DEFAULT_GLOBAL_CONFIG, logger=GenericLogger()) -> None:
         self.raw_global_configuration = raw_global_configuration
