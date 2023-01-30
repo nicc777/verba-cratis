@@ -36,27 +36,16 @@ The idea is to eventually add this project to [PyPI](https://pypi.org/)
 
 | Date       | Update Description                                                                                                                                                        |
 |------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2023-01-30 | I have redesigned the models from my initial attempt, and I am about half way through. I added the motivations and features list to this README.                          |
 | 2023-01-15 | I renamed the project from `acfop` to `verba-cratis` as the original project was purely AWS focused. I quickly realized I need something that supports more platforms.    |
 
 # Testing
-
-## Preparation
 
 The following need to be installed:
 
 * `pip3 install coverage`
 
 All commands in this section assumes that the project root directory is the working directory.
-
-## Basic Unit Tests
-
-Run individual tests, for example:
-
-```shell
-python3 tests/test_utile_parser.py
-```
-
-## Coverage
 
 Run Tests
 
