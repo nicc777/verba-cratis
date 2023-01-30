@@ -13,7 +13,15 @@ from verbacratis.utils.file_io import get_directory_from_path, get_file_from_pat
 from verbacratis.models import AWS_REGIONS
 
 
-class UnixHostAuthentication:
+class Authentication:
+
+    def __init__(self, name: str):
+        self.authentication_type = None
+        self.username = None
+        self.name = name
+
+
+class UnixHostAuthentication(Authentication):
     """Base class for remote Unix host authentication
 
     Typical minimal configuration manifest:
@@ -28,16 +36,14 @@ class UnixHostAuthentication:
     
     """
     def __init__(self, hostname: str='localhost') -> None:
-        self.authentication_type = None
-        self.hostname = hostname
-        self.username = None
+        super().__init__(name=hostname)
 
     def as_dict(self):
         root = dict()
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'UnixHostAuthentication'
         root['metadata'] = dict()
-        root['metadata']['name'] = self.hostname
+        root['metadata']['name'] = self.name
         if self.authentication_type is not None:
             root['spec'] = dict()
             root['spec']['authenticationType'] = self.authentication_type
@@ -74,7 +80,7 @@ class SshHostBasedAuthenticationConfig(UnixHostAuthentication):
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'SshHostBasedAuthenticationConfig'
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
+        root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
         root['spec'] = dict()
         data = dict()
         data['authenticationType'] = self.authentication_type
@@ -108,7 +114,7 @@ class SshCredentialsBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'SshCredentialsBasedAuthenticationConfig'
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
+        root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
         root['spec'] = dict()
         data = dict()
         data['authenticationType'] = self.authentication_type
@@ -146,7 +152,7 @@ class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'SshPrivateKeyBasedAuthenticationConfig'
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}@{}'.format(self.username, self.hostname)
+        root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
         root['spec'] = dict()
         data = dict()
         data['authenticationType'] = self.authentication_type
@@ -155,14 +161,14 @@ class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         return root
 
 
-class AwsAuthentication:
+class AwsAuthentication(Authentication):
 
     def __init__(
         self,
         account_reference: str='default',
         region: str=os.getenv('AWS_DEFAULT_REGION', 'eu-central-1')
     ):
-        self.account_reference = account_reference
+        super().__init__(name=account_reference)
         self.region = region.lower()
         if os.getenv('AWS_REGION', None) is not None:
             if os.getenv('AWS_REGION').lower() in AWS_REGIONS:
@@ -173,7 +179,7 @@ class AwsAuthentication:
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'AwsAuthentication'
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}'.format(self.account_reference)
+        root['metadata']['name'] = '{}'.format(self.name)
         root['spec'] = dict()
         root['spec']['region'] = self.region
         return root
@@ -225,7 +231,7 @@ class AwsKeyBasedAuthentication(AwsAuthentication):
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'AwsKeyBasedAuthentication'
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}'.format(self.account_reference)
+        root['metadata']['name'] = '{}'.format(self.name)
         root['spec'] = dict()
         root['spec']['region'] = self.region
         root['spec']['access_key'] = self.access_key
@@ -278,7 +284,7 @@ class AwsProfileBasedAuthentication(AwsAuthentication):
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = 'AwsProfileBasedAuthentication'
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}'.format(self.account_reference)
+        root['metadata']['name'] = '{}'.format(self.name)
         root['spec'] = dict()
         root['spec']['region'] = self.region
         root['spec']['profile_name'] = self.profile_name
@@ -329,7 +335,7 @@ class InfrastructureAccount:
         self,
         account_name: str='deployment-host',
         environments: list=['default',],
-        authentication_config: UnixHostAuthentication = UnixHostAuthentication(hostname='localhost')
+        authentication_config: Authentication = Authentication(name='no-auth')
     ):
         self.account_name = account_name
         self.environments = environments
@@ -395,7 +401,7 @@ class UnixInfrastructureAccount(InfrastructureAccount):
     def __init__(
         self,
         account_name: str='deployment-host',
-        authentication_config: UnixHostAuthentication = UnixHostAuthentication(hostname='localhost'),
+        authentication_config: Authentication = Authentication(name='no-auth'),
         environments: list=['default',]
     ):
         super().__init__(account_name, environments)
@@ -411,16 +417,16 @@ class UnixInfrastructureAccount(InfrastructureAccount):
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationHostname'] = self.authentication_config.hostname
+            root['spec']['authenticationReference'] = self.authentication_config.name
         return root
 
     def auth_id(self)->str:
         if self.authentication_config is None:
             return None
         if self.authentication_config.username is None:
-            return '{}'.format(self.authentication_config.hostname)
+            return '{}'.format(self.authentication_config.name)
         else:
-            return '{}@{}'.format(self.authentication_config.username, self.authentication_config.hostname)
+            return '{}@{}'.format(self.authentication_config.username, self.authentication_config.name)
 
     def __str__(self)->str:
         return yaml.dump(self.as_dict())
@@ -444,24 +450,40 @@ class InfrastructureAccounts:
     """
     def __init__(self):    
         self.accounts = {'deployment-host': UnixInfrastructureAccount(),}
-        self.host_authentication_configurations = {
-            self.accounts['deployment-host'].authentication_config.hostname: self.accounts['deployment-host'].authentication_config,
-        }
+
+    def get_infrastructure_account_names(self)->tuple:
+        names = list()
+        for account_name, account in self.accounts.items():
+            if account_name not in names:
+                names.append(account_name)
+        return tuple(names)
+
+    def get_infrastructure_account_auth_config(self, infrastructure_account_name: str)->Authentication:
+        for account_name, account in self.accounts.items():
+            if account_name == infrastructure_account_name:
+                return account
+        raise Exception('Infrastructure account named "{}" not found'.format(infrastructure_account_name))
 
     def find_local_deployment_host_account_name(self)->str:
-        for account_name, infrastructure_account_obj in self.accounts.items():
-            if infrastructure_account_obj.run_on_deployment_host is True:
-                return account_name
+        # for account_name, infrastructure_account_obj in self.accounts.items():
+        #     if infrastructure_account_obj.run_on_deployment_host is True:
+        #         return account_name
+        if 'deployment-host' in self.accounts:
+            return self.accounts['deployment-host']
+        for account_name, account in self.accounts.items():
+            if isinstance(account, UnixInfrastructureAccount):
+                if isinstance(account.authentication_config, Authentication):
+                    if account.authentication_config.authentication_type is None:
+                        return account.account_name
         raise Exception('Critical error: No account found for running on local host')
 
     def add_infrastructure_account(self, infrastructure_account: UnixInfrastructureAccount):
-        if infrastructure_account.run_on_deployment_host is True:
-            self.accounts.pop(self.find_local_deployment_host_account_name())
-            infrastructure_account.authentication_config = dict()
-            infrastructure_account.account_provider = 'ShellScript'
+        if isinstance(infrastructure_account, UnixInfrastructureAccount):
+            if isinstance(infrastructure_account.authentication_config, Authentication):
+                if infrastructure_account.authentication_config.authentication_type is None:
+                    self.accounts.pop(self.find_local_deployment_host_account_name())
+                    infrastructure_account = UnixInfrastructureAccount()
         self.accounts[infrastructure_account.account_name] = infrastructure_account
-        if infrastructure_account.auth_id() not in self.host_authentication_configurations:
-            self.host_authentication_configurations[infrastructure_account.auth_id()] = infrastructure_account.authentication_config
 
     def update_local_deployment_host_with_all_environments(self, environments: list):
         if len(environments) is None:

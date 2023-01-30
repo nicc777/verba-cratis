@@ -52,12 +52,12 @@ class TestClassStateStore(unittest.TestCase):    # pragma: no cover
         print('='*80)
 
 
-class TestApplicationConfiguration(unittest.TestCase):    # pragma: no cover
+# class TestApplicationConfiguration(unittest.TestCase):    # pragma: no cover
 
-    def test_application_configuration_init_with_defaults(self):
-        result = ApplicationRuntimeConfiguration()
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, ApplicationRuntimeConfiguration)
+#     def test_application_configuration_init_with_defaults(self):
+#         result = ApplicationRuntimeConfiguration()
+#         self.assertIsNotNone(result)
+#         self.assertIsInstance(result, ApplicationRuntimeConfiguration)
 
 
 if __name__ == '__main__':

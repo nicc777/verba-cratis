@@ -16,6 +16,7 @@ from sqlalchemy import create_engine
 import yaml
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path
 from verbacratis.models import GenericLogger, DEFAULT_CONFIG_DIR, DEFAULT_GLOBAL_CONFIG, DEFAULT_STATE_DB
+from verbacratis.models.systems_configuration import InfrastructureAccounts, InfrastructureAccount
 
 
 class StateStore:
@@ -72,49 +73,11 @@ class ApplicationRuntimeConfiguration:
         self.parsed_configuration = dict()
         self.logger = logger
         self.state_store = StateStore(logger=self.logger)
-        self.parse_global_configuration()
+        self.infrastructure_accounts = InfrastructureAccounts()
+        self.projects = None
 
-    def _parse_state_store_section(self, config_as_dict: dict):
-        state_store_section = dict()
-        if 'spec' in config_as_dict:
-            if 'stateStore' in config_as_dict['spec']:
-                state_store_section = config_as_dict['spec']['stateStore']
-        if 'provider' in state_store_section:
-            self.state_store.provider = state_store_section['provider']
-        if 'dbConfig' in state_store_section:
-            if 'url' in state_store_section['dbConfig']:
-                self.state_store.connection_url = state_store_section['dbConfig']['url']
-
-    def _get_spec(self, raw_config: dict):
-        spec = dict()
-        if 'spec' in raw_config:
-            spec = raw_config['spec']
-        return spec
-
-    def _parse_state_store_config(self, spec: dict):
-        provider = self.state_store.provider
-        url = self.state_store.connection_url
-        if 'provider' in spec:
-            provider = spec['provider']
-        if 'dbConfig' in spec:
-            if 'url' in spec['dbConfig']:
-                url = spec['dbConfig']['url']
-        self.state_store = StateStore(provider=provider, connection_url=url, logger=self.logger)
-
-    def parse_global_configuration(self):
-        try:
-            self.logger.info('Parsing Application Global Configuration')
-            parsed_config = yaml.load_all(self.raw_global_configuration, Loader=yaml.FullLoader)
-            spec = self._get_spec(raw_config=parsed_config)
-            if 'stateStore' in spec:
-                self._parse_state_store_config(spec=spec)
-            if 'logging' in spec:
-                pass
-            if 'projects' in spec:
-                pass
-        except:
-            self.logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
-            sys.exit(2)
+    def add_infrastructure_account(self, infrastructure_account: InfrastructureAccount):
+        self.infrastructure_accounts.add_infrastructure_account(infrastructure_account=infrastructure_account)
 
 
 class ApplicationState:
