@@ -20,6 +20,20 @@ class Authentication:
         self.username = None
         self.name = name
 
+    def as_dict(self):
+        root = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'Authentication'
+        root['metadata'] = dict()
+        root['metadata']['name'] = self.name
+        if self.authentication_type is not None:
+            root['spec'] = dict()
+            root['spec']['authenticationType'] = self.authentication_type
+        return root
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict())
+
 
 class UnixHostAuthentication(Authentication):
     """Base class for remote Unix host authentication
