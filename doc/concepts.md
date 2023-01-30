@@ -4,7 +4,8 @@
   - [Infrastructure Accounts](#infrastructure-accounts)
   - [Authentication to Infrastructure](#authentication-to-infrastructure)
   - [Manifests](#manifests)
-    - [Local host with no need for authentication:](#local-host-with-no-need-for-authentication)
+    - [Local host with no need for authentication](#local-host-with-no-need-for-authentication)
+    - [Remote Unix host with username and password](#remote-unix-host-with-username-and-password)
 
 # Important Concepts
 
@@ -46,7 +47,7 @@ The above classes each translates to a specific YAML manifest, comparable to Kub
 
 The following combinations are typically possible:
 
-### Local host with no need for authentication:
+### Local host with no need for authentication
 
 Manifest example:
 
@@ -67,3 +68,30 @@ spec:
 ```
 
 > _**Important**_: The deployment system can only have ONE of these deployment hosts defined. All other hosts must be properly defined with their appropriate credentials. Technically you would never have to define this in a manifest as it is always generated as default internally. You can always refer to it by the name `deployment-host` in objects like a `ShellScript`.
+
+### Remote Unix host with username and password
+
+Manifest Example:
+
+```yaml
+---
+apiVersion: v1-alpha
+kind: SshCredentialsBasedAuthenticationConfig
+metadata:
+  name: cd-user@host1.myorg
+spec:
+  authenticationType: SshUsingCredentials
+  password: ${{EnvironmentVariables:computed:someSecret}}
+---
+apiVersion: v1-alpha
+kind: UnixInfrastructureAccount
+metadata:
+  name: host1
+spec:
+  authenticationReference: host1.myorg
+  provider: ShellScript
+```
+
+_**Note**_: Whenever a `ShellScript` will need to authenticate to this host, a call to the object's `auth_id()` method is made and the following string will then be returned: `cd-user@host1.myorg`
+
+_**Important**_: Never store passwords in the clear in a manifest. Technically this is possible using this solution, but best practice is to always get the password from the environment. The `EnvironmentVariables` configuration is defined later in this document.

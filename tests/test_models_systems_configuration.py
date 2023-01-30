@@ -295,5 +295,28 @@ class TestInfrastructureAccount(unittest.TestCase):    # pragma: no cover
         print('='*80)
 
 
+class TestUnixInfrastructureAccount(unittest.TestCase):    # pragma: no cover
+
+    def test_infrastructure_account_with_credential_based_authentication_dump_yaml(self):
+        result = UnixInfrastructureAccount(account_name='host1')
+        result.authentication_config = SshCredentialsBasedAuthenticationConfig(hostname='host1.myorg', username='cd-user', password='${{EnvironmentVariables:computed:someSecret}}')
+        yaml_result = str(result)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# UnixInfrastructureAccount YAML')
+        print(yaml_result)
+        print('='*80)
+
+    def test_infrastructure_account_with_credential_based_authentication_method_auth_id(self):
+        result = UnixInfrastructureAccount(account_name='host1')
+        result.authentication_config = SshCredentialsBasedAuthenticationConfig(hostname='host1.myorg', username='cd-user', password='${{EnvironmentVariables:computed:someSecret}}')
+        auth_id = result.auth_id()
+        self.assertIsNotNone(auth_id)
+        self.assertIsInstance(auth_id, str)
+        self.assertEqual(auth_id, 'cd-user@host1.myorg')
+        
+
 if __name__ == '__main__':
     unittest.main()

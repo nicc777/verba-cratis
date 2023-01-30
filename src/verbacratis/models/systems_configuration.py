@@ -433,7 +433,11 @@ class UnixInfrastructureAccount(InfrastructureAccount):
             return '{}@{}'.format(self.authentication_config.username, self.authentication_config.name)
 
     def __str__(self)->str:
-        return yaml.dump(self.as_dict())
+        return '---\n{}---\n{}'.format(
+            str(self.authentication_config),
+            yaml.dump(self.as_dict())
+        )
+        # return yaml.dump(self.as_dict())
 
 
 class AwsInfrastructureAccount(InfrastructureAccount):
