@@ -15,7 +15,7 @@ from verbacratis.models import AWS_REGIONS
 
 class Authentication:
 
-    def __init__(self, name: str):
+    def __init__(self, name: str='no-auth'):
         self.authentication_type = None
         self.username = None
         self.name = name

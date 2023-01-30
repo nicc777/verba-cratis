@@ -20,6 +20,29 @@ from verbacratis.models.systems_configuration import *
 from sqlalchemy.engine import Engine
 
 
+class TestAuthentication(unittest.TestCase):    # pragma: no cover
+
+    def test_unix_host_authentication_init_with_defaults(self):
+        result =Authentication()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, Authentication)
+
+        unix_yaml = str(result)
+        self.assertIsNotNone(unix_yaml)
+        self.assertIsInstance(unix_yaml, str)
+        self.assertTrue(len(unix_yaml) > 10)
+        print('='*80)
+        print('# Authentication YAML')
+        print(unix_yaml)
+        print('='*80)
+
+    def test_unix_host_authentication_method_as_dict(self):
+        host = Authentication()
+        result = host.as_dict()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+
+
 class TestUnixHostAuthentication(unittest.TestCase):    # pragma: no cover
 
     def test_unix_host_authentication_init_with_defaults(self):
