@@ -25,8 +25,9 @@ At the moment, the following types of Infrastructure accounts are supported:
 
 Each type on [Infrastructure Account](#infrastructure-account) also require some form of authentication. The following authentication types are supported:
 
-| Type                     | Supporting Infrastructure Class | Authentication Class Name           | Usage Context                                                                                                                                      |
-|--------------------------|---------------------------------|-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| No Authentication        | `InfrastructureAccount`         | `Authentication`                    | Only really used for the local account that the tool is being run from.                                                                            |
-| Unix Host Authentication | `UnixInfrastructureAccount`     | `SshHostBasedAuthenticationConfig`  | Supporting SSH authentication to hosts, where those hosts are defined in local SSH configuration. for example in a file in `/etc/ssh/ssh_config.d` |
-| 
+| Type                                     | Supporting Infrastructure Class | Authentication Class Name                 | Usage Context                                                                                                                                      |
+|------------------------------------------|---------------------------------|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| No Authentication                        | `InfrastructureAccount`         | `Authentication`                          | Only really used for the local account that the tool is being run from.                                                                            |
+| Unix Host Authentication                 | `UnixInfrastructureAccount`     | `SshHostBasedAuthenticationConfig`        | Supporting SSH authentication to hosts, where those hosts are defined in local SSH configuration. for example in a file in `/etc/ssh/ssh_config.d` |
+| Username & password based authentication | `UnixInfrastructureAccount`     | `SshCredentialsBasedAuthenticationConfig` | Supports unix authentication via SSH using a username and password.                                                                                |
+
