@@ -94,4 +94,4 @@ spec:
 
 > _**Note**_: Whenever a `ShellScript` will need to authenticate to this host, a call to the object's `auth_id()` method is made and the following string will then be returned: `cd-user@host1.myorg`
 
-> _**Important**_: Never store passwords in the clear in a manifest. Technically this is possible using this solution, but best practice is to always get the password from the environment. The `EnvironmentVariables` configuration is defined later in this document.
+> _**Warning**_: Never store passwords in the clear in a manifest. Technically this is possible using this solution, but best practice is to always get the password from the environment. The `EnvironmentVariables` configuration is defined later in this document.
