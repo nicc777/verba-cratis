@@ -31,7 +31,7 @@ def mock_get_file_contents_throws_exception(file: str)->str:
 class TestFunctionParseConfigurationFile(unittest.TestCase):    # pragma: no cover
 
     def test_parse_configuration_file_example1(self):
-        configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
+        configuration = parse_yaml_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents)
         self.assertIsNotNone(configuration)
         self.assertIsInstance(configuration, dict)
         self.assertTrue(len(configuration) > 0)
@@ -39,7 +39,7 @@ class TestFunctionParseConfigurationFile(unittest.TestCase):    # pragma: no cov
     def test_parse_configuration_file_example1_file_not_found(self):
         configuration = dict()
         with self.assertRaises(Exception) as context:
-            configuration = parse_configuration_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents_throws_exception)
+            configuration = parse_yaml_file(file_path='/path/to/configuration', get_file_contents_function=mock_get_file_contents_throws_exception)
         self.assertTrue('Failed to parse configuration' in str(context.exception))
         self.assertEqual(len(configuration), 0)
 

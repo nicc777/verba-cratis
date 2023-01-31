@@ -18,7 +18,7 @@ import json
 from verbacratis.utils import get_logger
 
 
-def parse_configuration_file(file_path: str, get_file_contents_function: object=get_file_contents, logger=get_logger())->dict:
+def parse_yaml_file(file_path: str, get_file_contents_function: object=get_file_contents, logger=get_logger())->dict:
     """Parse a configuration file
 
     Reads the file content from ``file_path`` and attempts to parse it with the YAML parser

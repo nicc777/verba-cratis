@@ -482,7 +482,6 @@ class SystemConfigurations:
     """Keeps a collection of Unix and AWS Cloud Infrastructure Accounts and Credentials
     """
     def __init__(self):    
-        self.accounts = {'deployment-host': UnixInfrastructureAccount(),}
         self.parsed_configuration = dict()
         self.parsed_configuration['Authentication'] = dict()
         self.parsed_configuration['UnixHostAuthentication'] = dict()
@@ -499,9 +498,49 @@ class SystemConfigurations:
         # Create a run-on-localhost account
         self.parsed_configuration['UnixInfrastructureAccount']['deployment-host'] = UnixInfrastructureAccount()
 
-    def parse_yaml(self, raw_yaml):
+    def _create_authentication_instance_from_data(self, data:dict)->Authentication:
+        o = Authentication(name=data['metadata']['name'])
+        if 'spec' in data:
+            if 'authenticationType' in data['spec']:
+                o.authentication_type = data['spec']['authenticationType']
+        o.username = None
+        return o
+
+    def parse_yaml(self, raw_data: dict):
+        """Parse data into the various Objects.
+
+        Use something like parse_yaml_file() from `verbacratis.utils.parser2` to obtain the dictionary value from a parsed YAML file
+        
+        """
         # TODO Implement
-        pass
+        for part, data in raw_data.items():
+            if isinstance(data, dict):
+                converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
+                if 'kind' in converted_data:
+                    if converted_data['kind'].lower() == 'Authentication'.lower():
+                        self.add_configuration(item=self._create_authentication_instance_from_data(data=converted_data))                        
+                    elif converted_data['kind'].lower() == 'Authentication'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'UnixHostAuthentication'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'SshHostBasedAuthenticationConfig'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'SshCredentialsBasedAuthenticationConfig'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'SshPrivateKeyBasedAuthenticationConfig'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'AwsAuthentication'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'AwsKeyBasedAuthentication'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'AwsProfileBasedAuthentication'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'InfrastructureAccount'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'UnixInfrastructureAccount'.lower():
+                        pass
+                    elif converted_data['kind'].lower() == 'AwsInfrastructureAccount'.lower():
+                        pass
 
     def get_infrastructure_account_names(self)->tuple:
         names = list()
