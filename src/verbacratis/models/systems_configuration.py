@@ -599,6 +599,17 @@ class SystemConfigurations:
             raise Exception('At least one environment name must be set')
         self.parsed_configuration['UnixInfrastructureAccount'][self.find_local_deployment_host_account_name()].environments = environments
 
+    def get_infrastructure_Accounts_for_named_environment(self, environment_name: str, search_scope: tuple=('InfrastructureAccount', 'UnixInfrastructureAccount', 'AwsInfrastructureAccount',))->list:
+        """Get all Infrastructure Accounts scoped for a certain environment, for example sandbox
+        """
+        infrastructure_accounts = list
+        for object_class_type, objects in self.parsed_configuration.items():
+            if object_class_type in search_scope:
+                for object_name, object_def in objects.items():
+                    if environment_name in object_def.environments:
+                        infrastructure_accounts.append({'ObjectClassType': object_class_type, 'ObjectInstance': object_def})
+        return infrastructure_accounts
+
     def __str__(self)->str:
         config_as_str = ''
         for object_class_type, objects in self.parsed_configuration.items():
