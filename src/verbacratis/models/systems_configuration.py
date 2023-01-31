@@ -632,7 +632,7 @@ def get_yaml_configuration_from_url(url_path: str)->SystemConfigurations:
     return sc
 
 
-def get_yaml_configuration_from_git(git_clone_url: str, branch: str='main', directory: str='/', include_files_regex: tuple=('*.yml$', '*.yaml$',))->SystemConfigurations:
+def get_yaml_configuration_from_git(git_clone_url: str, branch: str='main', relative_start_directory: str='/', include_files_regex: tuple=('*.yml$', '*.yaml$',))->SystemConfigurations:
     """Parse files from a Git repository matching a file pattern withing a branch and directory to return a SystemConfigurations instance
     """
     sc = SystemConfigurations()
