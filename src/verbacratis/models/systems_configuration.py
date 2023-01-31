@@ -500,6 +500,7 @@ class SystemConfigurations:
         self.parsed_configuration['UnixInfrastructureAccount']['deployment-host'] = UnixInfrastructureAccount()
 
     def parse_yaml(self, raw_yaml):
+        # TODO Implement
         pass
 
     def get_infrastructure_account_names(self)->tuple:
@@ -568,18 +569,21 @@ class SystemConfigurations:
 
 
 def parse_yaml_configuration(raw_yaml: str)->SystemConfigurations:
-    infrastructure_accounts = SystemConfigurations()
-    parsed_configuration = dict()
-    parsed_configuration['Authentication'] = dict()
-    parsed_configuration['UnixHostAuthentication'] = dict()
-    parsed_configuration['SshHostBasedAuthenticationConfig'] = dict()
-    parsed_configuration['SshCredentialsBasedAuthenticationConfig'] = dict()
-    parsed_configuration['SshPrivateKeyBasedAuthenticationConfig'] = dict()
-    parsed_configuration['AwsAuthentication'] = dict()
-    parsed_configuration['AwsKeyBasedAuthentication'] = dict()
-    parsed_configuration['AwsProfileBasedAuthentication'] = dict()
-    parsed_configuration['InfrastructureAccount'] = dict()
-    parsed_configuration['UnixInfrastructureAccount'] = dict()
-    parsed_configuration['AwsInfrastructureAccount'] = dict()
+    system_configurations = SystemConfigurations()
+    # TODO Implement
     
-    return infrastructure_accounts
+    return system_configurations
+
+
+def get_yaml_configuration_from_file(file_path: str)->SystemConfigurations:
+    system_configurations = SystemConfigurations()
+    # TODO Implement
+
+    return system_configurations
+
+
+def get_yaml_configuration_from_git(git_clone_url: str, branch: str='main', directory: str='/', include_files_regex: tuple=('*.yml$', '*.yaml$',))->SystemConfigurations:
+    system_configurations = SystemConfigurations()
+    # TODO Implement
+
+    return system_configurations
