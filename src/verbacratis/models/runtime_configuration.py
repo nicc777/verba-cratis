@@ -16,7 +16,7 @@ from sqlalchemy import create_engine
 import yaml
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path
 from verbacratis.models import GenericLogger, DEFAULT_CONFIG_DIR, DEFAULT_GLOBAL_CONFIG, DEFAULT_STATE_DB
-from verbacratis.models.systems_configuration import InfrastructureAccounts, InfrastructureAccount
+from verbacratis.models.systems_configuration import SystemConfigurations, InfrastructureAccount
 
 
 class StateStore:
@@ -73,11 +73,11 @@ class ApplicationRuntimeConfiguration:
         self.parsed_configuration = dict()
         self.logger = logger
         self.state_store = StateStore(logger=self.logger)
-        self.infrastructure_accounts = InfrastructureAccounts()
+        self.infrastructure_accounts = SystemConfigurations()
         self.projects = None
 
     def add_infrastructure_account(self, infrastructure_account: InfrastructureAccount):
-        self.infrastructure_accounts.add_infrastructure_account(infrastructure_account=infrastructure_account)
+        self.infrastructure_accounts.add_configuration(item=infrastructure_account)
 
 
 class ApplicationState:

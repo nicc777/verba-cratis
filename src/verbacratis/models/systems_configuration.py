@@ -478,73 +478,108 @@ class AwsInfrastructureAccount(InfrastructureAccount):
         )
 
 
-class InfrastructureAccounts:
-    """Keeps a collection of Unix and AWS Cloud Infrastructure Accounts
+class SystemConfigurations:
+    """Keeps a collection of Unix and AWS Cloud Infrastructure Accounts and Credentials
     """
     def __init__(self):    
         self.accounts = {'deployment-host': UnixInfrastructureAccount(),}
+        self.parsed_configuration = dict()
+        self.parsed_configuration['Authentication'] = dict()
+        self.parsed_configuration['UnixHostAuthentication'] = dict()
+        self.parsed_configuration['SshHostBasedAuthenticationConfig'] = dict()
+        self.parsed_configuration['SshCredentialsBasedAuthenticationConfig'] = dict()
+        self.parsed_configuration['SshPrivateKeyBasedAuthenticationConfig'] = dict()
+        self.parsed_configuration['AwsAuthentication'] = dict()
+        self.parsed_configuration['AwsKeyBasedAuthentication'] = dict()
+        self.parsed_configuration['AwsProfileBasedAuthentication'] = dict()
+        self.parsed_configuration['InfrastructureAccount'] = dict()
+        self.parsed_configuration['UnixInfrastructureAccount'] = dict()
+        self.parsed_configuration['AwsInfrastructureAccount'] = dict()
+
+        # Create a run-on-localhost account
+        self.parsed_configuration['UnixInfrastructureAccount']['deployment-host'] = UnixInfrastructureAccount()
+
+    def parse_yaml(self, raw_yaml):
+        pass
 
     def get_infrastructure_account_names(self)->tuple:
         names = list()
-        for account_name, account in self.accounts.items():
-            if account_name not in names:
-                names.append(account_name)
+        for object_class_type, objects in self.parsed_configuration.items():
+            for object_name, object_def in objects.items():
+                names.append({'ObjectClassType': object_class_type, 'ObjectName': object_name}) # Something like {'ObjectClassType': 'Authentication', 'ObjectName': 'some-name'}
         return tuple(names)
 
-    def get_infrastructure_account_auth_config(self, infrastructure_account_name: str)->Authentication:
-        for account_name, account in self.accounts.items():
-            if account_name == infrastructure_account_name:
-                return account
-        raise Exception('Infrastructure account named "{}" not found'.format(infrastructure_account_name))
+    def get_infrastructure_account_auth_config(self, infrastructure_account_name: str, search_scope: tuple=('InfrastructureAccount', 'UnixInfrastructureAccount', 'AwsInfrastructureAccount',))->list:
+        authentication_configurations = list
+        for object_class_type, objects in self.parsed_configuration.items():
+            if object_class_type in search_scope:
+                for object_name, object_def in objects.items():
+                    if object_name == infrastructure_account_name:
+                        authentication_configurations.append({'ObjectClassType': object_class_type, 'ObjectInstance': object_def})
+        return authentication_configurations
 
     def find_local_deployment_host_account_name(self)->str:
-        # for account_name, infrastructure_account_obj in self.accounts.items():
-        #     if infrastructure_account_obj.run_on_deployment_host is True:
-        #         return account_name
-        if 'deployment-host' in self.accounts:
-            return self.accounts['deployment-host']
-        for account_name, account in self.accounts.items():
-            if isinstance(account, UnixInfrastructureAccount):
-                if account.authentication_config.__class__.__name__ == 'Authentication':
-                    if account.authentication_config.authentication_type is None:
-                        return account.account_name
+        if 'deployment-host' in self.parsed_configuration['UnixInfrastructureAccount']:
+            return self.parsed_configuration['UnixInfrastructureAccount']['deployment-host']
+        for object_name, object_def in self.parsed_configuration['UnixInfrastructureAccount'].items():
+            if object_def.account_provider == 'RunOnLocalhost':
+                return object_name
         raise Exception('Critical error: No account found for running on local host')
 
-    def add_infrastructure_account(self, infrastructure_account: UnixInfrastructureAccount):
-        if isinstance(infrastructure_account, UnixInfrastructureAccount):
-            if infrastructure_account.authentication_config.__class__.__name__ == 'Authentication':
-                if infrastructure_account.authentication_config.authentication_type is None:
-                    self.accounts.pop(self.find_local_deployment_host_account_name())
-                    infrastructure_account = UnixInfrastructureAccount()
-        self.accounts[infrastructure_account.account_name] = infrastructure_account
+    def add_configuration(self, item: object):
+        if item.__class__.__name__ == 'Authentication':
+            self.parsed_configuration['Authentication'][item.name] = item
+        elif item.__class__.__name__ == 'UnixHostAuthentication':
+            self.parsed_configuration['UnixHostAuthentication'][item.name] = item
+        elif item.__class__.__name__ == 'SshHostBasedAuthenticationConfig':
+            self.parsed_configuration['SshHostBasedAuthenticationConfig'][item.name] = item
+        elif item.__class__.__name__ == 'SshCredentialsBasedAuthenticationConfig':
+            self.parsed_configuration['SshCredentialsBasedAuthenticationConfig'][item.name] = item
+        elif item.__class__.__name__ == 'SshPrivateKeyBasedAuthenticationConfig':
+            self.parsed_configuration['SshPrivateKeyBasedAuthenticationConfig'][item.name] = item
+        elif item.__class__.__name__ == 'AwsAuthentication':
+            self.parsed_configuration['AwsAuthentication'][item.name] = item
+        elif item.__class__.__name__ == 'AwsKeyBasedAuthentication':
+            self.parsed_configuration['AwsKeyBasedAuthentication'][item.name] = item
+        elif item.__class__.__name__ == 'AwsProfileBasedAuthentication':
+            self.parsed_configuration['AwsProfileBasedAuthentication'][item.name] = item
+        elif item.__class__.__name__ == 'InfrastructureAccount':
+            self.parsed_configuration['InfrastructureAccount'][item.name] = item
+        elif item.__class__.__name__ == 'UnixInfrastructureAccount':
+            self.parsed_configuration['UnixInfrastructureAccount'][item.name] = item
+        elif item.__class__.__name__ == 'AwsInfrastructureAccount':
+            self.parsed_configuration['AwsInfrastructureAccount'][item.name] = item
+        else:
+            raise Exception('Item type "{}" not recognized'.format(item.__class__.__name__))
 
     def update_local_deployment_host_with_all_environments(self, environments: list):
         if len(environments) is None:
             raise Exception('At least one environment name must be set')
         if len(environments) == 0:
             raise Exception('At least one environment name must be set')
-        self.accounts[self.find_local_deployment_host_account_name()].environments = environments
-
-    def as_dict(self)->dict:
-        accounts_list =list()
-        host_authentication_configurations_list = list()
-
-        for inf_acc_name, inf_acc_obj in self.accounts.items():
-            accounts_list.append(inf_acc_obj)
-
-        for host_auth_conf_name, host_auth_conf_obj in self.accounts.items():
-            host_authentication_configurations_list.append(host_auth_conf_obj)
-
-        return {
-            'infrastructure_accounts': accounts_list,
-            'host_authentication_configurations': host_authentication_configurations_list,
-        }
+        self.parsed_configuration['UnixInfrastructureAccount'][self.find_local_deployment_host_account_name()].environments = environments
 
     def __str__(self)->str:
         config_as_str = ''
-        data = self.as_dict()
-        for host_auth_conf_obj in data['host_authentication_configurations']:
-            config_as_str = '{}\n---\n{}'.format(config_as_str, str(host_auth_conf_obj))
-        for inf_acc_obj in data['infrastructure_accounts']:
-            config_as_str = '{}\n---\n{}'.format(config_as_str, str(inf_acc_obj))
+        for object_class_type, objects in self.parsed_configuration.items():
+            for object_name, object_def in objects.items():
+                config_as_str = '{}\n---\n{}'.format(config_as_str, str(object_def))
         return config_as_str
+
+
+def parse_yaml_configuration(raw_yaml: str)->SystemConfigurations:
+    infrastructure_accounts = SystemConfigurations()
+    parsed_configuration = dict()
+    parsed_configuration['Authentication'] = dict()
+    parsed_configuration['UnixHostAuthentication'] = dict()
+    parsed_configuration['SshHostBasedAuthenticationConfig'] = dict()
+    parsed_configuration['SshCredentialsBasedAuthenticationConfig'] = dict()
+    parsed_configuration['SshPrivateKeyBasedAuthenticationConfig'] = dict()
+    parsed_configuration['AwsAuthentication'] = dict()
+    parsed_configuration['AwsKeyBasedAuthentication'] = dict()
+    parsed_configuration['AwsProfileBasedAuthentication'] = dict()
+    parsed_configuration['InfrastructureAccount'] = dict()
+    parsed_configuration['UnixInfrastructureAccount'] = dict()
+    parsed_configuration['AwsInfrastructureAccount'] = dict()
+    
+    return infrastructure_accounts
