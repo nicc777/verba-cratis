@@ -6,6 +6,7 @@
   - [Manifests](#manifests)
     - [Local host with no need for authentication](#local-host-with-no-need-for-authentication)
     - [Remote Unix host with username and password](#remote-unix-host-with-username-and-password)
+    - [AWS Account with Named Profile Authentication](#aws-account-with-named-profile-authentication)
 
 # Important Concepts
 
@@ -95,3 +96,7 @@ spec:
 > _**Note**_: Whenever a `ShellScript` will need to authenticate to this host, a call to the object's `auth_id()` method is made and the following string will then be returned: `cd-user@host1.myorg`
 
 > _**Warning**_: Never store passwords in the clear in a manifest. Technically this is possible using this solution, but best practice is to always get the password from the environment. The `EnvironmentVariables` configuration is defined later in this document.
+
+### AWS Account with Named Profile Authentication
+
+TODO
