@@ -624,7 +624,17 @@ def get_yaml_configuration_from_file(file_path: str)->SystemConfigurations:
     return sc
 
 
+def get_yaml_configuration_from_url(url_path: str)->SystemConfigurations:
+    """Parse the file specified in the URL to return a SystemConfigurations instance
+    """
+    sc = SystemConfigurations()
+    # sc.parse_yaml(raw_data=parse_yaml_file(file_path=file_path))
+    return sc
+
+
 def get_yaml_configuration_from_git(git_clone_url: str, branch: str='main', directory: str='/', include_files_regex: tuple=('*.yml$', '*.yaml$',))->SystemConfigurations:
+    """Parse files from a Git repository matching a file pattern withing a branch and directory to return a SystemConfigurations instance
+    """
     sc = SystemConfigurations()
     # TODO Implement
     # 1) Clone the repo
