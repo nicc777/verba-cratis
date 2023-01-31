@@ -7,6 +7,7 @@
 """
 
 import sys
+from pathlib import Path
 import os
 import tempfile
 import traceback
@@ -297,9 +298,31 @@ class TestInfrastructureAccount(unittest.TestCase):    # pragma: no cover
 
 class TestUnixInfrastructureAccount(unittest.TestCase):    # pragma: no cover
 
+    def setUp(self):
+        self.private_key_file = '/tmp/test-key-for-test-host-1.pem'
+        if Path(self.private_key_file).exists() is False:
+            with open(self.private_key_file, 'w') as f:
+                f.write('no-real-content')
+
+    def tearDown(self):
+        if Path(self.private_key_file).exists() is True:
+            os.remove(self.private_key_file)
+
     def test_infrastructure_account_with_credential_based_authentication_dump_yaml(self):
         result = UnixInfrastructureAccount(account_name='host1')
         result.authentication_config = SshCredentialsBasedAuthenticationConfig(hostname='host1.myorg', username='cd-user', password='${{EnvironmentVariables:computed:someSecret}}')
+        yaml_result = str(result)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# UnixInfrastructureAccount YAML')
+        print(yaml_result)
+        print('='*80)
+
+    def test_infrastructure_account_with_ssh_private_key_based_authentication_Config_dump_yaml(self):
+        result = UnixInfrastructureAccount(account_name='host1')
+        result.authentication_config = SshPrivateKeyBasedAuthenticationConfig(hostname='test-host-1', username='test-user', private_key_path=self.private_key_file)
         yaml_result = str(result)
         self.assertIsNotNone(yaml_result)
         self.assertIsInstance(yaml_result, str)
