@@ -111,6 +111,6 @@ class ApplicationState:
         self.config_directory = get_directory_from_path(input_path=config_file)
         self.config_file = get_file_from_path(input_path=config_file)
         self._read_global_configuration_file_content()
-        self.application_configuration.parse_global_configuration()
+        
         
 

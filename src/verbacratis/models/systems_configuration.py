@@ -7,9 +7,7 @@
 """
 
 import os
-from sqlalchemy import create_engine
 import yaml
-from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path
 from verbacratis.models import AWS_REGIONS
 
 
