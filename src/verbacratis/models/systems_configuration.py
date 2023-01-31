@@ -9,6 +9,7 @@
 import os
 import yaml
 from verbacratis.models import AWS_REGIONS
+from verbacratis.utils.parser2 import parse_yaml_file
 
 
 class Authentication:
@@ -510,9 +511,8 @@ class SystemConfigurations:
         """Parse data into the various Objects.
 
         Use something like parse_yaml_file() from `verbacratis.utils.parser2` to obtain the dictionary value from a parsed YAML file
-        
         """
-        # TODO Implement
+        # TODO Complete
         for part, data in raw_data.items():
             if isinstance(data, dict):
                 converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
@@ -607,22 +607,18 @@ class SystemConfigurations:
         return config_as_str
 
 
-def parse_yaml_configuration(raw_yaml: str)->SystemConfigurations:
-    system_configurations = SystemConfigurations()
-    # TODO Implement
-    
-    return system_configurations
-
-
 def get_yaml_configuration_from_file(file_path: str)->SystemConfigurations:
-    system_configurations = SystemConfigurations()
-    # TODO Implement
-
-    return system_configurations
+    sc = SystemConfigurations()
+    sc.parse_yaml(raw_data=parse_yaml_file(file_path=file_path))
+    return sc
 
 
 def get_yaml_configuration_from_git(git_clone_url: str, branch: str='main', directory: str='/', include_files_regex: tuple=('*.yml$', '*.yaml$',))->SystemConfigurations:
-    system_configurations = SystemConfigurations()
+    sc = SystemConfigurations()
     # TODO Implement
+    # 1) Clone the repo
+    # 2) Checkout the branch
+    # 3) Walk and get all the files from the start directory matching the include_files_regex
+    # 4) run sc.parse_yaml(raw_data=parse_yaml_file(file_path=file_path)) on each file
 
-    return system_configurations
+    return sc
