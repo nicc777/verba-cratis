@@ -356,7 +356,10 @@ class InfrastructureAccount:
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationReference'] = self.authentication_config.name
+            root['spec']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
+        if len(self.environments) == 0:
+            self.environments = ['default',]
+        root['metadata']['environments'] = self.environments
         return root
 
     def auth_id(self)->str:
@@ -421,7 +424,10 @@ class UnixInfrastructureAccount(InfrastructureAccount):
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationReference'] = self.authentication_config.name
+            root['spec']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
+        if len(self.environments) == 0:
+            self.environments = ['default',]
+        root['metadata']['environments'] = self.environments
         return root
 
     def auth_id(self)->str:
@@ -461,7 +467,7 @@ class AwsInfrastructureAccount(InfrastructureAccount):
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationReference'] = self.authentication_config.name
+            root['spec']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
         if len(self.environments) == 0:
             self.environments = ['default',]
         root['metadata']['environments'] = self.environments

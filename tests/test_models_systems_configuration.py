@@ -328,7 +328,7 @@ class TestAwsInfrastructureAccount(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(yaml_result, str)
         self.assertTrue(len(yaml_result) > 10)
         print('='*80)
-        print('# UnixInfrastructureAccount YAML')
+        print('# AwsInfrastructureAccount YAML')
         print(yaml_result)
         print('='*80)
         

@@ -87,9 +87,11 @@ spec:
 apiVersion: v1-alpha
 kind: UnixInfrastructureAccount
 metadata:
+  environments:
+  - default
   name: host1
 spec:
-  authenticationReference: host1.myorg
+  authenticationReference: cd-user@host1.myorg
   provider: ShellScript
 ```
 
