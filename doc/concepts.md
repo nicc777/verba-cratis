@@ -99,4 +99,25 @@ spec:
 
 ### AWS Account with Named Profile Authentication
 
-TODO
+Manifest Example:
+
+```yaml
+---
+apiVersion: v1-alpha
+kind: AwsProfileBasedAuthentication
+metadata:
+  name: accXYZ
+spec:
+  profile_name: profile_01
+  region: eu-central-1
+---
+apiVersion: v1-alpha
+kind: AwsInfrastructureAccount
+metadata:
+  environments:
+  - sandbox-env
+  name: sandbox-account
+spec:
+  authenticationReference: accXYZ
+  provider: AWS
+```
