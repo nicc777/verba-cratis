@@ -169,10 +169,10 @@ class AwsAuthentication(Authentication):
 
     def __init__(
         self,
-        account_reference: str='default',
+        name: str='default',
         region: str=os.getenv('AWS_DEFAULT_REGION', 'eu-central-1')
     ):
-        super().__init__(name=account_reference)
+        super().__init__(name=name)
         self.region = region.lower()
         if os.getenv('AWS_REGION', None) is not None:
             if os.getenv('AWS_REGION').lower() in AWS_REGIONS:
@@ -218,12 +218,12 @@ class AwsKeyBasedAuthentication(AwsAuthentication):
     """
     def __init__(
         self,
-        account_reference: str,
+        name: str,
         access_key: str = os.getenv('AWS_ACCESS_KEY_ID', ''),
         secret_key: str = os.getenv('AWS_SECRET_ACCESS_KEY', ''),
         region: str = os.getenv('AWS_DEFAULT_REGION', 'eu-central-1')
     ):
-        super().__init__(account_reference, region)
+        super().__init__(name, region)
         self.access_key = access_key
         self.secret_key = secret_key
         self.secret_key_is_final = True
@@ -274,11 +274,11 @@ class AwsProfileBasedAuthentication(AwsAuthentication):
     """
     def __init__(
         self,
-        account_reference: str,
+        name: str,
         profile_name: str = os.getenv('AWS_PROFILE', ''),
         region: str = os.getenv('AWS_DEFAULT_REGION', 'eu-central-1')
     ):
-        super().__init__(account_reference, region)
+        super().__init__(name, region)
         self.profile_name = profile_name
         if len(self.profile_name) == 0:
             raise Exception('Profile name cannot have zero length')
@@ -446,11 +446,32 @@ class AwsInfrastructureAccount(InfrastructureAccount):
         self,
         account_name: str = 'default',
         environments: list = ['default',],
-        authentication_config: AwsAuthentication = AwsAuthentication(account_reference='default'),
+        authentication_config: AwsAuthentication = AwsAuthentication(name='default'),
     ):
         super().__init__(account_name, environments)
         self.account_provider = 'AWS'
         self.authentication_config = authentication_config
+
+    def as_dict(self)->dict:
+        root = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = 'AwsInfrastructureAccount'
+        root['metadata'] = dict()
+        root['metadata']['name'] = self.account_name
+        root['spec'] = dict()
+        root['spec']['provider'] = self.account_provider
+        if self.authentication_config is not None:
+            root['spec']['authenticationReference'] = self.authentication_config.name
+        if len(self.environments) == 0:
+            self.environments = ['default',]
+        root['metadata']['environments'] = self.environments
+        return root
+
+    def __str__(self)->str:
+        return '---\n{}---\n{}'.format(
+            str(self.authentication_config),
+            yaml.dump(self.as_dict())
+        )
 
 
 class InfrastructureAccounts:

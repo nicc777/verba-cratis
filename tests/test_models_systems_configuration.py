@@ -215,23 +215,23 @@ class TestAwsAuthentication(unittest.TestCase):    # pragma: no cover
 class TestAwsKeyBasedAuthentication(unittest.TestCase):    # pragma: no cover
 
     def test_aws_key_based_authentication_init_with_defaults(self):
-        host = AwsKeyBasedAuthentication(account_reference='default')
+        host = AwsKeyBasedAuthentication(name='default')
         self.assertIsNotNone(host)
         self.assertIsInstance(host, AwsAuthentication)
         self.assertIsInstance(host, AwsKeyBasedAuthentication)
 
     def test_aws_key_based_authentication_init_with_values_secret_insecure(self):
-        host = AwsKeyBasedAuthentication(account_reference='default', access_key='abc', secret_key='def')
+        host = AwsKeyBasedAuthentication(name='default', access_key='abc', secret_key='def')
         result = host.as_dict()
         self.assertEqual(result['spec']['secret_key'], '***')
 
     def test_aws_key_based_authentication_init_with_values_secret_secure(self):
-        host = AwsKeyBasedAuthentication(account_reference='default', access_key='abc', secret_key='${{EnvironmentVariables:computed:someSecret}}')
+        host = AwsKeyBasedAuthentication(name='default', access_key='abc', secret_key='${{EnvironmentVariables:computed:someSecret}}')
         result = host.as_dict()
         self.assertEqual(result['spec']['secret_key'], '${{EnvironmentVariables:computed:someSecret}}')
 
     def test_aws_key_based_authentication_dump_yaml(self):
-        host = AwsKeyBasedAuthentication(account_reference='default', access_key='abc', secret_key='${{EnvironmentVariables:computed:someSecret}}')
+        host = AwsKeyBasedAuthentication(name='default', access_key='abc', secret_key='${{EnvironmentVariables:computed:someSecret}}')
         yaml_result = str(host)
         self.assertIsNotNone(yaml_result)
         self.assertIsInstance(yaml_result, str)
@@ -245,20 +245,20 @@ class TestAwsKeyBasedAuthentication(unittest.TestCase):    # pragma: no cover
 class TestAwsProfileBasedAuthentication(unittest.TestCase):    # pragma: no cover
 
     def test_aws_profile_based_authentication_init_with_defaults(self):
-        host = AwsProfileBasedAuthentication(account_reference='default', profile_name='default')
-        self.assertIsNotNone(host)
-        self.assertIsInstance(host, AwsAuthentication)
-        self.assertIsInstance(host, AwsProfileBasedAuthentication)
+        credentials = AwsProfileBasedAuthentication(name='default', profile_name='default')
+        self.assertIsNotNone(credentials)
+        self.assertIsInstance(credentials, AwsAuthentication)
+        self.assertIsInstance(credentials, AwsProfileBasedAuthentication)
 
     def test_aws_key_based_authentication_init_with_values_secret_insecure(self):
-        host = AwsProfileBasedAuthentication(account_reference='abc', profile_name='default')
-        result = host.as_dict()
+        credentials = AwsProfileBasedAuthentication(name='abc', profile_name='default')
+        result = credentials.as_dict()
         self.assertIsNotNone(result)
         self.assertIsInstance(result, dict)
 
     def test_aws_key_based_authentication_dump_yaml(self):
-        host = AwsProfileBasedAuthentication(account_reference='abc', profile_name='default')
-        yaml_result = str(host)
+        credentials = AwsProfileBasedAuthentication(name='abc', profile_name='default')
+        yaml_result = str(credentials)
         self.assertIsNotNone(yaml_result)
         self.assertIsInstance(yaml_result, str)
         self.assertTrue(len(yaml_result) > 10)
@@ -316,6 +316,21 @@ class TestUnixInfrastructureAccount(unittest.TestCase):    # pragma: no cover
         self.assertIsNotNone(auth_id)
         self.assertIsInstance(auth_id, str)
         self.assertEqual(auth_id, 'cd-user@host1.myorg')
+
+
+class TestAwsInfrastructureAccount(unittest.TestCase):    # pragma: no cover
+
+    def test_aws_infrastructure_account_with_aws_profile_based_Authentication_dump_yaml(self):
+        credentials = AwsProfileBasedAuthentication(name='accXYZ', profile_name='profile_01')
+        account = AwsInfrastructureAccount(account_name='sandbox-account', environments=['sandbox-env',], authentication_config=credentials)
+        yaml_result = str(account)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# UnixInfrastructureAccount YAML')
+        print(yaml_result)
+        print('='*80)
         
 
 if __name__ == '__main__':
