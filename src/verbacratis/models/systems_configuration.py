@@ -588,10 +588,11 @@ class SystemConfigurations:
     def _create_AwsProfileBasedAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:
         o = AwsProfileBasedAuthentication(name=data['metadata']['name'], profile_name='default')
         if 'spec' in data:
-            if 'authenticationType' in data['spec']:
-                o.authentication_type = data['spec']['authenticationType']
-            else:
-                raise Exception('Expected .spec.authenticationType but got nothing.')
+            if 'authentication' in data['spec']:
+                if 'authenticationType' in data['spec']['authentication']:
+                    o.authentication_type = data['spec']['authentication']['authenticationType']
+                else:
+                    raise Exception('Expected .spec.authenticationType but got nothing.')
             if 'region' in data['spec']:
                 o.region = data['spec']['region'] 
             if 'profile_name' in data['spec']:
