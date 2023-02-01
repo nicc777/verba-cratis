@@ -506,6 +506,7 @@ class SystemConfigurations:
         self.parsed_configuration['AwsInfrastructureAccount'] = dict()
 
         # Create a run-on-localhost account
+        self.parsed_configuration['Authentication']['no-auth'] = Authentication()
         self.parsed_configuration['UnixInfrastructureAccount']['deployment-host'] = UnixInfrastructureAccount()
 
     def _create_Authentication_instance_from_data(self, data:dict)->Authentication:
