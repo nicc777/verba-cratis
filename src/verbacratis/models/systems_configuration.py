@@ -503,6 +503,8 @@ class SystemConfigurations:
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
                 o.authentication_type = data['spec']['authenticationType']
+            else:
+                raise Exception('Expected .spec.authenticationType but got nothing.')
         o.username = None
         return o
 
@@ -511,6 +513,8 @@ class SystemConfigurations:
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
                 o.authentication_type = data['spec']['authenticationType']
+            else:
+                raise Exception('Expected .spec.authenticationType but got nothing.')
         o.username = None
         return o
 
@@ -520,6 +524,8 @@ class SystemConfigurations:
             if 'spec' in data:
                 if 'authenticationType' in data['spec']:
                     o.authentication_type = data['spec']['authenticationType']
+                else:
+                    raise Exception('Expected .spec.authenticationType but got nothing.')
             o.username = None
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
@@ -529,6 +535,19 @@ class SystemConfigurations:
             o = SshCredentialsBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0], password=data['spec']['password'])
             if 'authenticationType' in data['spec']:
                 o.authentication_type = data['spec']['authenticationType']
+            else:
+                raise Exception('Expected .spec.authenticationType but got nothing.')
+            o.username = None
+            return o
+        raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
+
+    def _create_SshPrivateKeyBasedAuthenticationConfig_instance_from_data(self, data:dict)->Authentication:
+        if '@' in data['metadata']['name']:
+            o = SshPrivateKeyBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0], private_key_path=data['spec']['privateKeyPath'])
+            if 'authenticationType' in data['spec']:
+                o.authentication_type = data['spec']['authenticationType']
+            else:
+                raise Exception('Expected .spec.authenticationType but got nothing.')
             o.username = None
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
