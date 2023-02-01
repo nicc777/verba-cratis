@@ -499,8 +499,16 @@ class SystemConfigurations:
         # Create a run-on-localhost account
         self.parsed_configuration['UnixInfrastructureAccount']['deployment-host'] = UnixInfrastructureAccount()
 
-    def _create_authentication_instance_from_data(self, data:dict)->Authentication:
+    def _create_Authentication_instance_from_data(self, data:dict)->Authentication:
         o = Authentication(name=data['metadata']['name'])
+        if 'spec' in data:
+            if 'authenticationType' in data['spec']:
+                o.authentication_type = data['spec']['authenticationType']
+        o.username = None
+        return o
+
+    def _create_UnixHostAuthentication_instance_from_data(self, data:dict)->Authentication:
+        o = UnixHostAuthentication(hostname=data['metadata']['name'])
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
                 o.authentication_type = data['spec']['authenticationType']
@@ -518,7 +526,7 @@ class SystemConfigurations:
                 converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
                 if 'kind' in converted_data:
                     if converted_data['kind'].lower() == 'Authentication'.lower():
-                        self.add_configuration(item=self._create_authentication_instance_from_data(data=converted_data))                        
+                        self.add_configuration(item=self._create_Authentication_instance_from_data(data=converted_data))                        
                     elif converted_data['kind'].lower() == 'Authentication'.lower():
                         pass
                     elif converted_data['kind'].lower() == 'UnixHostAuthentication'.lower():
