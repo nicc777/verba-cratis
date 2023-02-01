@@ -515,6 +515,16 @@ class SystemConfigurations:
         o.username = None
         return o
 
+    def _create_SshHostBasedAuthenticationConfig_instance_from_data(self, data:dict)->Authentication:
+        if '@' in data['metadata']['name']:
+            o = SshHostBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0])
+            if 'spec' in data:
+                if 'authenticationType' in data['spec']:
+                    o.authentication_type = data['spec']['authenticationType']
+            o.username = None
+            return o
+        raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
+
     def parse_yaml(self, raw_data: dict):
         """Parse data into the various Objects.
 
@@ -526,13 +536,11 @@ class SystemConfigurations:
                 converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
                 if 'kind' in converted_data:
                     if converted_data['kind'].lower() == 'Authentication'.lower():
-                        self.add_configuration(item=self._create_Authentication_instance_from_data(data=converted_data))                        
-                    elif converted_data['kind'].lower() == 'Authentication'.lower():
-                        pass
+                        self.add_configuration(item=self._create_Authentication_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'UnixHostAuthentication'.lower():
-                        pass
+                        self.add_configuration(item=self._create_UnixHostAuthentication_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'SshHostBasedAuthenticationConfig'.lower():
-                        pass
+                        self.add_configuration(item=self._create_SshHostBasedAuthenticationConfig_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'SshCredentialsBasedAuthenticationConfig'.lower():
                         pass
                     elif converted_data['kind'].lower() == 'SshPrivateKeyBasedAuthenticationConfig'.lower():
