@@ -413,6 +413,17 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
 
         # TODO add tests to validate each object in system_configuration.parsed_configuration has been created correctly
 
+    def test_SystemConfigurations_create_classes_from_manifest_dump_back_as_yaml(self):
+        system_configuration = SystemConfigurations()
+        system_configuration.parse_yaml(raw_data=self.manifest_data)
+        yaml_result = str(system_configuration)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# SystemConfigurations YAML')
+        print(yaml_result)
+        print('='*80)
         
 
 if __name__ == '__main__':
