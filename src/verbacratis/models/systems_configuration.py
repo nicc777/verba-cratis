@@ -583,6 +583,20 @@ class SystemConfigurations:
         o.username = None
         return o
 
+    def _create_AwsProfileBasedAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:
+        o = AwsProfileBasedAuthentication(name=data['metadata']['name'])
+        if 'spec' in data:
+            if 'authenticationType' in data['spec']:
+                o.authentication_type = data['spec']['authenticationType']
+            else:
+                raise Exception('Expected .spec.authenticationType but got nothing.')
+            if 'region' in data['spec']:
+                o.region = data['spec']['region'] 
+            if 'profile_name' in data['spec']:
+                o.profile_name = data['spec']['profile_name']
+        o.username = None
+        return o
+
     def parse_yaml(self, raw_data: dict):
         """Parse data into the various Objects.
 
@@ -608,7 +622,7 @@ class SystemConfigurations:
                     elif converted_data['kind'].lower() == 'AwsKeyBasedAuthentication'.lower():
                         self.add_configuration(item=self._create_AwsKeyBasedAuthentication_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'AwsProfileBasedAuthentication'.lower():
-                        pass
+                        self.add_configuration(item=self._create_AwsProfileBasedAuthentication_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'InfrastructureAccount'.lower():
                         pass
                     elif converted_data['kind'].lower() == 'UnixInfrastructureAccount'.lower():
