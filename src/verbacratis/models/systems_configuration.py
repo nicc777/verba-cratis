@@ -680,6 +680,9 @@ class SystemConfigurations:
                         instance_name=object_def.authentication_config.name
                     )
 
+        # Update all our environments in our local deployment host
+        self.update_local_deployment_host_with_all_environments()
+
     def get_configuration_instance(self, class_type_name: str, instance_name: str):
         if class_type_name in self.parsed_configuration:
             for object_name, object_instance in self.parsed_configuration[class_type_name].items():
@@ -705,7 +708,7 @@ class SystemConfigurations:
 
     def find_local_deployment_host_account_name(self)->str:
         if 'deployment-host' in self.parsed_configuration['UnixInfrastructureAccount']:
-            return self.parsed_configuration['UnixInfrastructureAccount']['deployment-host']
+            return self.parsed_configuration['UnixInfrastructureAccount']['deployment-host'].account_name
         for object_name, object_def in self.parsed_configuration['UnixInfrastructureAccount'].items():
             if object_def.account_provider == 'RunOnLocalhost':
                 return object_name
@@ -737,7 +740,18 @@ class SystemConfigurations:
         else:
             raise Exception('Item type "{}" not recognized'.format(item.__class__.__name__))
 
-    def update_local_deployment_host_with_all_environments(self, environments: list):
+    def get_all_environments(self)->tuple:
+        environments = list()
+        for object_class_type, objects in self.parsed_configuration.items():
+            if object_class_type in ('InfrastructureAccount', 'UnixInfrastructureAccount', 'AwsInfrastructureAccount',):
+                for object_name, object_def in objects.items():
+                    for environment in object_def.environments:
+                        if environment not in environments:
+                            environments.append(environment)
+        return tuple(environments)
+
+    def update_local_deployment_host_with_all_environments(self):
+        environments = self.get_all_environments()
         if len(environments) is None:
             raise Exception('At least one environment name must be set')
         if len(environments) == 0:
