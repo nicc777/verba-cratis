@@ -617,7 +617,7 @@ class SystemConfigurations:
 
         Use something like parse_yaml_file() from `verbacratis.utils.parser2` to obtain the dictionary value from a parsed YAML file
         """
-        # TODO Complete
+        # Create individual class instances and add to the parsed_configuration for each type
         for part, data in raw_data.items():
             if isinstance(data, dict):
                 converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
