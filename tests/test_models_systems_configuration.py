@@ -24,23 +24,6 @@ from verbacratis.utils.parser2 import parse_yaml_file
 def mock_get_file_contents(file: str)->str: # pragma: no cover
     return """---
 apiVersion: v1-alpha
-kind: Authentication
-metadata:
-  name: no-auth
----
-apiVersion: v1-alpha
-kind: InfrastructureAccount
-metadata:
-  environments:
-  - default
-  name: deployment-host
-spec:
-  authentication:
-    authenticationReference: no-auth
-    type: Authentication
-  provider: RunOnLocalhost
----
-apiVersion: v1-alpha
 kind: SshCredentialsBasedAuthenticationConfig
 metadata:
   name: cd-user@host1.myorg

@@ -586,7 +586,7 @@ class SystemConfigurations:
         return o
 
     def _create_AwsProfileBasedAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:
-        o = AwsProfileBasedAuthentication(name=data['metadata']['name'])
+        o = AwsProfileBasedAuthentication(name=data['metadata']['name'], profile_name='default')
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
                 o.authentication_type = data['spec']['authenticationType']
@@ -727,11 +727,11 @@ class SystemConfigurations:
         elif item.__class__.__name__ == 'AwsProfileBasedAuthentication':
             self.parsed_configuration['AwsProfileBasedAuthentication'][item.name] = item
         elif item.__class__.__name__ == 'InfrastructureAccount':
-            self.parsed_configuration['InfrastructureAccount'][item.name] = item
+            self.parsed_configuration['InfrastructureAccount'][item.account_name] = item
         elif item.__class__.__name__ == 'UnixInfrastructureAccount':
-            self.parsed_configuration['UnixInfrastructureAccount'][item.name] = item
+            self.parsed_configuration['UnixInfrastructureAccount'][item.account_name] = item
         elif item.__class__.__name__ == 'AwsInfrastructureAccount':
-            self.parsed_configuration['AwsInfrastructureAccount'][item.name] = item
+            self.parsed_configuration['AwsInfrastructureAccount'][item.account_name] = item
         else:
             raise Exception('Item type "{}" not recognized'.format(item.__class__.__name__))
 
