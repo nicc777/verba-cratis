@@ -175,6 +175,7 @@ class AwsAuthentication(Authentication):
         if os.getenv('AWS_REGION', None) is not None:
             if os.getenv('AWS_REGION').lower() in AWS_REGIONS:
                 self.region = os.getenv('AWS_REGION').lower()
+        self.authentication_type = 'AwsDefaultAuthentication'
 
     def as_dict(self):
         root = dict()
@@ -227,6 +228,7 @@ class AwsKeyBasedAuthentication(AwsAuthentication):
         self.secret_key_is_final = True
         if secret_key.startswith('${') and secret_key.endswith('}'):
             self.secret_key_is_final = False                        # Secret key still needs to be resolved via Environment...
+        self.authentication_type = 'AwsKeyBasedAuthentication'
 
     def as_dict(self):
         root = dict()
@@ -280,6 +282,7 @@ class AwsProfileBasedAuthentication(AwsAuthentication):
         self.profile_name = profile_name
         if len(self.profile_name) == 0:
             raise Exception('Profile name cannot have zero length')
+        self.authentication_type = 'AwsProfileBasedAuthentication'
 
     def as_dict(self):
         root = dict()
@@ -508,7 +511,7 @@ class SystemConfigurations:
         o.username = None
         return o
 
-    def _create_UnixHostAuthentication_instance_from_data(self, data:dict)->Authentication:
+    def _create_UnixHostAuthentication_instance_from_data(self, data:dict)->UnixHostAuthentication:
         o = UnixHostAuthentication(hostname=data['metadata']['name'])
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
@@ -518,7 +521,7 @@ class SystemConfigurations:
         o.username = None
         return o
 
-    def _create_SshHostBasedAuthenticationConfig_instance_from_data(self, data:dict)->Authentication:
+    def _create_SshHostBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshHostBasedAuthenticationConfig:
         if '@' in data['metadata']['name']:
             o = SshHostBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0])
             if 'spec' in data:
@@ -530,7 +533,7 @@ class SystemConfigurations:
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
-    def _create_SshCredentialsBasedAuthenticationConfig_instance_from_data(self, data:dict)->Authentication:
+    def _create_SshCredentialsBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshCredentialsBasedAuthenticationConfig:
         if '@' in data['metadata']['name']:
             o = SshCredentialsBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0], password=data['spec']['password'])
             if 'authenticationType' in data['spec']:
@@ -541,7 +544,7 @@ class SystemConfigurations:
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
-    def _create_SshPrivateKeyBasedAuthenticationConfig_instance_from_data(self, data:dict)->Authentication:
+    def _create_SshPrivateKeyBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshPrivateKeyBasedAuthenticationConfig:
         if '@' in data['metadata']['name']:
             o = SshPrivateKeyBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0], private_key_path=data['spec']['privateKeyPath'])
             if 'authenticationType' in data['spec']:
@@ -551,6 +554,18 @@ class SystemConfigurations:
             o.username = None
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
+
+    def _create_AwsAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:
+        o = AwsAuthentication(name=data['metadata']['name'])
+        if 'spec' in data:
+            if 'authenticationType' in data['spec']:
+                o.authentication_type = data['spec']['authenticationType']
+            else:
+                raise Exception('Expected .spec.authenticationType but got nothing.')
+            if 'region' in data['spec']:
+                o.region = data['spec']['region']
+        o.username = None
+        return o
 
     def parse_yaml(self, raw_data: dict):
         """Parse data into the various Objects.
@@ -571,9 +586,9 @@ class SystemConfigurations:
                     elif converted_data['kind'].lower() == 'SshCredentialsBasedAuthenticationConfig'.lower():
                         self.add_configuration(item=self._create_SshCredentialsBasedAuthenticationConfig_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'SshPrivateKeyBasedAuthenticationConfig'.lower():
-                        pass
+                        self.add_configuration(item=self._create_SshPrivateKeyBasedAuthenticationConfig_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'AwsAuthentication'.lower():
-                        pass
+                        self.add_configuration(item=self._create_AwsAuthentication_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'AwsKeyBasedAuthentication'.lower():
                         pass
                     elif converted_data['kind'].lower() == 'AwsProfileBasedAuthentication'.lower():
