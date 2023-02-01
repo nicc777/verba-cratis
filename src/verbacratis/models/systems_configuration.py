@@ -600,7 +600,31 @@ class SystemConfigurations:
         return o
 
     def _create_InfrastructureAccount_instance_from_data(self, data:dict)->InfrastructureAccount:
-        o = InfrastructureAccount(name=data['metadata']['name'])
+        o = InfrastructureAccount(account_name=data['metadata']['name'])
+        if 'environments' in data['metadata']:
+            o.environments = data['metadata']['environments']
+        if 'provider' in data['spec']:
+            o.account_provider = data['spec']['provider']
+        if 'authentication' in data['spec']:
+            if 'type' in data['spec']['authentication'] and 'authenticationReference' in data['spec']['authentication']:
+                o.authentication_config = Authentication(name=data['spec']['authentication']['authenticationReference'])
+                o.authentication_config_type = data['spec']['authentication']['type']
+        return o
+
+    def _create_UnixInfrastructureAccount_instance_from_data(self, data:dict)->UnixInfrastructureAccount:
+        o = UnixInfrastructureAccount(account_name=data['metadata']['name'])
+        if 'environments' in data['metadata']:
+            o.environments = data['metadata']['environments']
+        if 'provider' in data['spec']:
+            o.account_provider = data['spec']['provider']
+        if 'authentication' in data['spec']:
+            if 'type' in data['spec']['authentication'] and 'authenticationReference' in data['spec']['authentication']:
+                o.authentication_config = Authentication(name=data['spec']['authentication']['authenticationReference'])
+                o.authentication_config_type = data['spec']['authentication']['type']
+        return o
+
+    def _create_AwsInfrastructureAccount_instance_from_data(self, data:dict)->AwsInfrastructureAccount:
+        o = AwsInfrastructureAccount(account_name=data['metadata']['name'])
         if 'environments' in data['metadata']:
             o.environments = data['metadata']['environments']
         if 'provider' in data['spec']:
@@ -641,9 +665,9 @@ class SystemConfigurations:
                     elif converted_data['kind'].lower() == 'InfrastructureAccount'.lower():
                         self.add_configuration(item=self._create_InfrastructureAccount_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'UnixInfrastructureAccount'.lower():
-                        self.add_configuration(item=self._create_InfrastructureAccount_instance_from_data(data=converted_data))
+                        self.add_configuration(item=self._create_UnixInfrastructureAccount_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'AwsInfrastructureAccount'.lower():
-                        self.add_configuration(item=self._create_InfrastructureAccount_instance_from_data(data=converted_data))
+                        self.add_configuration(item=self._create_AwsInfrastructureAccount_instance_from_data(data=converted_data))
         
         # Go through all the InfrastructureAccount's and link their proper authentication classes based on the Authentication class name.
         for object_class_type, objects in self.parsed_configuration.items():

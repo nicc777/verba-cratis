@@ -18,7 +18,68 @@ import unittest
 
 
 from verbacratis.models.systems_configuration import *
-from sqlalchemy.engine import Engine
+from verbacratis.utils.parser2 import parse_yaml_file
+
+
+def mock_get_file_contents(file: str)->str: # pragma: no cover
+    return """---
+apiVersion: v1-alpha
+kind: Authentication
+metadata:
+  name: no-auth
+---
+apiVersion: v1-alpha
+kind: InfrastructureAccount
+metadata:
+  environments:
+  - default
+  name: deployment-host
+spec:
+  authentication:
+    authenticationReference: no-auth
+    type: Authentication
+  provider: RunOnLocalhost
+---
+apiVersion: v1-alpha
+kind: SshCredentialsBasedAuthenticationConfig
+metadata:
+  name: cd-user@host1.myorg
+spec:
+  authenticationType: SshUsingCredentials
+  password: ${{EnvironmentVariables:computed:someSecret}}
+---
+apiVersion: v1-alpha
+kind: UnixInfrastructureAccount
+metadata:
+  environments:
+  - default
+  name: host1
+spec:
+  authentication:
+    authenticationReference: cd-user@host1.myorg
+    type: SshCredentialsBasedAuthenticationConfig
+  provider: ShellScript
+---
+apiVersion: v1-alpha
+kind: AwsProfileBasedAuthentication
+metadata:
+  name: accXYZ
+spec:
+  profile_name: profile_01
+  region: eu-central-1
+---
+apiVersion: v1-alpha
+kind: AwsInfrastructureAccount
+metadata:
+  environments:
+  - sandbox-env
+  name: sandbox-account
+spec:
+  authentication:
+    authenticationReference: accXYZ
+    type: AwsProfileBasedAuthentication
+  provider: AWS
+        """
 
 
 class TestAuthentication(unittest.TestCase):    # pragma: no cover
@@ -359,64 +420,7 @@ class TestAwsInfrastructureAccount(unittest.TestCase):    # pragma: no cover
 class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
-        self.manifest_data = """---
-apiVersion: v1-alpha
-kind: Authentication
-metadata:
-  name: no-auth
----
-apiVersion: v1-alpha
-kind: InfrastructureAccount
-metadata:
-  environments:
-  - default
-  name: deployment-host
-spec:
-  authentication:
-    authenticationReference: no-auth
-    type: Authentication
-  provider: RunOnLocalhost
----
-apiVersion: v1-alpha
-kind: SshCredentialsBasedAuthenticationConfig
-metadata:
-  name: cd-user@host1.myorg
-spec:
-  authenticationType: SshUsingCredentials
-  password: ${{EnvironmentVariables:computed:someSecret}}
----
-apiVersion: v1-alpha
-kind: UnixInfrastructureAccount
-metadata:
-  environments:
-  - default
-  name: host1
-spec:
-  authentication:
-    authenticationReference: cd-user@host1.myorg
-    type: SshCredentialsBasedAuthenticationConfig
-  provider: ShellScript
----
-apiVersion: v1-alpha
-kind: AwsProfileBasedAuthentication
-metadata:
-  name: accXYZ
-spec:
-  profile_name: profile_01
-  region: eu-central-1
----
-apiVersion: v1-alpha
-kind: AwsInfrastructureAccount
-metadata:
-  environments:
-  - sandbox-env
-  name: sandbox-account
-spec:
-  authentication:
-    authenticationReference: accXYZ
-    type: AwsProfileBasedAuthentication
-  provider: AWS
-        """
+        self.manifest_data = parse_yaml_file(file_path='data', get_file_contents_function=mock_get_file_contents)
 
     def test_SystemConfigurations_create_classes_from_manifest(self):
         system_configuration = SystemConfigurations()
