@@ -478,6 +478,18 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
         self.assertNotIsInstance(system_configuration.parsed_configuration['AwsProfileBasedAuthentication']['accXYZ'], UnixInfrastructureAccount)
         self.assertNotIsInstance(system_configuration.parsed_configuration['AwsProfileBasedAuthentication']['accXYZ'], AwsInfrastructureAccount)
 
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], Authentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], UnixHostAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], SshHostBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], SshCredentialsBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], SshPrivateKeyBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], AwsAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], AwsKeyBasedAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], AwsProfileBasedAuthentication)
+        self.assertIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], InfrastructureAccount)
+        self.assertIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], UnixInfrastructureAccount)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], AwsInfrastructureAccount)
+
     def test_SystemConfigurations_create_classes_from_manifest_dump_back_as_yaml(self):
         system_configuration = SystemConfigurations()
         system_configuration.parse_yaml(raw_data=self.manifest_data)
