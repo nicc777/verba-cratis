@@ -84,10 +84,9 @@ class SshHostBasedAuthenticationConfig(UnixHostAuthentication):
         root['kind'] = 'SshHostBasedAuthenticationConfig'
         root['metadata'] = dict()
         root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
-        root['spec'] = dict()
-        data = dict()
-        data['authenticationType'] = self.authentication_type
-        root['spec'] = data
+        if self.authentication_type is not None:
+            root['spec'] = dict()
+            root['spec']['authenticationType'] = '{}'.format(self.authentication_type)
         return root
 
 
