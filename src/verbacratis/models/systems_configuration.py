@@ -717,11 +717,11 @@ class SystemConfigurations:
         elif item.__class__.__name__ == 'UnixHostAuthentication':
             self.parsed_configuration['UnixHostAuthentication'][item.name] = item
         elif item.__class__.__name__ == 'SshHostBasedAuthenticationConfig':
-            self.parsed_configuration['SshHostBasedAuthenticationConfig'][item.name] = item
+            self.parsed_configuration['SshHostBasedAuthenticationConfig'][item.as_dict()['metadata']['name']] = item
         elif item.__class__.__name__ == 'SshCredentialsBasedAuthenticationConfig':
-            self.parsed_configuration['SshCredentialsBasedAuthenticationConfig'][item.name] = item
+            self.parsed_configuration['SshCredentialsBasedAuthenticationConfig'][item.as_dict()['metadata']['name']] = item
         elif item.__class__.__name__ == 'SshPrivateKeyBasedAuthenticationConfig':
-            self.parsed_configuration['SshPrivateKeyBasedAuthenticationConfig'][item.name] = item
+            self.parsed_configuration['SshPrivateKeyBasedAuthenticationConfig'][item.as_dict()['metadata']['name']] = item
         elif item.__class__.__name__ == 'AwsAuthentication':
             self.parsed_configuration['AwsAuthentication'][item.name] = item
         elif item.__class__.__name__ == 'AwsKeyBasedAuthentication':
