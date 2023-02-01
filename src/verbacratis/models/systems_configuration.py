@@ -346,6 +346,7 @@ class InfrastructureAccount:
         self.environments = environments
         self.account_provider = 'RunOnLocalhost'    # OPTIONS: "RunOnLocalhost" or "RunOnRemoteHost"
         self.authentication_config = authentication_config
+        self.authentication_config_type = authentication_config.__class__.__name__
 
     def as_dict(self)->dict:
         root = dict()
@@ -357,7 +358,9 @@ class InfrastructureAccount:
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
+            root['spec']['authentication'] = dict()
+            root['spec']['authentication']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
+            root['spec']['authentication']['type'] = self.authentication_config.__class__.__name__
         if len(self.environments) == 0:
             self.environments = ['default',]
         root['metadata']['environments'] = self.environments
@@ -412,7 +415,7 @@ class UnixInfrastructureAccount(InfrastructureAccount):
         authentication_config: Authentication = Authentication(name='no-auth'),
         environments: list=['default',]
     ):
-        super().__init__(account_name, environments)
+        super().__init__(account_name, environments, authentication_config=authentication_config)
         self.account_provider = 'ShellScript'
         self.authentication_config = authentication_config
 
@@ -425,7 +428,9 @@ class UnixInfrastructureAccount(InfrastructureAccount):
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
+            root['spec']['authentication'] = dict()
+            root['spec']['authentication']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
+            root['spec']['authentication']['type'] = self.authentication_config.__class__.__name__
         if len(self.environments) == 0:
             self.environments = ['default',]
         root['metadata']['environments'] = self.environments
@@ -455,7 +460,7 @@ class AwsInfrastructureAccount(InfrastructureAccount):
         environments: list = ['default',],
         authentication_config: AwsAuthentication = AwsAuthentication(name='default'),
     ):
-        super().__init__(account_name, environments)
+        super().__init__(account_name, environments, authentication_config=authentication_config)
         self.account_provider = 'AWS'
         self.authentication_config = authentication_config
 
@@ -468,7 +473,9 @@ class AwsInfrastructureAccount(InfrastructureAccount):
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
+            root['spec']['authentication'] = dict()
+            root['spec']['authentication']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
+            root['spec']['authentication']['type'] = self.authentication_config.__class__.__name__
         if len(self.environments) == 0:
             self.environments = ['default',]
         root['metadata']['environments'] = self.environments
@@ -529,7 +536,6 @@ class SystemConfigurations:
                     o.authentication_type = data['spec']['authenticationType']
                 else:
                     raise Exception('Expected .spec.authenticationType but got nothing.')
-            o.username = None
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
@@ -540,7 +546,6 @@ class SystemConfigurations:
                 o.authentication_type = data['spec']['authenticationType']
             else:
                 raise Exception('Expected .spec.authenticationType but got nothing.')
-            o.username = None
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
@@ -551,7 +556,6 @@ class SystemConfigurations:
                 o.authentication_type = data['spec']['authenticationType']
             else:
                 raise Exception('Expected .spec.authenticationType but got nothing.')
-            o.username = None
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
@@ -564,7 +568,6 @@ class SystemConfigurations:
                 raise Exception('Expected .spec.authenticationType but got nothing.')
             if 'region' in data['spec']:
                 o.region = data['spec']['region']
-        o.username = None
         return o
 
     def _create_AwsKeyBasedAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:
@@ -580,7 +583,6 @@ class SystemConfigurations:
                 o.access_key = data['spec']['access_key']
             if 'secret_key' in data['spec']:
                 o.secret_key = data['spec']['secret_key']
-        o.username = None
         return o
 
     def _create_AwsProfileBasedAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:
@@ -595,6 +597,18 @@ class SystemConfigurations:
             if 'profile_name' in data['spec']:
                 o.profile_name = data['spec']['profile_name']
         o.username = None
+        return o
+
+    def _create_InfrastructureAccount_instance_from_data(self, data:dict)->InfrastructureAccount:
+        o = InfrastructureAccount(name=data['metadata']['name'])
+        if 'environments' in data['metadata']:
+            o.environments = data['metadata']['environments']
+        if 'provider' in data['spec']:
+            o.account_provider = data['spec']['provider']
+        if 'authentication' in data['spec']:
+            if 'type' in data['spec']['authentication'] and 'authenticationReference' in data['spec']['authentication']:
+                o.authentication_config = Authentication(name=data['spec']['authentication']['authenticationReference'])
+                o.authentication_config_type = data['spec']['authentication']['type']
         return o
 
     def parse_yaml(self, raw_data: dict):
@@ -624,11 +638,12 @@ class SystemConfigurations:
                     elif converted_data['kind'].lower() == 'AwsProfileBasedAuthentication'.lower():
                         self.add_configuration(item=self._create_AwsProfileBasedAuthentication_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'InfrastructureAccount'.lower():
-                        pass
+                        self.add_configuration(item=self._create_InfrastructureAccount_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'UnixInfrastructureAccount'.lower():
                         pass
                     elif converted_data['kind'].lower() == 'AwsInfrastructureAccount'.lower():
                         pass
+        # TODO - Go through all the InfrastructureAccount's and link their proper authentication classes based on the Authentication class name.
 
     def get_infrastructure_account_names(self)->tuple:
         names = list()
