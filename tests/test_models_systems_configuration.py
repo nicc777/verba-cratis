@@ -502,6 +502,18 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], UnixInfrastructureAccount)
         self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], AwsInfrastructureAccount)
 
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], Authentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], UnixHostAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], SshHostBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], SshCredentialsBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], SshPrivateKeyBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], AwsAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], AwsKeyBasedAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], AwsProfileBasedAuthentication)
+        self.assertIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], InfrastructureAccount)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], UnixInfrastructureAccount)
+        self.assertIsInstance(system_configuration.parsed_configuration['AwsInfrastructureAccount']['sandbox-account'], AwsInfrastructureAccount)
+
     def test_SystemConfigurations_create_classes_from_manifest_dump_back_as_yaml(self):
         system_configuration = SystemConfigurations()
         system_configuration.parse_yaml(raw_data=self.manifest_data)
