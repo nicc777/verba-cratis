@@ -611,6 +611,7 @@ class SystemConfigurations:
                 o.authentication_config_type = data['spec']['authentication']['type']
         return o
 
+
     def parse_yaml(self, raw_data: dict):
         """Parse data into the various Objects.
 
@@ -640,9 +641,9 @@ class SystemConfigurations:
                     elif converted_data['kind'].lower() == 'InfrastructureAccount'.lower():
                         self.add_configuration(item=self._create_InfrastructureAccount_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'UnixInfrastructureAccount'.lower():
-                        pass
+                        self.add_configuration(item=self._create_InfrastructureAccount_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'AwsInfrastructureAccount'.lower():
-                        pass
+                        self.add_configuration(item=self._create_InfrastructureAccount_instance_from_data(data=converted_data))
         
         # Go through all the InfrastructureAccount's and link their proper authentication classes based on the Authentication class name.
         for object_class_type, objects in self.parsed_configuration.items():
