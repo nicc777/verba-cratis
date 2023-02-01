@@ -490,6 +490,18 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], UnixInfrastructureAccount)
         self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['deployment-host'], AwsInfrastructureAccount)
 
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], Authentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], UnixHostAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], SshHostBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], SshCredentialsBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], SshPrivateKeyBasedAuthenticationConfig)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], AwsAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], AwsKeyBasedAuthentication)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], AwsProfileBasedAuthentication)
+        self.assertIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], InfrastructureAccount)
+        self.assertIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], UnixInfrastructureAccount)
+        self.assertNotIsInstance(system_configuration.parsed_configuration['UnixInfrastructureAccount']['host1'], AwsInfrastructureAccount)
+
     def test_SystemConfigurations_create_classes_from_manifest_dump_back_as_yaml(self):
         system_configuration = SystemConfigurations()
         system_configuration.parse_yaml(raw_data=self.manifest_data)
