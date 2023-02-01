@@ -643,7 +643,22 @@ class SystemConfigurations:
                         pass
                     elif converted_data['kind'].lower() == 'AwsInfrastructureAccount'.lower():
                         pass
-        # TODO - Go through all the InfrastructureAccount's and link their proper authentication classes based on the Authentication class name.
+        
+        # Go through all the InfrastructureAccount's and link their proper authentication classes based on the Authentication class name.
+        for object_class_type, objects in self.parsed_configuration.items():
+            if object_class_type in ('InfrastructureAccount', 'UnixInfrastructureAccount', 'AwsInfrastructureAccount',):
+                for object_name, object_def in objects.items():
+                    object_def.authentication_config = self.get_configuration_instance(
+                        class_type_name=object_def.authentication_config_type,
+                        instance_name=object_def.authentication_config.name
+                    )
+
+    def get_configuration_instance(self, class_type_name: str, instance_name: str):
+        if class_type_name in self.parsed_configuration:
+            for object_name, object_instance in self.parsed_configuration[class_type_name].items():
+                if object_name == instance_name:
+                    return object_instance
+        raise Exception('"{}" of type "{}" NOT FOUND'.format(instance_name, class_type_name))
 
     def get_infrastructure_account_names(self)->tuple:
         names = list()
