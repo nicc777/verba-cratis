@@ -354,6 +354,76 @@ class TestAwsInfrastructureAccount(unittest.TestCase):    # pragma: no cover
         print('# AwsInfrastructureAccount YAML')
         print(yaml_result)
         print('='*80)
+
+
+class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        self.manifest_data = """---
+apiVersion: v1-alpha
+kind: Authentication
+metadata:
+  name: no-auth
+---
+apiVersion: v1-alpha
+kind: InfrastructureAccount
+metadata:
+  environments:
+  - default
+  name: deployment-host
+spec:
+  authentication:
+    authenticationReference: no-auth
+    type: Authentication
+  provider: RunOnLocalhost
+---
+apiVersion: v1-alpha
+kind: SshCredentialsBasedAuthenticationConfig
+metadata:
+  name: cd-user@host1.myorg
+spec:
+  authenticationType: SshUsingCredentials
+  password: ${{EnvironmentVariables:computed:someSecret}}
+---
+apiVersion: v1-alpha
+kind: UnixInfrastructureAccount
+metadata:
+  environments:
+  - default
+  name: host1
+spec:
+  authentication:
+    authenticationReference: cd-user@host1.myorg
+    type: SshCredentialsBasedAuthenticationConfig
+  provider: ShellScript
+---
+apiVersion: v1-alpha
+kind: AwsProfileBasedAuthentication
+metadata:
+  name: accXYZ
+spec:
+  profile_name: profile_01
+  region: eu-central-1
+---
+apiVersion: v1-alpha
+kind: AwsInfrastructureAccount
+metadata:
+  environments:
+  - sandbox-env
+  name: sandbox-account
+spec:
+  authentication:
+    authenticationReference: accXYZ
+    type: AwsProfileBasedAuthentication
+  provider: AWS
+        """
+
+    def test_SystemConfigurations_create_classes_from_manifest(self):
+        system_configuration = SystemConfigurations()
+        system_configuration.parse_yaml(raw_data=self.manifest_data)
+        self.assertIsNotNone(system_configuration)
+        self.assertIsInstance(system_configuration, SystemConfigurations)
+
         
 
 if __name__ == '__main__':
