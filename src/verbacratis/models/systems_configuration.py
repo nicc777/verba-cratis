@@ -524,6 +524,15 @@ class SystemConfigurations:
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
+    def _create_SshCredentialsBasedAuthenticationConfig_instance_from_data(self, data:dict)->Authentication:
+        if '@' in data['metadata']['name']:
+            o = SshCredentialsBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0], password=data['spec']['password'])
+            if 'authenticationType' in data['spec']:
+                o.authentication_type = data['spec']['authenticationType']
+            o.username = None
+            return o
+        raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
+
     def parse_yaml(self, raw_data: dict):
         """Parse data into the various Objects.
 
@@ -541,7 +550,7 @@ class SystemConfigurations:
                     elif converted_data['kind'].lower() == 'SshHostBasedAuthenticationConfig'.lower():
                         self.add_configuration(item=self._create_SshHostBasedAuthenticationConfig_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'SshCredentialsBasedAuthenticationConfig'.lower():
-                        pass
+                        self.add_configuration(item=self._create_SshCredentialsBasedAuthenticationConfig_instance_from_data(data=converted_data))
                     elif converted_data['kind'].lower() == 'SshPrivateKeyBasedAuthenticationConfig'.lower():
                         pass
                     elif converted_data['kind'].lower() == 'AwsAuthentication'.lower():
