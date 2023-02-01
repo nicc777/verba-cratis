@@ -411,6 +411,8 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
         self.assertIsNotNone(system_configuration)
         self.assertIsInstance(system_configuration, SystemConfigurations)
 
+        # TODO add tests to validate each object in system_configuration.parsed_configuration has been created correctly
+
         
 
 if __name__ == '__main__':
