@@ -62,9 +62,13 @@ metadata:
 apiVersion: v1-alpha
 kind: InfrastructureAccount
 metadata:
+  environments:
+  - default
   name: deployment-host
 spec:
-  authenticationReference: no-auth
+  authentication:
+    authenticationReference: no-auth
+    type: Authentication
   provider: RunOnLocalhost
 ```
 
@@ -91,7 +95,9 @@ metadata:
   - default
   name: host1
 spec:
-  authenticationReference: cd-user@host1.myorg
+  authentication:
+    authenticationReference: cd-user@host1.myorg
+    type: SshCredentialsBasedAuthenticationConfig
   provider: ShellScript
 ```
 
@@ -120,6 +126,8 @@ metadata:
   - sandbox-env
   name: sandbox-account
 spec:
-  authenticationReference: accXYZ
+  authentication:
+    authenticationReference: accXYZ
+    type: AwsProfileBasedAuthentication
   provider: AWS
 ```
