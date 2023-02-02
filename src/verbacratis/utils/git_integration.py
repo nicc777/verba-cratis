@@ -8,11 +8,6 @@
 
 import os
 from git import Repo
-from git import Git
-from pathlib import Path
-import traceback
-import shutil
-import tempfile
 import random, string
 from verbacratis.utils.file_io import create_tmp_dir, find_matching_files
 
