@@ -76,8 +76,14 @@ def git_clone_checkout_and_return_list_of_files(
     """
     files_found = list()
 
-    if git_clone_checkout_and_return_list_of_files(git_clone_url=git_clone_url, branch=branch, target_dir=target_dir) is True:
-        pass
+    target_directory = git_clone_checkout_and_return_list_of_files(
+        git_clone_url=git_clone_url,
+        branch=branch,
+        target_dir=target_dir,
+        ssh_private_key_path=ssh_private_key_path,
+        set_no_verify_ssl=set_no_verify_ssl
+    )
+
 
     # TODO Implement
     # 1) Walk and get all the files from the start directory matching the include_files_regex
