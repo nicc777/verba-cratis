@@ -104,9 +104,9 @@ class ShellScript:
         self.on_fail_return_success = on_fail_return_success
         self.on_fail_return_value = on_fail_return_value
         if does_file_exists(code_reference) is True:
-            self.script_file = copy_file(source_file=code_reference, tmp_dir=create_tmp_dir(script_name=script_name), file_name=script_name)
+            self.script_file = copy_file(source_file=code_reference, tmp_dir=create_tmp_dir(sub_dir=script_name), file_name=script_name)
         else:
-            self.script_file = create_tmp_file(tmp_dir=create_tmp_dir(script_name=script_name), file_name=script_name, data=code_reference)
+            self.script_file = create_tmp_file(tmp_dir=create_tmp_dir(sub_dir=script_name), file_name=script_name, data=code_reference)
 
 
 class Environment:

@@ -52,8 +52,8 @@ def remove_tmp_dir_recursively(dir: str)->bool:
         return False
 
 
-def create_tmp_dir(script_name: str)->str:
-    tmp_dir = '{}{}{}'.format(tempfile.gettempdir(), os.sep, script_name)
+def create_tmp_dir(sub_dir: str)->str:
+    tmp_dir = '{}{}{}'.format(tempfile.gettempdir(), os.sep, sub_dir)
     try:
         remove_tmp_dir_recursively(dir=tmp_dir)
         os.mkdir(tmp_dir)
@@ -79,7 +79,7 @@ def copy_file(source_file: str, tmp_dir: str, file_name: str)->str:
         data = ''
         with open(source_file, "r") as fr:
             data = fr.read()
-        target_file = create_tmp_file(tmp_dir=create_tmp_dir(script_name=file_name), file_name=file_name, data=data)
+        target_file = create_tmp_file(tmp_dir=create_tmp_dir(sub_dir=file_name), file_name=file_name, data=data)
     except:
         traceback.print_exc()
         return None
