@@ -58,6 +58,15 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         self.assertIsInstance(dir, str)
         self.assertTrue(len(dir) > 0)
 
+    def test_f_git_clone_to_local_test_branch(self):
+        dir = git_clone_to_local(git_clone_url=self.test_repo_ssh, branch='test-branch', target_dir=self.target_dir)
+        self.assertIsNotNone(dir)
+        self.assertIsInstance(dir, str)
+        self.assertTrue(len(dir) > 0)
+        content = ''
+        with open('{}{}aws-accounts.yaml'.format(dir, os.sep), 'r') as f:
+            content = f.read()
+        self.assertTrue('sandbox2' in content)
 
 
 if __name__ == '__main__':
