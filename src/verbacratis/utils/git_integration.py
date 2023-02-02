@@ -21,7 +21,7 @@ def random_word(length: int=16):
     return ''.join(random.choice(letters) for i in range(length))
 
 
-def git_clone_checkout_and_return_list_of_files(
+def git_clone_to_local(
     git_clone_url: str,
     branch: str='main',
     target_dir: str=None,
@@ -62,7 +62,7 @@ def git_clone_checkout_and_return_list_of_files(
     git_clone_url: str,
     branch: str='main',
     relative_start_directory: str='',
-    include_files_regex: tuple=('*.yml$', '*.yaml$',),
+    include_files_regex: str='*.y*l$',
     target_dir: str='/tmp',
     ssh_private_key_path: str=None,
     set_no_verify_ssl: bool=False
@@ -84,7 +84,7 @@ def git_clone_checkout_and_return_list_of_files(
     Raises:
         Exception: In the event of an error
     """
-    target_directory = git_clone_checkout_and_return_list_of_files(
+    target_directory = git_clone_to_local(
         git_clone_url=git_clone_url,
         branch=branch,
         target_dir=target_dir,
