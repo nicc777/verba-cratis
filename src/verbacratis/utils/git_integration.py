@@ -14,7 +14,7 @@ import traceback
 import shutil
 import tempfile
 import random, string
-from verbacratis.utils.file_io import create_tmp_dir
+from verbacratis.utils.file_io import create_tmp_dir, find_matching_files
 
 
 def random_word(length: int=16):
@@ -66,16 +66,29 @@ def git_clone_checkout_and_return_list_of_files(
 def git_clone_checkout_and_return_list_of_files(
     git_clone_url: str,
     branch: str='main',
-    relative_start_directory: str='/',
+    relative_start_directory: str='',
     include_files_regex: tuple=('*.yml$', '*.yaml$',),
     target_dir: str='/tmp',
     ssh_private_key_path: str=None,
     set_no_verify_ssl: bool=False
 )->list:
     """Parse files from a Git repository matching a file pattern withing a branch and directory to return a SystemConfigurations instance
-    """
-    files_found = list()
 
+    Args:
+        git_clone_url: A string containing the Git repository clone URL, for example `git@github.com:nicc777/verba-cratis-test-infrastructure.git`
+        branch: String containing the branch name to check out. Default is `main`
+        relative_start_directory: String containing the sub-directory in the cloned repository to look for file. Default is the root of the cloned repository
+        include_files_regex: A regular expression string for files to match. Default is matching YAML files.
+        target_dir: A string containing the target directory for cloning the repository. Default is `None` in which case a random temporary directory will be created and returned
+        ssh_private_key_path: A string containing the SSH private key to use. Optional, and if value is `None`, the default transport (HTTPS) will be used.
+        set_no_verify_ssl: A boolean that will not check SSL certificates if set to True (default=`False`). Useful when using self-signed certificates, but use with caution!!
+
+    Returns:
+        A list of matching files
+
+    Raises:
+        Exception: In the event of an error
+    """
     target_directory = git_clone_checkout_and_return_list_of_files(
         git_clone_url=git_clone_url,
         branch=branch,
@@ -83,9 +96,17 @@ def git_clone_checkout_and_return_list_of_files(
         ssh_private_key_path=ssh_private_key_path,
         set_no_verify_ssl=set_no_verify_ssl
     )
-
-
-    # TODO Implement
-    # 1) Walk and get all the files from the start directory matching the include_files_regex
-
-    return files_found
+    start_dir = target_directory
+    if len(relative_start_directory) > 0:
+        if relative_start_directory.startswith(os.sep):
+            start_dir = '{}{}'.format(
+                target_directory,
+                relative_start_directory
+            )
+        else:
+            start_dir = '{}{}{}'.format(
+                target_directory,
+                os.sep,
+                relative_start_directory
+            )
+    return find_matching_files(start_dir=start_dir, pattern=include_files_regex)

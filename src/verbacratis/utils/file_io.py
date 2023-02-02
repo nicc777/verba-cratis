@@ -11,6 +11,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
+import re
 
 
 def get_file_contents(file: str)->str:
@@ -153,3 +154,12 @@ def expand_to_full_path(original_path: str)->str:
         os.sep,
         original_path
     )
+
+def find_matching_files(start_dir:str, pattern: str='.*')->list:
+    files_found = list()
+    regex = re.compile(pattern)
+    for root, dirs, files in os.walk(start_dir):
+        for file in files:
+            if regex.match(file):
+                files_found.append('{}{}{}'.format(root, os.sep, file))
+    return files_found
