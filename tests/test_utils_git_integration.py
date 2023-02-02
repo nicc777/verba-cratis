@@ -40,7 +40,7 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         files = git_clone_checkout_and_return_list_of_files(git_clone_url=self.test_repo_ssh, target_dir=self.target_dir, include_files_regex='.*')
         self.assertIsNotNone(files)
         self.assertIsInstance(files, list)
-        # self.assertEqual(len(files), 2)
+        # self.assertEqual(len(files), 2)   # FIXME This test is still failing... Our regex throws an exception
         found = 0
         for file in files:
             print('> Inspecting file {}'.format(file))
