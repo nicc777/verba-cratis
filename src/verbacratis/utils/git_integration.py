@@ -62,7 +62,7 @@ def git_clone_checkout_and_return_list_of_files(
     git_clone_url: str,
     branch: str='main',
     relative_start_directory: str='',
-    include_files_regex: str='*.y*l$',
+    include_files_regex: str='.*\.yaml$|.*\.yml$',
     target_dir: str='/tmp',
     ssh_private_key_path: str=None,
     set_no_verify_ssl: bool=False

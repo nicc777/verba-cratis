@@ -37,10 +37,10 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
 
     def test_get_yaml_files_from_ssh_repo(self):
         print('Cloning to {}'.format(self.target_dir))
-        files = git_clone_checkout_and_return_list_of_files(git_clone_url=self.test_repo_ssh, target_dir=self.target_dir, include_files_regex='.*')
+        files = git_clone_checkout_and_return_list_of_files(git_clone_url=self.test_repo_ssh, target_dir=self.target_dir)
         self.assertIsNotNone(files)
         self.assertIsInstance(files, list)
-        # self.assertEqual(len(files), 2)   # FIXME This test is still failing... Our regex throws an exception
+        self.assertEqual(len(files), 2) 
         found = 0
         for file in files:
             print('> Inspecting file {}'.format(file))
