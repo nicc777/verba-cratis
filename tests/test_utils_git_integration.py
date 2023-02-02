@@ -13,6 +13,7 @@ print('sys.path={}'.format(sys.path))
 
 import unittest
 import tempfile
+from pathlib import Path
 
 
 from verbacratis.utils.git_integration import *
@@ -67,6 +68,23 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         with open('{}{}aws-accounts.yaml'.format(dir, os.sep), 'r') as f:
             content = f.read()
         self.assertTrue('sandbox2' in content)
+
+    def test_f_git_clone_to_local_specify_private_key(self):
+        home = str(Path.home())
+        default_ssh_private_key = '{}{}.ssh/id_rsa'.format(home, os.sep)
+        dir = git_clone_to_local(git_clone_url=self.test_repo_ssh, target_dir=self.target_dir, ssh_private_key_path=default_ssh_private_key)
+        self.assertIsNotNone(dir)
+        self.assertIsInstance(dir, str)
+        self.assertTrue(len(dir) > 0)
+        self.assertTrue(os.path.exists('{}{}.git'.format(dir, os.sep)))
+
+    def test_f_git_clone_to_local_specify_https_no_verify(self):
+        home = str(Path.home())
+        dir = git_clone_to_local(git_clone_url=self.test_repo_https, target_dir=self.target_dir, set_no_verify_ssl=True)
+        self.assertIsNotNone(dir)
+        self.assertIsInstance(dir, str)
+        self.assertTrue(len(dir) > 0)
+        self.assertTrue(os.path.exists('{}{}.git'.format(dir, os.sep)))
 
 
 if __name__ == '__main__':
