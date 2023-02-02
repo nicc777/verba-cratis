@@ -98,6 +98,18 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
                 found += 1
         self.assertEqual(found, 1)
 
+    def test_f_git_clone_checkout_and_return_list_of_files_test_branch_get_file_from_specific_directory_2(self):
+        files = git_clone_checkout_and_return_list_of_files(git_clone_url=self.test_repo_ssh, branch='test-branch', target_dir=self.target_dir, relative_start_directory='experiment')
+        self.assertIsNotNone(files)
+        self.assertIsInstance(files, list)
+        self.assertEqual(len(files), 1)
+        found = 0
+        for file in files:
+            print('> Inspecting file {}'.format(file))
+            if 'aws-accounts-new.yaml' in file or 'linux-test-accounts.yaml' in file:
+                found += 1
+        self.assertEqual(found, 1)
+
 
 if __name__ == '__main__':
     unittest.main()
