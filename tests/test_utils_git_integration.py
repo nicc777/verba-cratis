@@ -25,8 +25,10 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         self.test_repo_ssh = 'git@github.com:nicc777/verba-cratis-test-infrastructure.git'
         self.test_repo_https = 'https://github.com/nicc777/verba-cratis-test-infrastructure.git'
         self.target_dir = create_tmp_dir(sub_dir=random_word())
+        print('Preparing dir: {}'.format(self.target_dir))
 
     def tearDown(self) -> None:
+        print('CLeanup dir: {}'.format(self.target_dir))
         remove_tmp_dir_recursively(dir=self.target_dir)
 
     def test_random_word(self):
@@ -47,6 +49,15 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
             if 'aws-accounts.yaml' in file or 'linux-test-accounts.yaml' in file:
                 found += 1
         self.assertEqual(found, 2)
+
+    def test_f_git_clone_to_local_defaults(self):
+        remove_tmp_dir_recursively(dir=self.target_dir)
+        dir = git_clone_to_local(git_clone_url=self.test_repo_ssh)
+        self.target_dir = dir
+        self.assertIsNotNone(dir)
+        self.assertIsInstance(dir, str)
+        self.assertTrue(len(dir) > 0)
+
 
 
 if __name__ == '__main__':
