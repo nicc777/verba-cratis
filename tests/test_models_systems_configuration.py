@@ -539,7 +539,7 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         test_conf = sc.get_configuration_instance(class_type_name='AwsInfrastructureAccount', instance_name='sandbox-account')
         self.assertIsNotNone(test_conf)
         self.assertIsInstance(test_conf, AwsInfrastructureAccount)
-        self.assertEqual(test_conf.name, 'sandbox-account')
+        self.assertEqual(test_conf.account_name, 'sandbox-account')
         self.assertFalse('sandbox2' in test_conf.environments)
 
 

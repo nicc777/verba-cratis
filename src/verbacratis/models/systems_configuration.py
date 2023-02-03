@@ -785,9 +785,7 @@ def get_system_configuration_from_files(files: list)->SystemConfigurations:
     try:
         combined_file_content = ''
         for file in files:
-            with open(file, 'r') as f:
-                combined_file_content = '{}\n---\n{}\n'.format(combined_file_content, f.read())
-        sc.parse_yaml(raw_data=combined_file_content)
+            sc.parse_yaml(raw_data=parse_yaml_file(file_path=file))
     except:
         traceback.print_exc()
     return sc
