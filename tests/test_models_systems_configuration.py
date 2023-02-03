@@ -564,6 +564,17 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
         print(yaml_result)
         print('='*80)
 
+    def test_SystemConfigurations_method_get_infrastructure_account_names(self):
+        system_configuration = SystemConfigurations()
+        system_configuration.parse_yaml(raw_data=self.manifest_data)
+        names_data = system_configuration.get_infrastructure_account_names()
+        self.assertIsNotNone(names_data)
+        self.assertIsInstance(names_data, tuple)
+        self.assertTrue(len(names_data) > 0)
+        for obj_data in names_data:
+            self.assertTrue('ObjectClassType' in obj_data)
+            self.assertTrue('ObjectName' in obj_data)
+
 
 class TestAllFunctions(unittest.TestCase):  # pragma: no cover
 
