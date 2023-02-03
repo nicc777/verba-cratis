@@ -430,6 +430,13 @@ class TestAwsInfrastructureAccount(unittest.TestCase):    # pragma: no cover
         print(yaml_result)
         print('='*80)
 
+    def test_infrastructure_account_init_with_no_environments_creates_default_environment(self):
+        acc = AwsInfrastructureAccount(account_name='test', environments=list())
+        acc_dict = acc.as_dict()
+        result = acc_dict['metadata']['environments']
+        self.assertEqual(len(result), 1)
+        self.assertTrue('default' in result)
+
 
 class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
 
