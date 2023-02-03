@@ -391,6 +391,30 @@ class TestUnixInfrastructureAccount(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(auth_id, str)
         self.assertEqual(auth_id, 'cd-user@host1.myorg')
 
+    def test_infrastructure_account_init_with_no_environments_creates_default_environment(self):
+        acc = UnixInfrastructureAccount(environments=list())
+        acc_dict = acc.as_dict()
+        result = acc_dict['metadata']['environments']
+        self.assertEqual(len(result), 1)
+        self.assertTrue('default' in result)
+
+    def test_infrastructure_account_init_with_no_auth_config_returns_none_when_calling_method_auth_id(self):
+        acc = UnixInfrastructureAccount(environments=list())
+        acc.authentication_config = None
+        auth_config = acc.auth_id()
+        self.assertIsNone(auth_config)
+
+    def test_infrastructure_account_init_with_no_auth_config_returns_alt_name_when_calling_method_auth_id(self):
+        acc = UnixInfrastructureAccount(environments=list())
+        auth_config = Authentication()
+        auth_config.name = 'test'
+        auth_config.username = None
+        acc.authentication_config = auth_config # Replace default
+        result = acc.auth_id()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, 'test')
+
 
 class TestAwsInfrastructureAccount(unittest.TestCase):    # pragma: no cover
 
