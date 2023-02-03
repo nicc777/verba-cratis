@@ -161,5 +161,7 @@ def find_matching_files(start_dir:str, pattern: str='.*')->list:
     for root, dirs, files in os.walk(start_dir):
         for file in files:
             if regex.match(file):
-                files_found.append('{}{}{}'.format(root, os.sep, file))
+                full_file_path = '{}{}{}'.format(root, os.sep, file)
+                full_file_path = full_file_path.replace('{}{}'.format(os.sep, os.sep), '{}'.format(os.sep))
+                files_found.append(full_file_path)
     return files_found
