@@ -783,7 +783,6 @@ class SystemConfigurations:
 def get_system_configuration_from_files(files: list)->SystemConfigurations:
     sc = SystemConfigurations()
     try:
-        combined_file_content = ''
         for file in files:
             sc.parse_yaml(raw_data=parse_yaml_file(file_path=file))
     except:
