@@ -22,6 +22,7 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
 
     def setUp(self):
         self.temp_file = '{}{}test'.format(tempfile.gettempdir(), os.sep)
+        create_tmp_file(tmp_dir=tempfile.gettempdir(), file_name='test', data='')
 
     def test_all_in_one_file_io(self):
         content1 = "aaa"
