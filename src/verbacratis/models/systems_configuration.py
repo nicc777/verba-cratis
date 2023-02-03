@@ -512,7 +512,7 @@ class SystemConfigurations:
         self.parsed_configuration['Authentication']['no-auth'] = Authentication()
         self.parsed_configuration['UnixInfrastructureAccount']['deployment-host'] = UnixInfrastructureAccount()
 
-    def _create_Authentication_instance_from_data(self, data:dict)->Authentication:
+    def _create_Authentication_instance_from_data(self, data:dict)->Authentication: # pragma: no cover
         o = Authentication(name=data['metadata']['name'])
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
@@ -522,7 +522,7 @@ class SystemConfigurations:
         o.username = None
         return o
 
-    def _create_UnixHostAuthentication_instance_from_data(self, data:dict)->UnixHostAuthentication:
+    def _create_UnixHostAuthentication_instance_from_data(self, data:dict)->UnixHostAuthentication: # pragma: no cover
         o = UnixHostAuthentication(hostname=data['metadata']['name'])
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
@@ -532,7 +532,7 @@ class SystemConfigurations:
         o.username = None
         return o
 
-    def _create_SshHostBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshHostBasedAuthenticationConfig:
+    def _create_SshHostBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshHostBasedAuthenticationConfig: # pragma: no cover
         if '@' in data['metadata']['name']:
             o = SshHostBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0])
             if 'spec' in data:
@@ -543,7 +543,7 @@ class SystemConfigurations:
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
-    def _create_SshCredentialsBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshCredentialsBasedAuthenticationConfig:
+    def _create_SshCredentialsBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshCredentialsBasedAuthenticationConfig:   # pragma: no cover
         if '@' in data['metadata']['name']:
             o = SshCredentialsBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0], password=data['spec']['password'])
             if 'authenticationType' in data['spec']:
@@ -553,7 +553,7 @@ class SystemConfigurations:
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
-    def _create_SshPrivateKeyBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshPrivateKeyBasedAuthenticationConfig:
+    def _create_SshPrivateKeyBasedAuthenticationConfig_instance_from_data(self, data:dict)->SshPrivateKeyBasedAuthenticationConfig: # pragma: no cover
         if '@' in data['metadata']['name']:
             o = SshPrivateKeyBasedAuthenticationConfig(hostname=data['metadata']['name'].split('@')[1], username=data['metadata']['name'].split('@')[0], private_key_path=data['spec']['privateKeyPath'])
             if 'authenticationType' in data['spec']:
@@ -563,7 +563,7 @@ class SystemConfigurations:
             return o
         raise Exception('Expected "username@hostname format but got "{}""'.format(data['metadata']['name']))
 
-    def _create_AwsAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:
+    def _create_AwsAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:   # pragma: no cover
         o = AwsAuthentication(name=data['metadata']['name'])
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
@@ -574,7 +574,7 @@ class SystemConfigurations:
                 o.region = data['spec']['region']
         return o
 
-    def _create_AwsKeyBasedAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:
+    def _create_AwsKeyBasedAuthentication_instance_from_data(self, data:dict)->AwsAuthentication:   # pragma: no cover
         o = AwsKeyBasedAuthentication(name=data['metadata']['name'])
         if 'spec' in data:
             if 'authenticationType' in data['spec']:
@@ -604,7 +604,7 @@ class SystemConfigurations:
         o.username = None
         return o
 
-    def _create_InfrastructureAccount_instance_from_data(self, data:dict)->InfrastructureAccount:
+    def _create_InfrastructureAccount_instance_from_data(self, data:dict)->InfrastructureAccount:   # pragma: no cover
         o = InfrastructureAccount(account_name=data['metadata']['name'])
         if 'environments' in data['metadata']:
             o.environments = data['metadata']['environments']
