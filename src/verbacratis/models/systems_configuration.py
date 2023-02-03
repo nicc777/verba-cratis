@@ -832,5 +832,6 @@ def get_yaml_configuration_from_git(
         ssh_private_key_path=ssh_private_key_path,
         set_no_verify_ssl=set_no_verify_ssl
     )
+    sc = get_system_configuration_from_files(files=files)
     remove_tmp_dir_recursively(dir=tmp_dir)
-    return get_system_configuration_from_files(files=files)
+    return sc
