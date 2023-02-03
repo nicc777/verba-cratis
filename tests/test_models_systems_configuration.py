@@ -525,7 +525,23 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
         print('# SystemConfigurations YAML')
         print(yaml_result)
         print('='*80)
-        
+
+
+class TestAllFunctions(unittest.TestCase):  # pragma: no cover
+
+    def setUp(self):
+        self.test_repo_https = 'https://github.com/nicc777/verba-cratis-test-infrastructure.git'
+
+    def test_function_get_yaml_configuration_from_git_git_main_branch(self):
+        sc = get_yaml_configuration_from_git(git_clone_url=self.test_repo_https)
+        self.assertIsNotNone(sc)
+        self.assertIsInstance(sc, SystemConfigurations)
+        test_conf = sc.get_configuration_instance(class_type_name='AwsInfrastructureAccount', instance_name='sandbox-account')
+        self.assertIsNotNone(test_conf)
+        self.assertIsInstance(test_conf, AwsInfrastructureAccount)
+        self.assertEqual(test_conf.name, 'sandbox-account')
+        self.assertFalse('sandbox2' in test_conf.environments)
+
 
 if __name__ == '__main__':
     unittest.main()
