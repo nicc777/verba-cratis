@@ -805,7 +805,7 @@ def get_yaml_configuration_from_git(
     git_clone_url: str,
     branch: str='main',
     relative_start_directory: str='/',
-    include_files_regex: tuple=('*.yml$', '*.yaml$',),
+    include_files_regex: str='.*\.yaml$|.*\.yml$',
     ssh_private_key_path: str=None,
     set_no_verify_ssl: bool=False
 )->SystemConfigurations:
