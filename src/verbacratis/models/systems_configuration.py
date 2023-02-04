@@ -13,6 +13,7 @@ from verbacratis.models import AWS_REGIONS
 from verbacratis.utils.parser2 import parse_yaml_file
 from verbacratis.utils.git_integration import random_word, git_clone_checkout_and_return_list_of_files
 from verbacratis.utils.file_io import create_tmp_dir, remove_tmp_dir_recursively
+from verbacratis.utils.http_requests_io import download_files
 
 
 class Authentication:
@@ -790,20 +791,20 @@ def get_system_configuration_from_files(files: list)->SystemConfigurations:
     return sc
 
 
-def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, system_configurations: SystemConfigurations=SystemConfigurations())->SystemConfigurations:
+def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False)->SystemConfigurations:
     """Parse the file specified in the URL to return a SystemConfigurations instance
 
     Args:
         urls: A list of strings containing the URLs to the YAML files to download and parse
         set_no_verify_ssl: A boolean that will not check SSL certificates if set to True (default=`False`). Useful when using self-signed certificates, but use with caution!!
-        system_configurations: An existing SystemConfigurations object, if it exists. By default a new instance will be created
 
     Returns:
         `SystemConfigurations` instance with the parsed configuration
     """
-    # system_configurations.parse_yaml(raw_data=parse_yaml_file(file_path=file_path))
     tmp_dir = create_tmp_dir(sub_dir=random_word(length=32))
-
+    files = download_files(urls=urls, target_dir=tmp_dir, set_no_verify_ssl=set_no_verify_ssl)
+    system_configurations = get_system_configuration_from_files(files=files)
+    remove_tmp_dir_recursively(dir=tmp_dir)
     return system_configurations
 
 
