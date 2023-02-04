@@ -73,20 +73,26 @@ def parse_command_line_arguments(
     args['conf'] = None
     parser = _get_arg_parser(
         default_config_file='{}{}verbacratis.yaml'.format(DEFAULT_CONFIG_DIR, os.sep),
-        default_environment=state.environment,
-        default_project=state.project
+        default_environment=state.environment
     )
     parsed_args, unknown_args = parser.parse_known_args(cli_args)
 
     # Parse config file
     if parsed_args.config_file is not None:
-        args['config_file'] = expand_to_full_path(original_path=parsed_args.config_file[0])
+        if isinstance(parsed_args.config_file, list):
+            args['config_file'] = expand_to_full_path(original_path=parsed_args.config_file[0])
+        else:
+            args['config_file'] = expand_to_full_path(original_path=parsed_args.config_file)
 
     # Add system configuration manifest locations to args['system_manifest_locations']
     args['system_manifest_locations'] = list()
     if parsed_args.system_manifest_locations is not None:
         for location in parsed_args.system_manifest_locations:
-            args['system_manifest_locations'].append(expand_to_full_path(original_path=location))
+            if isinstance(location, list):
+                for sub_location in location:
+                    args['system_manifest_locations'].append(expand_to_full_path(original_path=sub_location))
+            else:
+                args['system_manifest_locations'].append(expand_to_full_path(original_path=location))
 
     # Add environment target to state
     if parsed_args.environment is not None:

@@ -141,7 +141,7 @@ def get_file_from_path(input_path: str)->str:
     p = Path(input_path)
     if p.exists() is True:
         if p.is_dir() is True:
-            raise Exception('Expected a file but got an existing directory')
+            raise Exception('Expected a file but got an existing directory when parsing "{}"'.format(input_path))
     elements = input_path.split(os.sep)
     file_name = elements[-1]
     return file_name

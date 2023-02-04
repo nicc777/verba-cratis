@@ -17,16 +17,27 @@ import unittest
 from verbacratis.utils.cli_arguments import parse_command_line_arguments
 from verbacratis.models.runtime import VariableStateStore
 from verbacratis.models.runtime_configuration import ApplicationState
+from verbacratis.utils.file_io import remove_tmp_dir_recursively
 
 
 class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no cover
 
     def setUp(self):
-        self.overrides = dict()
-        self.overrides['config_file'] = 'examples/example_02/example_02.yaml'
+    #     self.overrides = dict()
+    #     self.overrides['config_file'] = 'examples/example_02/example_02.yaml'
+    #     self.cli_args=[
+    #         '--conf', 'examples/example_01/example_02.yaml',
+    #     ]
         self.cli_args=[
-            '--conf', 'examples/example_01/example_02.yaml',
+            '-s', 'https://github.com/nicc777/verba-cratis-test-infrastructure.git',
+            '-e', 'default'
         ]
+        self.config_dir = None
+    
+    def tearDown(self):
+        if self.config_dir is not None:
+            print('CLEANUP: Removing directory recursively: {}'.format(self.config_dir))
+            remove_tmp_dir_recursively(dir=self.config_dir)
 
     def test_basic_invocation_no_args_fail_with_exit(self):
         with self.assertRaises(SystemExit) as cm:
@@ -35,6 +46,7 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
 
     def test_basic_invocation_args_basic(self):
         result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args)
+        self.config_dir = result.config_directory
         self.assertIsNotNone(result)
         self.assertIsInstance(result, ApplicationState)
 
