@@ -23,11 +23,6 @@ from verbacratis.utils.file_io import remove_tmp_dir_recursively
 class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no cover
 
     def setUp(self):
-    #     self.overrides = dict()
-    #     self.overrides['config_file'] = 'examples/example_02/example_02.yaml'
-    #     self.cli_args=[
-    #         '--conf', 'examples/example_01/example_02.yaml',
-    #     ]
         self.cli_args=[
             '-s', 'https://github.com/nicc777/verba-cratis-test-infrastructure.git',
             '-e', 'default'
