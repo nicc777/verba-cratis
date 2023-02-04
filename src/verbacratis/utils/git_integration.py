@@ -7,7 +7,9 @@
 """
 
 import os
+import traceback
 from git import Repo
+from git import cmd as git_cmd
 import random, string
 from verbacratis.utils.file_io import create_tmp_dir, find_matching_files
 
@@ -105,3 +107,17 @@ def git_clone_checkout_and_return_list_of_files(
                 relative_start_directory
             )
     return find_matching_files(start_dir=start_dir, pattern=include_files_regex)
+
+
+def is_url_a_git_repo(url: str)->bool:
+    try:
+        remote_refs = {}
+        g = git_cmd.Git()
+        for ref in g.ls_remote(url).split('\n'):
+            hash_ref_list = ref.split('\t')
+            remote_refs[hash_ref_list[1]] = hash_ref_list[0]
+        if len(remote_refs) > 0:
+            return True
+    except:
+        traceback.print_exc()
+    return False

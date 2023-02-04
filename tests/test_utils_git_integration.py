@@ -110,6 +110,18 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
                 found += 1
         self.assertEqual(found, 1)
 
+    def test_f_is_url_a_git_repo_valid_url_https(self):
+        self.assertTrue(is_url_a_git_repo(url=self.test_repo_https))
+
+    def test_f_is_url_a_git_repo_valid_url_ssh(self):
+        self.assertTrue(is_url_a_git_repo(url=self.test_repo_ssh))
+
+    def test_f_is_url_a_git_repo_invalid_url_https(self):
+        self.assertFalse(is_url_a_git_repo(url='https://www.google.com'))
+
+    def test_f_is_url_a_git_repo_invalid_url_ssh(self):
+        self.assertFalse(is_url_a_git_repo(url='git@github.com:nopenopenope'))
+
 
 if __name__ == '__main__':
     unittest.main()
