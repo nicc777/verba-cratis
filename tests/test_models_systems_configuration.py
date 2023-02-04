@@ -575,6 +575,14 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
             self.assertTrue('ObjectClassType' in obj_data)
             self.assertTrue('ObjectName' in obj_data)
 
+    def test_SystemConfigurations_method_get_infrastructure_account_auth_config(self):
+        system_configuration = SystemConfigurations()
+        system_configuration.parse_yaml(raw_data=self.manifest_data)
+        infrastructure_accounts = system_configuration.get_infrastructure_account_auth_config(infrastructure_account_name='sandbox-account')
+        self.assertIsNotNone(infrastructure_accounts)
+        self.assertIsInstance(infrastructure_accounts, list)
+        self.assertEqual(len(infrastructure_accounts), 1)
+
 
 class TestAllFunctions(unittest.TestCase):  # pragma: no cover
 

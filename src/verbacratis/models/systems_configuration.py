@@ -702,7 +702,7 @@ class SystemConfigurations:
         return tuple(names)
 
     def get_infrastructure_account_auth_config(self, infrastructure_account_name: str, search_scope: tuple=('InfrastructureAccount', 'UnixInfrastructureAccount', 'AwsInfrastructureAccount',))->list:
-        authentication_configurations = list
+        authentication_configurations = list()
         for object_class_type, objects in self.parsed_configuration.items():
             if object_class_type in search_scope:
                 for object_name, object_def in objects.items():
