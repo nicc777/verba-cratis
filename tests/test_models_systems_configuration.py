@@ -583,6 +583,23 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(infrastructure_accounts, list)
         self.assertEqual(len(infrastructure_accounts), 1)
 
+    def test_SystemConfigurations_method_get_infrastructure_Accounts_for_named_environment(self):
+        system_configuration = SystemConfigurations()
+        system_configuration.parse_yaml(raw_data=self.manifest_data)
+        infrastructure_accounts = system_configuration.get_infrastructure_Accounts_for_named_environment(environment_name='sandbox-env')
+        self.assertIsNotNone(infrastructure_accounts)
+        self.assertIsInstance(infrastructure_accounts, list)
+        self.assertEqual(len(infrastructure_accounts), 2)
+        for account_data in infrastructure_accounts:
+            self.assertTrue('ObjectClassType' in account_data)
+            self.assertTrue('ObjectInstance' in account_data)
+            account = account_data['ObjectInstance']
+            self.assertTrue(account.account_name in ('deployment-host', 'sandbox-account',), 'Unexpected account name found: {}'.format(account.account_name))
+            if account.account_name == 'deployment-host':
+                self.assertIsInstance(account, InfrastructureAccount)
+            else:
+                self.assertIsInstance(account, AwsInfrastructureAccount)
+
 
 class TestAllFunctions(unittest.TestCase):  # pragma: no cover
 

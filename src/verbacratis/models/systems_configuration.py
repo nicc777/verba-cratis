@@ -765,7 +765,7 @@ class SystemConfigurations:
     def get_infrastructure_Accounts_for_named_environment(self, environment_name: str, search_scope: tuple=('InfrastructureAccount', 'UnixInfrastructureAccount', 'AwsInfrastructureAccount',))->list:
         """Get all Infrastructure Accounts scoped for a certain environment, for example sandbox
         """
-        infrastructure_accounts = list
+        infrastructure_accounts = list()
         for object_class_type, objects in self.parsed_configuration.items():
             if object_class_type in search_scope:
                 for object_name, object_def in objects.items():
