@@ -31,4 +31,3 @@ def download_files(urls: list, target_dir: str='/tmp', set_no_verify_ssl: bool=F
                     files.append(outfile)
     return files
 
-
