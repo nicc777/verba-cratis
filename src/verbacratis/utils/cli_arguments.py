@@ -93,6 +93,11 @@ def parse_command_line_arguments(
                     args['system_manifest_locations'].append(expand_to_full_path(original_path=sub_location))
             else:
                 args['system_manifest_locations'].append(expand_to_full_path(original_path=location))
+    if len(args['system_manifest_locations']) == 0:
+        state.logger.error('CRITICAL: No system manifest locations specified')
+        parser.print_usage()
+        sys.exit(2)
+    state.system_manifest_locations = args['system_manifest_locations']
 
     # Add environment target to state
     if parsed_args.environment is not None:

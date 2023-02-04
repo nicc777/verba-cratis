@@ -16,7 +16,8 @@ from sqlalchemy import create_engine
 import yaml
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path, init_application_dir
 from verbacratis.models import GenericLogger, DEFAULT_CONFIG_DIR, DEFAULT_GLOBAL_CONFIG, DEFAULT_STATE_DB
-from verbacratis.models.systems_configuration import SystemConfigurations, InfrastructureAccount
+from verbacratis.models.systems_configuration import SystemConfigurations, InfrastructureAccount, get_yaml_configuration_from_git, get_yaml_configuration_from_url, get_system_configuration_from_files
+from verbacratis.utils.git_integration import is_url_a_git_repo
 
 
 class StateStore:
@@ -73,11 +74,11 @@ class ApplicationRuntimeConfiguration:
         self.parsed_configuration = dict()
         self.logger = logger
         self.state_store = StateStore(logger=self.logger)
-        self.infrastructure_accounts = SystemConfigurations()
+        self.system_configurations = SystemConfigurations()
         self.projects = None
 
     def add_infrastructure_account(self, infrastructure_account: InfrastructureAccount):
-        self.infrastructure_accounts.add_configuration(item=infrastructure_account)
+        self.system_configurations.add_configuration(item=infrastructure_account)
 
 
 class ApplicationState:
@@ -91,6 +92,7 @@ class ApplicationState:
         self.logger = logger
         self.build_id = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
         self.application_configuration = ApplicationRuntimeConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
+        self.system_manifest_locations = list()
 
     def _read_global_configuration_file_content(self):
         self.application_configuration = ApplicationRuntimeConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
@@ -112,6 +114,17 @@ class ApplicationState:
         init_application_dir(dir=self.config_directory)
         self.config_file = get_file_from_path(input_path=config_file)
         self._read_global_configuration_file_content()
+
+    def load_system_manifests(self):
+        for location in self.system_manifest_locations:
+            if location.startswith('http'):
+                if is_url_a_git_repo(url=location) is True:
+                    # FIXME We still need a way to specify branch and relative directory... Perhaps add those to the syntax of the CLI arguments...
+                    self.application_configuration.system_configurations = get_yaml_configuration_from_git(git_clone_url=location, system_configurations=self.application_configuration.system_configurations)
+                else:
+                    self.application_configuration.system_configurations = get_yaml_configuration_from_url(urls=[location,], system_configurations=self.application_configuration.system_configurations)
+            else:
+                self.application_configuration.system_configurations = get_system_configuration_from_files(files=[location,], system_configurations=self.application_configuration.system_configurations)
         
         
 

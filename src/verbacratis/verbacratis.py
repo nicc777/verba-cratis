@@ -20,6 +20,7 @@ def main(cli_args: list=list(), logger=get_logger())->dict:
     ### Start the build
     ###
     state: ApplicationState = parse_command_line_arguments(state=ApplicationState(logger=logger), cli_args=cli_args)
+    state.load_system_manifests()
     state.logger.info('Started with build ID {}'.format(state.build_id))
     
     ###

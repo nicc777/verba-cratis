@@ -781,17 +781,16 @@ class SystemConfigurations:
         return config_as_str
 
 
-def get_system_configuration_from_files(files: list)->SystemConfigurations:
-    sc = SystemConfigurations()
+def get_system_configuration_from_files(files: list, system_configurations = SystemConfigurations())->SystemConfigurations:
     try:
         for file in files:
-            sc.parse_yaml(raw_data=parse_yaml_file(file_path=file))
+            system_configurations.parse_yaml(raw_data=parse_yaml_file(file_path=file))
     except:
         traceback.print_exc()
-    return sc
+    return system_configurations
 
 
-def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False)->SystemConfigurations:
+def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, system_configurations = SystemConfigurations())->SystemConfigurations:
     """Parse the file specified in the URL to return a SystemConfigurations instance
 
     Args:
@@ -803,7 +802,7 @@ def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False)->
     """
     tmp_dir = create_tmp_dir(sub_dir=random_word(length=32))
     files = download_files(urls=urls, target_dir=tmp_dir, set_no_verify_ssl=set_no_verify_ssl)
-    system_configurations = get_system_configuration_from_files(files=files)
+    system_configurations = get_system_configuration_from_files(files=files, system_configurations=system_configurations)
     remove_tmp_dir_recursively(dir=tmp_dir)
     return system_configurations
 
@@ -814,7 +813,8 @@ def get_yaml_configuration_from_git(
     relative_start_directory: str='/',
     include_files_regex: str='.*\.yaml$|.*\.yml$',
     ssh_private_key_path: str=None,
-    set_no_verify_ssl: bool=False
+    set_no_verify_ssl: bool=False,
+    system_configurations = SystemConfigurations()
 )->SystemConfigurations:
     """Parse files from a Git repository matching a file pattern withing a branch and directory to return a SystemConfigurations instance
 
@@ -839,6 +839,6 @@ def get_yaml_configuration_from_git(
         ssh_private_key_path=ssh_private_key_path,
         set_no_verify_ssl=set_no_verify_ssl
     )
-    sc = get_system_configuration_from_files(files=files)
+    system_configurations = get_system_configuration_from_files(files=files, system_configurations=system_configurations)
     remove_tmp_dir_recursively(dir=tmp_dir)
-    return sc
+    return system_configurations
