@@ -600,6 +600,14 @@ class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover
             else:
                 self.assertIsInstance(account, AwsInfrastructureAccount)
 
+    def test_SystemConfigurations_method_find_local_deployment_host_account_name(self):
+        system_configuration = SystemConfigurations()
+        system_configuration.parse_yaml(raw_data=self.manifest_data)
+        local_account_name = system_configuration.find_local_deployment_host_account_name()
+        self.assertIsNotNone(local_account_name)
+        self.assertIsInstance(local_account_name, str)
+        self.assertEqual(local_account_name, 'deployment-host')
+
 
 class TestAllFunctions(unittest.TestCase):  # pragma: no cover
 
