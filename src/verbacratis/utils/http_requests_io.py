@@ -19,15 +19,16 @@ def download_files(urls: list, target_dir: str='/tmp', set_no_verify_ssl: bool=F
             os.sep,
             hashlib.sha256(url.encode('utf-8')).hexdigest()
         )
-        r = None
-        if set_no_verify_ssl is False:
-            r = requests.get(url)
-        else:
-            r = requests.get(url, verify=False)
-        if r is not None:
-            with open(outfile, 'w') as f:
-                f.write(r.text)
-                files.append(outfile)
+        if outfile not in files:
+            r = None
+            if set_no_verify_ssl is False:
+                r = requests.get(url)
+            else:
+                r = requests.get(url, verify=False)
+            if r is not None:
+                with open(outfile, 'w') as f:
+                    f.write(r.text)
+                    files.append(outfile)
     return files
 
 
