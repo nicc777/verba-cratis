@@ -14,7 +14,7 @@ import os
 import sys
 from sqlalchemy import create_engine
 import yaml
-from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path
+from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path, init_application_dir
 from verbacratis.models import GenericLogger, DEFAULT_CONFIG_DIR, DEFAULT_GLOBAL_CONFIG, DEFAULT_STATE_DB
 from verbacratis.models.systems_configuration import SystemConfigurations, InfrastructureAccount
 
@@ -109,6 +109,7 @@ class ApplicationState:
 
     def update_config_file(self, config_file: str):
         self.config_directory = get_directory_from_path(input_path=config_file)
+        init_application_dir(dir=self.config_directory)
         self.config_file = get_file_from_path(input_path=config_file)
         self._read_global_configuration_file_content()
         

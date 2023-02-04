@@ -54,19 +54,6 @@ spec:
   provider: sqlalchemy
 ---
 apiVersion: v1-alpha
-kind: UnixHostAuthentication
-metadata:
-  name: localhost
----
-apiVersion: v1-alpha
-kind: InfrastructureAccount
-metadata:
-  name: deployment-host
-spec:
-  authenticationHostname: localhost
-  provider: RunOnLocalhost
----
-apiVersion: v1-alpha
 kind: Project
 metadata:
   name: test

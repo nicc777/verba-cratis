@@ -12,6 +12,7 @@ import shutil
 import tempfile
 from pathlib import Path
 import re
+from verbacratis.models import DEFAULT_CONFIG_DIR
 
 
 def get_file_contents(file: str)->str:
@@ -165,3 +166,12 @@ def find_matching_files(start_dir:str, pattern: str='.*')->list:
                 full_file_path = full_file_path.replace('{}{}'.format(os.sep, os.sep), '{}'.format(os.sep))
                 files_found.append(full_file_path)
     return files_found
+
+
+def init_application_dir(dir: str=DEFAULT_CONFIG_DIR)->str:
+    if os.path.exists(dir):
+        if os.path.isdir(dir):
+            return dir
+        else:
+            raise Exception('Default application home directory "{}" is not a directory'.format(dir))
+    os.makedirs(dir, exist_ok=True)

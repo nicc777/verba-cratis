@@ -8,15 +8,16 @@
 
 import traceback
 import sys
+import os
 import argparse
 from verbacratis.models.runtime_configuration import ApplicationState
 from verbacratis.utils.file_io import expand_to_full_path
+from verbacratis.models import DEFAULT_CONFIG_DIR
 
 
 def _get_arg_parser(
     default_config_file: str,
-    default_environment: str,
-    default_project: str
+    default_environment: str='default',
 )->argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='Processes and execute an AWS CloudFormation deployment based on the supplied configuration')
     parser.add_argument(
@@ -24,10 +25,20 @@ def _get_arg_parser(
         action='store',
         nargs='*',
         dest='config_file',
-        metavar='CONFIGURATION_FILE',
+        metavar='PATH',
         type=str, 
         default=default_config_file,
-        help='The path and filename of the configuration file. REQUIRED'
+        help='The path and filename of the main application configuration file'
+    )
+    parser.add_argument(
+        '-s', '--system',
+        action='append',
+        nargs='*',
+        dest='system_manifest_locations',
+        metavar='LOCATION',
+        type=str, 
+        required=True,
+        help='[REQUIRED] Points to where System Configuration Manifest files can be location. LOCATION is either a file page, a Git repository or a URL to a file on a web server. Repeat the argument to add multiple locations.'
     )
     parser.add_argument(
         '-e', '--env',
@@ -37,17 +48,7 @@ def _get_arg_parser(
         metavar='ENVIRONMENT_NAME',
         type=str, 
         default=default_environment,
-        help='The environment name (used to identify tasks and deployments from all manifest files)'
-    )
-    parser.add_argument(
-        '-p', '--project',
-        action='store',
-        nargs='*',
-        dest='project',
-        metavar='PROJECT_NAME',
-        type=str, 
-        default=default_project,
-        help='The project name (used in reporting only)'
+        help='The environment name to target'
     )
     return parser
 
@@ -71,31 +72,28 @@ def parse_command_line_arguments(
     args = dict()
     args['conf'] = None
     parser = _get_arg_parser(
-        default_config_file=None,
+        default_config_file='{}{}verbacratis.yaml'.format(DEFAULT_CONFIG_DIR, os.sep),
         default_environment=state.environment,
         default_project=state.project
     )
     parsed_args, unknown_args = parser.parse_known_args(cli_args)
 
+    # Parse config file
     if parsed_args.config_file is not None:
         args['config_file'] = expand_to_full_path(original_path=parsed_args.config_file[0])
 
+    # Add system configuration manifest locations to args['system_manifest_locations']
+    args['system_manifest_locations'] = list()
+    if parsed_args.system_manifest_locations is not None:
+        for location in parsed_args.system_manifest_locations:
+            args['system_manifest_locations'].append(expand_to_full_path(original_path=location))
+
+    # Add environment target to state
     if parsed_args.environment is not None:
         state.environment =  parsed_args.environment[0]
 
-    if parsed_args.project is not None:
-        state.environment =  parsed_args.project[0]
-
     for k,v in overrides.items():
         args[k] = v
-
-    if 'config_file' not in args:
-        parser.print_usage()
-        sys.exit(2)
-
-    if args['config_file'] is None:
-        parser.print_usage()
-        sys.exit(2)
 
     state.logger.info('args={}'.format(args))
     try:
