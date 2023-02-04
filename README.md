@@ -36,6 +36,7 @@ The idea is to eventually add this project to [PyPI](https://pypi.org/)
 
 | Date       | Update Description                                                                                                                                                        |
 |------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2023-02-04 | Implemented retrieval and processing of files for deployments from URLS.                                                                                                  |
 | 2023-02-02 | Implemented Git repository cloning functions that will be key in the retrieval and processing of files for deployments.                                                   |
 | 2023-01-30 | I have redesigned the models from my initial attempt, and I am about half way through. I added the motivations and features list to this README.                          |
 | 2023-01-15 | I renamed the project from `acfop` to `verba-cratis` as the original project was purely AWS focused. I quickly realized I need something that supports more platforms.    |
