@@ -580,9 +580,23 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
 
     def setUp(self):
         self.test_repo_https = 'https://github.com/nicc777/verba-cratis-test-infrastructure.git'
+        self.urls_main_branch = [
+            'https://raw.githubusercontent.com/nicc777/verba-cratis-test-infrastructure/main/aws-accounts.yaml',
+            'https://raw.githubusercontent.com/nicc777/verba-cratis-test-infrastructure/main/linux-test-accounts.yaml'
+        ]
 
     def test_function_get_yaml_configuration_from_git_git_main_branch(self):
         sc = get_yaml_configuration_from_git(git_clone_url=self.test_repo_https)
+        self.assertIsNotNone(sc)
+        self.assertIsInstance(sc, SystemConfigurations)
+        test_conf = sc.get_configuration_instance(class_type_name='AwsInfrastructureAccount', instance_name='sandbox-account')
+        self.assertIsNotNone(test_conf)
+        self.assertIsInstance(test_conf, AwsInfrastructureAccount)
+        self.assertEqual(test_conf.account_name, 'sandbox-account')
+        self.assertFalse('sandbox2' in test_conf.environments)
+
+    def test_function_get_yaml_configuration_from_url(self):
+        sc = get_yaml_configuration_from_url(urls=self.urls_main_branch)
         self.assertIsNotNone(sc)
         self.assertIsInstance(sc, SystemConfigurations)
         test_conf = sc.get_configuration_instance(class_type_name='AwsInfrastructureAccount', instance_name='sandbox-account')
