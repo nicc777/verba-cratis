@@ -55,6 +55,24 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
             self.assertTrue(self.temp_dir in file)
             self.assertTrue(len(file) > len(self.temp_dir))
 
+    def test_download_files_one_url_from_test_branch_no_ssl_verify(self):
+        files = download_files(urls=[self.urls_test_branch[0],], target_dir=self.temp_dir, set_no_verify_ssl=True)
+        self.assertIsNotNone(files)
+        self.assertIsInstance(files, list)
+        self.assertEqual(len(files), 1)
+        for file in files:
+            self.assertTrue(self.temp_dir in file)
+            self.assertTrue(len(file) > len(self.temp_dir))
+
+    def test_download_files_all_urls_from_test_branch_no_ssl_verify(self):
+        files = download_files(urls=self.urls_test_branch, target_dir=self.temp_dir, set_no_verify_ssl=True)
+        self.assertIsNotNone(files)
+        self.assertIsInstance(files, list)
+        self.assertEqual(len(files), 2)
+        for file in files:
+            self.assertTrue(self.temp_dir in file)
+            self.assertTrue(len(file) > len(self.temp_dir))
+
 
 if __name__ == '__main__':
     unittest.main()
