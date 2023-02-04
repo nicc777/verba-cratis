@@ -790,12 +790,19 @@ def get_system_configuration_from_files(files: list)->SystemConfigurations:
     return sc
 
 
-def get_yaml_configuration_from_url(url_path: str)->SystemConfigurations:
+def get_yaml_configuration_from_url(url_path: str, set_no_verify_ssl: bool=False, system_configurations: SystemConfigurations=SystemConfigurations())->SystemConfigurations:
     """Parse the file specified in the URL to return a SystemConfigurations instance
+
+    Args:
+        url_path: A string containing the URL to the YAML file to parse
+        set_no_verify_ssl: A boolean that will not check SSL certificates if set to True (default=`False`). Useful when using self-signed certificates, but use with caution!!
+        system_configurations: An existing SystemConfigurations object, if it exists. By default a new instance will be created
+
+    Returns:
+        `SystemConfigurations` instance with the parsed configuration
     """
-    sc = SystemConfigurations()
-    # sc.parse_yaml(raw_data=parse_yaml_file(file_path=file_path))
-    return sc
+    # system_configurations.parse_yaml(raw_data=parse_yaml_file(file_path=file_path))
+    return system_configurations
 
 
 def get_yaml_configuration_from_git(
