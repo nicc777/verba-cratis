@@ -51,6 +51,9 @@ echo ; echo ; echo "############################################################
 coverage run -a tests/test_utils_git_integration.py
 
 echo ; echo ; echo "########################################################################################################################"
+coverage run -a tests/test_utils_http_requests_io.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage report --omit="tests/test*" -m
 
 # coverage run -a tests/test_utils_parse_config_file.py
