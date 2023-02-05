@@ -89,7 +89,7 @@ class ApplicationState:
         self.environment = 'default'
         self.project = 'default'
         self.config_directory = DEFAULT_CONFIG_DIR
-        self.config_file = 'config'
+        self.config_file = 'verbacratis.yaml'
         self.state_db_url = DEFAULT_STATE_DB
         self.logger = logger
         self.build_id = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
@@ -121,7 +121,6 @@ class ApplicationState:
         for location in self.system_manifest_locations:
             if location.startswith('http'):
                 if is_url_a_git_repo(url=location) is True:
-                    # FIXME We still need a way to specify branch and relative directory... Perhaps add those to the syntax of the CLI arguments...
                     branch = 'main'
                     relative_start_directory = '/'
                     ssh_private_key_path = None

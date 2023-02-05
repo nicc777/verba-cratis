@@ -16,7 +16,7 @@ import unittest
 
 
 from verbacratis.models.runtime_configuration import *
-from sqlalchemy.engine import Engine
+from verbacratis.utils.file_io import remove_tmp_dir_recursively, create_tmp_dir
 
 
 class TestClassStateStore(unittest.TestCase):    # pragma: no cover
@@ -58,6 +58,34 @@ class TestClassStateStore(unittest.TestCase):    # pragma: no cover
 #         result = ApplicationRuntimeConfiguration()
 #         self.assertIsNotNone(result)
 #         self.assertIsInstance(result, ApplicationRuntimeConfiguration)
+
+
+class TestApplicationState(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        self.test_conf_dir = create_tmp_dir(sub_dir='TestApplicationState')
+
+    def tearDown(self):
+        remove_tmp_dir_recursively(dir=self.test_conf_dir)
+
+    def test_ApplicationState_init_with_defaults(self):
+        result = ApplicationState()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, ApplicationState)
+        result.config_directory = self.test_conf_dir
+        result.update_config_file(
+            config_file='{}{}verbacratis.yaml'.format(
+                self.test_conf_dir,
+                os.sep
+            )
+        )
+        self.assertTrue(os.path.isdir(self.test_conf_dir))
+        self.assertIsNotNone(result.application_configuration)
+        self.assertIsInstance(result.application_configuration, ApplicationRuntimeConfiguration)
+        self.assertIsNotNone(result.application_configuration.raw_global_configuration)
+        self.assertIsInstance(result.application_configuration.raw_global_configuration, str)
+        self.assertTrue(len(result.application_configuration.raw_global_configuration ) > 10)
+
 
 
 if __name__ == '__main__':
