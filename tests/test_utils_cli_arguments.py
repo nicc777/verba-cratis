@@ -18,16 +18,22 @@ from verbacratis.utils.cli_arguments import parse_command_line_arguments
 from verbacratis.models.runtime import VariableStateStore
 from verbacratis.models.runtime_configuration import ApplicationState
 from verbacratis.utils.file_io import remove_tmp_dir_recursively
+from verbacratis.utils.file_io import remove_tmp_dir_recursively, create_tmp_dir
 
 
 class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no cover
 
     def setUp(self):
-        self.cli_args=[
+        self.cli_args_basic=[
             '-s', 'https://github.com/nicc777/verba-cratis-test-infrastructure.git',
             '-e', 'default'
         ]
-        self.config_dir = None
+        self.cli_args_complex=[
+            '-s', 'https://github.com/nicc777/verba-cratis-test-infrastructure.git%00branch%3Dtest-branch%00relative_start_directory%3D/experiment%00set_no_verify_ssl%3Dtrue',
+            '-e', 'default'
+        ]
+        # self.config_dir = None
+        self.config_dir = create_tmp_dir(sub_dir='TestApplicationState')
     
     def tearDown(self):
         if self.config_dir is not None:
@@ -40,7 +46,7 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
         self.assertEqual(cm.exception.code, 2)
 
     def test_basic_invocation_args_basic(self):
-        result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args)
+        result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args_basic)
         self.config_dir = result.config_directory
         self.assertIsNotNone(result)
         self.assertIsInstance(result, ApplicationState)
@@ -49,6 +55,18 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
         with self.assertRaises(SystemExit) as cm:
             parse_command_line_arguments(state=ApplicationState(), overrides={'config_file': None})
         self.assertEqual(cm.exception.code, 2)
+
+    def test_basic_invocation_args_complex_git_location(self):
+        result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args_complex)
+        self.config_dir = result.config_directory
+        result.update_config_file(
+            config_file='{}{}verbacratis.yaml'.format(
+                self.config_dir,
+                os.sep
+            )
+        )
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, ApplicationState)
 
 
 if __name__ == '__main__':
