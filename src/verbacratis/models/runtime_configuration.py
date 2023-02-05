@@ -14,6 +14,8 @@ import os
 import sys
 from sqlalchemy import create_engine
 import yaml
+from urllib.parse import urlparse
+import urllib
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path, init_application_dir
 from verbacratis.models import GenericLogger, DEFAULT_CONFIG_DIR, DEFAULT_GLOBAL_CONFIG, DEFAULT_STATE_DB
 from verbacratis.models.systems_configuration import SystemConfigurations, InfrastructureAccount, get_yaml_configuration_from_git, get_yaml_configuration_from_url, get_system_configuration_from_files
@@ -120,7 +122,31 @@ class ApplicationState:
             if location.startswith('http'):
                 if is_url_a_git_repo(url=location) is True:
                     # FIXME We still need a way to specify branch and relative directory... Perhaps add those to the syntax of the CLI arguments...
-                    self.application_configuration.system_configurations = get_yaml_configuration_from_git(git_clone_url=location, system_configurations=self.application_configuration.system_configurations)
+                    branch = 'main'
+                    relative_start_directory = '/'
+                    ssh_private_key_path = None
+                    set_no_verify_ssl = False
+                    if '%00' in location:
+                        for item in urllib.parse.unquote_to_bytes(location).decode('utf-8').split('\x00'):
+                            if '=' in item:
+                                k, v = item.split('=')
+                                if k == 'branch':
+                                    branch = v
+                                if k == 'relative_start_directory':
+                                    relative_start_directory = v
+                                if k == 'ssh_private_key_path':
+                                    ssh_private_key_path = v
+                                if k == 'set_no_verify_ssl':
+                                    if v.lower().startswith('t'):
+                                        ssh_private_key_path = True
+                    self.application_configuration.system_configurations = get_yaml_configuration_from_git(
+                        git_clone_url=location,
+                        system_configurations=self.application_configuration.system_configurations,
+                        branch=branch,
+                        relative_start_directory=relative_start_directory,
+                        ssh_private_key_path=ssh_private_key_path,
+                        set_no_verify_ssl=set_no_verify_ssl
+                    )
                 else:
                     self.application_configuration.system_configurations = get_yaml_configuration_from_url(urls=[location,], system_configurations=self.application_configuration.system_configurations)
             else:
