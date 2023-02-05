@@ -21,7 +21,7 @@ from verbacratis.utils import *
 class TestFunctionMain(unittest.TestCase):    # pragma: no cover
 
     def test_call_main_defaults(self):
-        result = main(cli_args=['--conf', 'examples/example_01/example_02.yaml'])
+        result = main(cli_args=['--system', 'https://github.com/nicc777/verba-cratis-test-infrastructure.git'])
         self.assertIsNotNone(result)
         self.assertIsInstance(result, dict)
 

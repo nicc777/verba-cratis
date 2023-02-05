@@ -61,11 +61,12 @@ def parse_command_line_arguments(
     """Helper function to parse command line arguments
 
     Args:
+        state: ApplicationState that will be updated with the supplied command line arguments and overrides
         cli_args: list of arguments as gathered from the command line
         overrides: dictionary with overrides
 
     Returns:
-        Returns an updated :class:`VariableStateStore` object with all the parsed command line arguments
+        Returns an updated :class:`ApplicationState` object with all the parsed command line arguments
     """
     state.logger.info('overrides={}'.format(overrides))
     state.logger.info('cli_args={}'.format(cli_args))
