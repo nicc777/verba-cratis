@@ -67,6 +67,10 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
         )
         self.assertIsNotNone(result)
         self.assertIsInstance(result, ApplicationState)
+        infrastructure_accounts = result.application_configuration.system_configurations.get_infrastructure_account_auth_config(infrastructure_account_name='sandbox-account')
+        self.assertIsNotNone(infrastructure_accounts)
+        self.assertIsInstance(infrastructure_accounts, list)
+        self.assertEqual(len(infrastructure_accounts), 1)
 
 
 if __name__ == '__main__':
