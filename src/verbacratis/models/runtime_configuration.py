@@ -130,13 +130,13 @@ class ApplicationState:
                         for item in urllib.parse.unquote_to_bytes(location).decode('utf-8').split('\x00'):
                             if '=' in item:
                                 k, v = item.split('=')
-                                if k == 'branch':
+                                if k.lower() == 'branch':
                                     branch = v
-                                if k == 'relative_start_directory':
+                                elif k.lower() == 'relative_start_directory':
                                     relative_start_directory = v
-                                if k == 'ssh_private_key_path':
+                                elif k.lower() == 'ssh_private_key_path':
                                     ssh_private_key_path = v
-                                if k == 'set_no_verify_ssl':
+                                elif k.lower() == 'set_no_verify_ssl':
                                     if v.lower().startswith('t'):
                                         ssh_private_key_path = True
                     self.application_configuration.system_configurations = get_yaml_configuration_from_git(
