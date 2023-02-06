@@ -111,6 +111,8 @@ def git_clone_checkout_and_return_list_of_files(
 
 def is_url_a_git_repo(url: str)->bool:
     try:
+        if '%00' in url:
+            url = url[0:url.find('%00')]
         remote_refs = {}
         g = git_cmd.Git()
         for ref in g.ls_remote(url).split('\n'):
