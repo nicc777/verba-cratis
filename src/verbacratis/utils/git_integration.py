@@ -46,7 +46,7 @@ def git_clone_to_local(
         Exception: In the event of an error
     """
 
-    if '%00' in url:
+    if '%00' in git_clone_url:
         git_clone_url = git_clone_url[0:git_clone_url.find('%00')]
 
     if target_dir is None:
