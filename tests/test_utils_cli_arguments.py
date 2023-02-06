@@ -58,7 +58,7 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
 
     def test_basic_invocation_args_complex_git_location(self):
         result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args_complex)
-        self.config_dir = result.config_directory
+        # self.config_dir = result.config_directory
         result.update_config_file(
             config_file='{}{}verbacratis.yaml'.format(
                 self.config_dir,
