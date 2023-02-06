@@ -33,7 +33,10 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
             '-e', 'default'
         ]
         self.config_dir = create_tmp_dir(sub_dir='TestApplicationState')
-        self.cli_args_basic.append('--conf', '{}{}test_config_file.yaml'.format(self.config_dir, os.sep))
+        self.cli_args_basic.append('--conf')
+        self.cli_args_basic.append('{}{}test_config_file.yaml'.format(self.config_dir, os.sep))
+        self.cli_args_complex.append('--conf')
+        self.cli_args_complex.append('{}{}test_config_file.yaml'.format(self.config_dir, os.sep))
     
     def tearDown(self):
         if self.config_dir is not None:
