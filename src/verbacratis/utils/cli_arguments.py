@@ -121,9 +121,15 @@ def parse_command_line_arguments(
         for location in parsed_args.system_manifest_locations:
             if isinstance(location, list):
                 for sub_location in location:
-                    args['system_manifest_locations'].append(expand_to_full_path(original_path=sub_location))
+                    if sub_location.startswith('http') is True:
+                        args['system_manifest_locations'].append(sub_location)
+                    else:
+                        args['system_manifest_locations'].append(expand_to_full_path(original_path=sub_location))
             else:
-                args['system_manifest_locations'].append(expand_to_full_path(original_path=location))
+                if location.startswith('http') is True:
+                    args['system_manifest_locations'].append(location)
+                else:
+                    args['system_manifest_locations'].append(expand_to_full_path(original_path=location))
     if len(args['system_manifest_locations']) == 0:
         state.logger.error('CRITICAL: No system manifest locations specified')
         parser.print_usage()
