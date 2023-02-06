@@ -32,8 +32,8 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
             '-s', 'https://github.com/nicc777/verba-cratis-test-infrastructure.git%00branch%3Dtest-branch%00relative_start_directory%3D/experiment%00set_no_verify_ssl%3Dtrue',
             '-e', 'default'
         ]
-        # self.config_dir = None
         self.config_dir = create_tmp_dir(sub_dir='TestApplicationState')
+        self.cli_args_basic.append('--conf', '{}{}test_config_file.yaml'.format(self.config_dir, os.sep))
     
     def tearDown(self):
         if self.config_dir is not None:
@@ -58,7 +58,6 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
 
     def test_basic_invocation_args_complex_git_location(self):
         result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args_complex)
-        # self.config_dir = result.config_directory
         result.update_config_file(
             config_file='{}{}verbacratis.yaml'.format(
                 self.config_dir,
