@@ -67,6 +67,7 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
                 os.sep
             )
         )
+        result.load_system_manifests()
         self.assertIsNotNone(result)
         self.assertIsInstance(result, ApplicationState)
         infrastructure_accounts = result.application_configuration.system_configurations.get_infrastructure_account_auth_config(infrastructure_account_name='sandbox-account')
