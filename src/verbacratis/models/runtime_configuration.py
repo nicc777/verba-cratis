@@ -137,7 +137,7 @@ class ApplicationState:
                                     ssh_private_key_path = v
                                 elif k.lower() == 'set_no_verify_ssl':
                                     if v.lower().startswith('t'):
-                                        ssh_private_key_path = True
+                                        set_no_verify_ssl = True
                     self.application_configuration.system_configurations = get_yaml_configuration_from_git(
                         git_clone_url=location,
                         system_configurations=self.application_configuration.system_configurations,
