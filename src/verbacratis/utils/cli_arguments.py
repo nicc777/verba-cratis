@@ -125,7 +125,8 @@ def parse_command_line_arguments(
                         args['system_manifest_locations'].append(sub_location)
                     else:
                         args['system_manifest_locations'].append(expand_to_full_path(original_path=sub_location))
-            else:
+            else:   # pragma: no cover
+                # TODO Consider removing this logic, as with the current implementation we never seem to reach this part
                 if location.startswith('http') is True:
                     args['system_manifest_locations'].append(location)
                 else:
