@@ -68,7 +68,17 @@ def _get_arg_parser(
         metavar='LOCATION',
         type=str, 
         required=True,
-        help='[REQUIRED] Points to where System Configuration Manifest files can be location. LOCATION is either a file page, a Git repository or a URL to a file on a web server. Repeat the argument to add multiple locations.\n\n{}'.format(GIT_URL_HELP_TEXT)
+        help='[REQUIRED] Points to where System Configuration Manifest files can be location. LOCATION is either a file path, a Git repository or a URL to a file on a web server. Repeat the argument to add multiple locations.\n\n{}'.format(GIT_URL_HELP_TEXT)
+    )
+    parser.add_argument(
+        '-p', '--project',
+        action='append',
+        nargs='*',
+        dest='project_locations',
+        metavar='LOCATION',
+        type=str, 
+        required=True,
+        help='[REQUIRED] Points to where Project Manifest files can be location. LOCATION is either a file path, a Git repository or a URL to a file on a web server. Repeat the argument to add multiple locations.\n\n{}'.format(GIT_URL_HELP_TEXT)
     )
     parser.add_argument(
         '-e', '--env',
@@ -136,6 +146,28 @@ def parse_command_line_arguments(
         parser.print_usage()
         sys.exit(2)
     state.system_manifest_locations = args['system_manifest_locations']
+
+    # Add project manifest locations to args['system_manifest_locations']
+    args['project_manifest_locations'] = list()
+    if parsed_args.project_locations is not None:
+        for location in parsed_args.project_locations:
+            if isinstance(location, list):
+                for sub_location in location:
+                    if sub_location.startswith('http') is True:
+                        args['project_manifest_locations'].append(sub_location)
+                    else:
+                        args['project_manifest_locations'].append(expand_to_full_path(original_path=sub_location))
+            else:   # pragma: no cover
+                # TODO Consider removing this logic, as with the current implementation we never seem to reach this part
+                if location.startswith('http') is True:
+                    args['project_manifest_locations'].append(location)
+                else:
+                    args['project_manifest_locations'].append(expand_to_full_path(original_path=location))
+    if len(args['project_manifest_locations']) == 0:
+        state.logger.error('CRITICAL: No system manifest locations specified')
+        parser.print_usage()
+        sys.exit(2)
+    state.project_manifest_locations = args['project_manifest_locations']
 
     # Add environment target to state
     if parsed_args.environment is not None:

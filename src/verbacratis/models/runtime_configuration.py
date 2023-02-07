@@ -95,6 +95,7 @@ class ApplicationState:
         self.build_id = hashlib.sha256(str(uuid.uuid1()).encode(('utf-8'))).hexdigest()
         self.application_configuration = ApplicationRuntimeConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
         self.system_manifest_locations = list()
+        self.project_manifest_locations = list()
 
     def _read_global_configuration_file_content(self):
         self.application_configuration = ApplicationRuntimeConfiguration(raw_global_configuration=DEFAULT_GLOBAL_CONFIG, logger=self.logger)
