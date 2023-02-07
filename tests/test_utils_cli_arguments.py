@@ -26,10 +26,12 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
     def setUp(self):
         self.cli_args_basic=[
             '-s', 'https://github.com/nicc777/verba-cratis-test-infrastructure.git',
+            '-p', 'https://github.com/nicc777/verba-cratis-test-projects.git',
             '-e', 'default'
         ]
         self.cli_args_complex=[
             '-s', 'https://github.com/nicc777/verba-cratis-test-infrastructure.git%00branch%3Dtest-branch%00relative_start_directory%3D/experiment%00set_no_verify_ssl%3Dtrue',
+            '-p', 'https://github.com/nicc777/verba-cratis-test-projects.git%00branch%3Dmain',
             '-e', 'default'
         ]
         self.config_dir = create_tmp_dir(sub_dir='TestApplicationState')
