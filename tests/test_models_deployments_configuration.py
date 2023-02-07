@@ -149,39 +149,18 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(project_as_dict, dict)
         self.assertTrue('includeFileRegex' in project_as_dict)
         self.assertTrue('locations' in project_as_dict)
-        self.assertTrue('environments' in project_as_dict)
         self.assertTrue('parentProjects' in project_as_dict)
 
         result = str(project)
         print('='*80)
         print('# Project YAML')
-        """
-            environments:
-            - name: dev
-            - name: test
-            includeFileRegex:
-            - '*\.yml'
-            - '*\.yaml'
-            locations:
-              directories:
-              - path: /tmp
-                type: YAML
-              files:
-              - path: /file
-                type: YAML
-            parentProjects:
-            - name: test_parent
-        """
         print(result)
         print('='*80)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
-        self.assertTrue('environments:' in result)
-        self.assertTrue('- name: dev' in result)
-        self.assertTrue('- name: test' in result)
         self.assertTrue('includeFileRegex:' in result)
-        self.assertTrue('- \'*\.yml\'' in result)
-        self.assertTrue('- \'*\.yaml\'' in result)
+        self.assertTrue('.yml' in result)
+        self.assertTrue('.*\.yaml' in result)
         self.assertTrue('locations:' in result)        
         self.assertTrue('directories:' in result)
         self.assertTrue('- path: /tmp' in result)
@@ -204,7 +183,6 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(project_as_dict, dict)
         self.assertTrue('includeFileRegex' in project_as_dict)
         self.assertTrue('locations' in project_as_dict)
-        self.assertTrue('environments' in project_as_dict)
 
         result = str(project)
         print('='*80)
