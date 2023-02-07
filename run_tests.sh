@@ -4,6 +4,8 @@
 
 rm -frR ~/.verbacratis
 rm -frR ./verbacratis.db
+rm -frR reports
+mkdir reports
 
 
 docker container stop echo_server
@@ -55,6 +57,9 @@ coverage run -a tests/test_utils_http_requests_io.py
 
 echo ; echo ; echo "########################################################################################################################"
 coverage report --omit="tests/test*" -m
+coverage html -d reports --omit="tests/test*"
+echo "Report available in file://$PWD/reports/index.html"
+
 
 # coverage run -a tests/test_utils_parse_config_file.py
 # coverage run -a tests/test_verbacratis_init.py
