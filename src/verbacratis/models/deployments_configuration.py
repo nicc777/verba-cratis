@@ -55,6 +55,8 @@ class Project(Item):
         root['kind'] = 'Project'
         root['metadata'] = dict()
         root['metadata']['name'] = self.name
+        if len(self.scopes) > 0:
+            root['metadata']['environments'] = self.scopes
         root['spec'] = dict()
         data = dict()
         # data['name'] = self.name
@@ -84,11 +86,6 @@ class Project(Item):
                         'type': file['type'],
                     }
                     data['locations']['files'].append(file_data)
-        data['environments'] = [{'name': 'default'},]
-        if len(self.scopes) > 0:
-            data['environments'] = list()
-            for scope_name in self.scopes:
-                data['environments'].append({'name': scope_name, })
         if len(self.parent_item_names) > 0:
             data['parentProjects'] = list()
             for parent_name in self.parent_item_names:
