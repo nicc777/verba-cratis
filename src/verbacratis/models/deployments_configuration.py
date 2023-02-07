@@ -22,7 +22,7 @@ class Project(Item):
         super().__init__(name, logger, use_default_scope)
         self.manifest_directories = list()  # List of dict with items "path" and "type", where type can only be YAML (for now at least)
         self.manifest_files = list()        # List of dict with items "path" and "type", where type can only be YAML (for now at least)
-        self.include_file_regex = ('*\.yml', '*\.yaml')
+        self.include_file_regex = ('.*\.yml', '.*\.yaml')
         self.project_effective_manifest = None      # The manifest for the particular scopes
         self.previous_project_checksum = dict()     # Checksum of the previous effective manifest, per environment (scope)
         self.current_project_checksum = None        # The current checksum of the project_effective_manifest
