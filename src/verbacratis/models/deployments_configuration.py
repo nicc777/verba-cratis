@@ -59,11 +59,11 @@ class Project(Item):
             root['metadata']['environments'] = self.scopes
         root['spec'] = dict()
         data = dict()
-        # data['name'] = self.name
-        data['includeFileRegex'] = list()
-        if len(self.include_file_regex) > 0:
-            for file_regex in self.include_file_regex:
-                data['includeFileRegex'].append(file_regex)
+        if self.include_file_regex is not None:
+            if len(self.include_file_regex) > 0:
+                data['includeFileRegex'] = list()
+                for file_regex in self.include_file_regex:
+                    data['includeFileRegex'].append('{}'.format(file_regex))
         if len(self.manifest_directories) > 0:
             if 'locations' not in data:
                 data['locations'] = dict()

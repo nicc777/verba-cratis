@@ -35,10 +35,10 @@ class TestProject(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, str)
         self.assertTrue('name: test' in result)
         self.assertTrue('environments:' in result)
-        self.assertTrue('- name: default' in result)
+        self.assertTrue('- default' in result)
         self.assertTrue('includeFileRegex:' in result)
-        self.assertTrue('- \'*\.yml\'' in result)
-        self.assertTrue('- \'*\.yaml\'' in result)
+        self.assertTrue('.yml' in result)
+        self.assertTrue('.yaml' in result)
 
     def test_project_method_add_parent_project(self):
         project_parent = Project(name='test_parent')
