@@ -62,6 +62,7 @@ def identify_local_path_type(path: str):
 def remove_tmp_dir_recursively(dir: str)->bool:
     try:
         os.remove(dir)
+        return True
     except:
         traceback.print_exc()
     try:

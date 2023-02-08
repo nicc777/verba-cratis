@@ -9,7 +9,7 @@
 import yaml
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
-from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir
+from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively
 from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_git_parameters_from_url
 
 
@@ -56,9 +56,16 @@ class Location:
             raise Exception('Could not identify the location type with the reference "{}"'.format(reference))
         self.location_reference = reference
         self.include_file_regex = include_file_regex
+        self.sync()
+        
+    def sync(self):
+        self.cleanup_work_dir()
         self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(self.location_reference))
         self.file_list = self.get_files()
-        
+
+    def cleanup_work_dir(self):
+        remove_tmp_dir_recursively(dir=self.work_dir)
+        self.file_list = list()
 
     def get_files(self)->list:
         """Return a list of files from the location reference and parse according to the type
