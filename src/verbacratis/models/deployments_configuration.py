@@ -10,6 +10,7 @@ import yaml
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
 from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir
+from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_git_parameters_from_url
 
 
 class LocationType:
@@ -38,18 +39,43 @@ class LocationType:
 
 class Location:
 
-    def __init__(self, reference: str, location_type: str=LocationType.LOCAL_DIRECTORY):
-        if location_type not in LocationType.types:
-            raise Exception('Unsupported type "{}"'.format(type))
+    def __init__(self, reference: str, include_file_regex: str='.*\.yml|.*\.yaml'):
+        self.location_type = None
+        local_type_attempt = identify_local_path_type(path=reference)
+        if local_type_attempt is not PathTypes.UNKNOWN:
+            if local_type_attempt == PathTypes.FILE:
+                self.location_type = LocationType.LOCAL_FILE
+            elif local_type_attempt == PathTypes.DIRECTORY:
+                self.location_type = LocationType.LOCAL_DIRECTORY
+        else:
+            if is_url_a_git_repo(url=reference):
+                self.location_type = LocationType.GIT_URL
+            elif reference.lower().startswith('http') is True:
+                self.location_type = LocationType.FILE_URL
+        if self.location_type is None:
+            raise Exception('Could not identify the location type with the reference "{}"'.format(reference))
         self.location_reference = reference
-        self.location_type = location_type
         self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(self.location_reference))
+        self.file_list = self.get_files()
+        self.include_file_regex = include_file_regex
 
     def get_files(self)->list:
         """Return a list of files from the location reference and parse according to the type
+
+        All local and remote files will be copied into the local temporary work directory in self.work_dir
         """
         files = list()
-
+        if self.location_type == LocationType.GIT_URL:
+            final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_git_parameters_from_url(location=self.location_reference)
+            files = git_clone_checkout_and_return_list_of_files(
+                git_clone_url=final_location,
+                branch=branch,
+                relative_start_directory=relative_start_directory,
+                include_files_regex=self.include_file_regex,
+                target_dir=self.work_dir,
+                ssh_private_key_path=ssh_private_key_path,
+                set_no_verify_ssl=set_no_verify_ssl
+            )
         return files
 
 

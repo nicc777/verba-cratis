@@ -11,7 +11,10 @@ import traceback
 from git import Repo
 from git import cmd as git_cmd
 import random, string
+from urllib.parse import urlparse
+import urllib
 from verbacratis.utils.file_io import create_tmp_dir, find_matching_files
+
 
 
 def random_word(length: int=16):
@@ -21,6 +24,36 @@ def random_word(length: int=16):
         string.digits
     )
     return ''.join(random.choice(letters) for i in range(length))
+
+
+def extract_git_parameters_from_url(
+    location: str,
+    branch: str='main',
+    relative_start_directory: str='/',
+    ssh_private_key_path: str=None,
+    set_no_verify_ssl: bool=False
+)->tuple:
+    if '%00' in location:
+        for item in urllib.parse.unquote_to_bytes(location).decode('utf-8').split('\x00'):
+            if '=' in item:
+                k, v = item.split('=')
+                if k.lower() == 'branch':
+                    branch = v
+                elif k.lower() == 'relative_start_directory':
+                    relative_start_directory = v
+                elif k.lower() == 'ssh_private_key_path':
+                    ssh_private_key_path = v
+                elif k.lower() == 'set_no_verify_ssl':
+                    if v.lower().startswith('t'):
+                        set_no_verify_ssl = True
+        location = location[0:location.find('%00')]
+    return (
+        location,
+        branch,
+        relative_start_directory,
+        ssh_private_key_path,
+        set_no_verify_ssl
+    )
 
 
 def git_clone_to_local(
