@@ -67,6 +67,18 @@ class Location:
         remove_tmp_dir_recursively(dir=self.work_dir)
         self.file_list = list()
 
+    def _get_files_from_git(self):
+        final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_git_parameters_from_url(location=self.location_reference)
+        self.files = git_clone_checkout_and_return_list_of_files(
+            git_clone_url=final_location,
+            branch=branch,
+            relative_start_directory=relative_start_directory,
+            include_files_regex=self.include_file_regex,
+            target_dir=self.work_dir,
+            ssh_private_key_path=ssh_private_key_path,
+            set_no_verify_ssl=set_no_verify_ssl
+        )
+
     def get_files(self)->list:
         """Return a list of files from the location reference and parse according to the type
 
@@ -74,16 +86,7 @@ class Location:
         """
         files = list()
         if self.location_type == LocationType.GIT_URL:
-            final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_git_parameters_from_url(location=self.location_reference)
-            files = git_clone_checkout_and_return_list_of_files(
-                git_clone_url=final_location,
-                branch=branch,
-                relative_start_directory=relative_start_directory,
-                include_files_regex=self.include_file_regex,
-                target_dir=self.work_dir,
-                ssh_private_key_path=ssh_private_key_path,
-                set_no_verify_ssl=set_no_verify_ssl
-            )
+            self._get_files_from_git()
         elif self.location_type == LocationType.FILE_URL:
             # TODO Download remote file and save locally
             pass
