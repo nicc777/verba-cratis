@@ -55,9 +55,10 @@ class Location:
         if self.location_type is None:
             raise Exception('Could not identify the location type with the reference "{}"'.format(reference))
         self.location_reference = reference
+        self.include_file_regex = include_file_regex
         self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(self.location_reference))
         self.file_list = self.get_files()
-        self.include_file_regex = include_file_regex
+        
 
     def get_files(self)->list:
         """Return a list of files from the location reference and parse according to the type
