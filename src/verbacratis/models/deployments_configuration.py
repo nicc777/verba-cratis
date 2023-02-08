@@ -119,6 +119,26 @@ class Projects(Items):
     def get_project_by_name(self, project_name: str)->Project:
         return self.get_item_by_name(name=project_name)
 
+    def parse_yaml(self, raw_data: dict):
+        """Parse data into the various Objects.
+
+        Use something like parse_yaml_file() from `verbacratis.utils.parser2` to obtain the dictionary value from a parsed YAML file
+        """
+        # Create individual class instances and add to the parsed_configuration for each type
+        for part, data in raw_data.items():
+            if isinstance(data, dict):
+                converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
+                if 'kind' in converted_data:
+                    if converted_data['kind'].lower() == 'Project'.lower():
+                        use_default_scope = True
+                        if 'environments' in converted_data['metadata']:
+                            use_default_scope = False
+                        project = Project(name=converted_data['metadata']['name'], use_default_scope=use_default_scope)
+                        if 'spec' in converted_data:
+                            spec = converted_data['spec']
+                            if 'includeFileRegex' in spec:
+                                project.include_file_regex = converted_data['spec']['includeFileRegex']
+
     def __str__(self)->str:
         yaml_str = ''
         for project_name, project in self.items.items():
