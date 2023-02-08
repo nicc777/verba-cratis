@@ -19,7 +19,7 @@ import urllib
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path, init_application_dir
 from verbacratis.models import GenericLogger, DEFAULT_CONFIG_DIR, DEFAULT_GLOBAL_CONFIG, DEFAULT_STATE_DB
 from verbacratis.models.systems_configuration import SystemConfigurations, InfrastructureAccount, get_yaml_configuration_from_git, get_yaml_configuration_from_url, get_system_configuration_from_files
-from verbacratis.utils.git_integration import is_url_a_git_repo
+from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_git_parameters_from_url
 
 
 class StateStore:
@@ -118,41 +118,11 @@ class ApplicationState:
         self.config_file = get_file_from_path(input_path=config_file)
         self._read_global_configuration_file_content()
 
-    def _extract_git_parameters_from_url(
-        self,
-        location: str,
-        branch: str='main',
-        relative_start_directory: str='/',
-        ssh_private_key_path: str=None,
-        set_no_verify_ssl: bool=False
-    )->tuple:
-        if '%00' in location:
-            for item in urllib.parse.unquote_to_bytes(location).decode('utf-8').split('\x00'):
-                if '=' in item:
-                    k, v = item.split('=')
-                    if k.lower() == 'branch':
-                        branch = v
-                    elif k.lower() == 'relative_start_directory':
-                        relative_start_directory = v
-                    elif k.lower() == 'ssh_private_key_path':
-                        ssh_private_key_path = v
-                    elif k.lower() == 'set_no_verify_ssl':
-                        if v.lower().startswith('t'):
-                            set_no_verify_ssl = True
-            location = location[0:location.find('%00')]
-        return (
-            location,
-            branch,
-            relative_start_directory,
-            ssh_private_key_path,
-            set_no_verify_ssl
-        )
-
     def load_system_manifests(self):
         for location in self.system_manifest_locations:
             if location.startswith('http'):
                 if is_url_a_git_repo(url=location) is True:
-                    final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = self._extract_git_parameters_from_url(location=location)
+                    final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_git_parameters_from_url(location=location)
                     self.application_configuration.system_configurations = get_yaml_configuration_from_git(
                         git_clone_url=final_location,
                         system_configurations=self.application_configuration.system_configurations,
