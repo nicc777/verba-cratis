@@ -15,6 +15,12 @@ import re
 from verbacratis.models import DEFAULT_CONFIG_DIR
 
 
+class PathTypes:
+    DIRECTORY = 1
+    FILE = 2
+    UNKNOWN = None
+
+
 def get_file_contents(file: str)->str:
     content = ""
     with open(file, 'r') as f:
@@ -33,12 +39,24 @@ def append_content_to_file(file: str, content: str):
 
 
 def does_file_exists(data_value)->bool:
-        try:
-            if os.path.exists(data_value) is True:
-                return os.path.isfile(data_value)
-        except:
-            pass
-        return False
+    try:
+        if os.path.exists(data_value) is True:
+            return os.path.isfile(data_value)
+    except:
+        pass
+    return False
+
+
+def identify_local_path_type(path: str):
+    try:
+        if os.path.exists(path) is True:
+            if os.path.isdir(path):
+                return PathTypes.DIRECTORY
+            if os.path.isfile(path):
+                return PathTypes.FILE
+    except:
+        pass
+    return PathTypes.UNKNOWN
 
 
 def remove_tmp_dir_recursively(dir: str)->bool:

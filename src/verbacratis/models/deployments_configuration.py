@@ -9,28 +9,32 @@
 import yaml
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
+from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir
 
 
 class LocationType:
-    LOCAL_DIRECTORY = 'LocalDirectory'
-    LOCAL_FILE = 'LocalFile'
-    FILE_URL = 'URL'
-    GIT_URL = 'GitUrl'
-    types = (LOCAL_DIRECTORY, LOCAL_FILE, FILE_URL, GIT_URL)
+    LOCAL_DIRECTORY = 1
+    LOCAL_FILE = 2
+    FILE_URL = 3
+    GIT_URL = 4
+    types = range(1,5)
 
 
 class Location:
 
     def __init__(self, reference: str, location_type: str=LocationType.LOCAL_DIRECTORY):
-        if type not in LocationType.types:
+        if location_type not in LocationType.types:
             raise Exception('Unsupported type "{}"'.format(type))
         self.location_reference = reference
         self.location_type = location_type
+        self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(self.location_reference))
 
     def get_files(self)->list:
         """Return a list of files from the location reference and parse according to the type
         """
-        pass
+        files = list()
+
+        return files
 
 
 class Project(Item):
