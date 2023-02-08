@@ -19,6 +19,22 @@ class LocationType:
     GIT_URL = 4
     types = range(1,5)
 
+    def exportable_names_to_class_values_map(self):
+        return {
+            'LocalDirectory': self.LOCAL_DIRECTORY,
+            'LocalFile': self.LOCAL_FILE,
+            'FileURL': self.FILE_URL,
+            'GitUrl': self.GIT_URL,
+        }
+
+    def class_values_to_exportable_names_map(self):
+        return {
+            self.LOCAL_DIRECTORY: 'LocalDirectory',
+            self.LOCAL_FILE: 'LocalFile',
+            self.FILE_URL: 'FileURL',
+            self.GIT_URL: 'GitUrl',
+        }
+
 
 class Location:
 
