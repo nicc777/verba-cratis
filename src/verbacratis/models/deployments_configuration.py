@@ -22,7 +22,7 @@ class Project(Item):
         super().__init__(name, logger, use_default_scope)
         self.manifest_directories = list()  # List of dict with items "path" and "type", where type can only be YAML (for now at least)
         self.manifest_files = list()        # List of dict with items "path" and "type", where type can only be YAML (for now at least)
-        self.include_file_regex = ('.*\.yml', '.*\.yaml')
+        self.include_file_regex = '.*\.yml|.*\.yaml'
         self.project_effective_manifest = None      # The manifest for the particular scopes
         self.previous_project_checksum = dict()     # Checksum of the previous effective manifest, per environment (scope)
         self.current_project_checksum = None        # The current checksum of the project_effective_manifest
@@ -61,9 +61,7 @@ class Project(Item):
         data = dict()
         if self.include_file_regex is not None:
             if len(self.include_file_regex) > 0:
-                data['includeFileRegex'] = list()
-                for file_regex in self.include_file_regex:
-                    data['includeFileRegex'].append('{}'.format(file_regex))
+                data['includeFileRegex'] = self.include_file_regex
         if len(self.manifest_directories) > 0:
             if 'locations' not in data:
                 data['locations'] = dict()
@@ -137,7 +135,25 @@ class Projects(Items):
                         if 'spec' in converted_data:
                             spec = converted_data['spec']
                             if 'includeFileRegex' in spec:
-                                project.include_file_regex = converted_data['spec']['includeFileRegex']
+                                project.include_file_regex = '{}'.format(converted_data['spec']['includeFileRegex'])
+                            if 'locations' in spec:
+                                if 'directories' in spec['locations']:
+                                    for dir_data in spec['locations']['directories']:
+                                        dir_type = 'YAML'
+                                        if 'type' in dir_data:
+                                            dir_type = dir_data['type']
+                                        if 'path' in dir_data:
+                                            project.add_manifest_directory(path=dir_data['path'], type=dir_type)
+                                if 'files' in spec['locations']:
+                                    for dir_data in spec['locations']['files']:
+                                        dir_type = 'YAML'
+                                        if 'type' in dir_data:
+                                            dir_type = dir_data['type']
+                                        if 'path' in dir_data:
+                                            project.add_manifest_file(path=dir_data['path'], type=dir_type)
+                            if 'parentProjects' in spec:
+                                for parent_project_data in spec['parentProjects']:
+                                    project.add_parent_project(parent_project_name=parent_project_data['name'])
 
     def __str__(self)->str:
         yaml_str = ''
