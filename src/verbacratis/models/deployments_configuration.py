@@ -11,6 +11,28 @@ from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
 
 
+class LocationType:
+    LOCAL_DIRECTORY = 'LocalDirectory'
+    LOCAL_FILE = 'LocalFile'
+    FILE_URL = 'URL'
+    GIT_URL = 'GitUrl'
+    types = (LOCAL_DIRECTORY, LOCAL_FILE, FILE_URL, GIT_URL)
+
+
+class Location:
+
+    def __init__(self, reference: str, location_type: str=LocationType.LOCAL_DIRECTORY):
+        if type not in LocationType.types:
+            raise Exception('Unsupported type "{}"'.format(type))
+        self.location_reference = reference
+        self.location_type = location_type
+
+    def get_files(self)->list:
+        """Return a list of files from the location reference and parse according to the type
+        """
+        pass
+
+
 class Project(Item):
 
     def __init__(
