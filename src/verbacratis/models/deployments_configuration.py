@@ -76,6 +76,15 @@ class Location:
                 ssh_private_key_path=ssh_private_key_path,
                 set_no_verify_ssl=set_no_verify_ssl
             )
+        elif self.location_type == LocationType.FILE_URL:
+            # TODO Download remote file and save locally
+            pass
+        elif self.location_type == LocationType.LOCAL_FILE:
+            # TODO Copy local file to work dir
+            pass
+        elif self.location_type == LocationType.LOCAL_DIRECTORY:
+            # TODO Copy local matching files from directory to work dir
+            pass
         return files
 
 
