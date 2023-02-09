@@ -60,6 +60,14 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         self.assertIsInstance(result, str)
         self.assertEqual(result, 'aaa')
 
+    def test_f_file_checksum(self):
+        write_content_to_file(file=self.temp_file, content='aaa')
+        result = file_checksum(path=self.temp_file)
+        expected = '9834876dcfb05cb167a5c24953eba58c4ac89b1adf57f28f2f9d09af107ee8f0'
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, expected)
+
 
 if __name__ == '__main__':
     unittest.main()
