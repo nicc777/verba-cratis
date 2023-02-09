@@ -7,6 +7,7 @@
 """
 
 import yaml
+import hashlib
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
 from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively, copy_file, get_file_from_path, file_checksum
@@ -42,7 +43,7 @@ class Location:
 
     def __init__(self, reference: str, include_file_regex: str='.*\.yml|.*\.yaml'):
         self.files = list()
-        self.file_checksums = dict()
+        self.checksum = None
         self.location_type = None
         local_type_attempt = identify_local_path_type(path=reference)
         if local_type_attempt is not PathTypes.UNKNOWN:
@@ -65,7 +66,7 @@ class Location:
         self.cleanup_work_dir()
         self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(self.location_reference))
         self.file_list = self.get_files()
-        self._update_checksums_from_work_dir_files()
+        self._update_checksum_from_work_dir_files()
 
     def cleanup_work_dir(self):
         remove_tmp_dir_recursively(dir=self.work_dir)
@@ -109,9 +110,11 @@ class Location:
                 pass
         return self.files
 
-    def _update_checksums_from_work_dir_files(self):
+    def _update_checksum_from_work_dir_files(self):
+        raw_string = ''
         for file in self.files:
-            self.file_checksums[file] = file_checksum(path=file)
+            raw_string = '{}{}\n'.format(raw_string, file_checksum(path=file))
+        self.checksum = hashlib.sha256(raw_string.encode('utf-8')).hexdigest()
 
 
 class Project(Item):
