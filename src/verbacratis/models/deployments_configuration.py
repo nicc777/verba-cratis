@@ -10,7 +10,8 @@ import yaml
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
 from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively
-from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_git_parameters_from_url
+from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_parameters_from_url
+from verbacratis.utils.http_requests_io import download_files
 
 
 class LocationType:
@@ -68,7 +69,7 @@ class Location:
         self.file_list = list()
 
     def _get_files_from_git(self):
-        final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_git_parameters_from_url(location=self.location_reference)
+        final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.location_reference)
         self.files = git_clone_checkout_and_return_list_of_files(
             git_clone_url=final_location,
             branch=branch,
@@ -79,6 +80,15 @@ class Location:
             set_no_verify_ssl=set_no_verify_ssl
         )
 
+    def _get_file_from_url(self):
+        final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.location_reference)
+        files = download_files(
+            urls=[final_location,],
+            target_dir=self.work_dir,
+            set_no_verify_ssl=set_no_verify_ssl
+        )
+        self.files = files
+
     def get_files(self)->list:
         """Return a list of files from the location reference and parse according to the type
 
@@ -88,8 +98,7 @@ class Location:
         if self.location_type == LocationType.GIT_URL:
             self._get_files_from_git()
         elif self.location_type == LocationType.FILE_URL:
-            # TODO Download remote file and save locally
-            pass
+            self._get_file_from_url()
         elif self.location_type == LocationType.LOCAL_FILE:
             # TODO Copy local file to work dir
             pass

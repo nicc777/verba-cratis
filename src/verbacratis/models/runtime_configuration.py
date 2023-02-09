@@ -19,7 +19,7 @@ import urllib
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path, init_application_dir
 from verbacratis.models import GenericLogger, DEFAULT_CONFIG_DIR, DEFAULT_GLOBAL_CONFIG, DEFAULT_STATE_DB
 from verbacratis.models.systems_configuration import SystemConfigurations, InfrastructureAccount, get_yaml_configuration_from_git, get_yaml_configuration_from_url, get_system_configuration_from_files
-from verbacratis.utils.git_integration import is_url_a_git_repo, extract_git_parameters_from_url
+from verbacratis.utils.git_integration import is_url_a_git_repo, extract_parameters_from_url
 
 
 class StateStore:
@@ -122,7 +122,7 @@ class ApplicationState:
         for location in self.system_manifest_locations:
             if location.startswith('http'):
                 if is_url_a_git_repo(url=location) is True:
-                    final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_git_parameters_from_url(location=location)
+                    final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=location)
                     self.application_configuration.system_configurations = get_yaml_configuration_from_git(
                         git_clone_url=final_location,
                         system_configurations=self.application_configuration.system_configurations,

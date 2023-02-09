@@ -26,7 +26,7 @@ def random_word(length: int=16):
     return ''.join(random.choice(letters) for i in range(length))
 
 
-def extract_git_parameters_from_url(
+def extract_parameters_from_url(
     location: str,
     branch: str='main',
     relative_start_directory: str='/',
