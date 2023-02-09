@@ -104,7 +104,7 @@ class Location:
             elif self.location_type == LocationType.FILE_URL:
                 self._get_file_from_url()
             elif self.location_type == LocationType.LOCAL_FILE:
-                self.files = [copy_file(source_file=self.location_reference, file_name=get_file_from_path(input_path=self.location_reference), tmp_dir=self.work_dir),]
+                self.files.append(copy_file(source_file=self.location_reference, file_name=get_file_from_path(input_path=self.location_reference), tmp_dir=self.work_dir))
             elif self.location_type == LocationType.LOCAL_DIRECTORY:
                 # TODO Copy local matching files from directory to work dir
                 pass
