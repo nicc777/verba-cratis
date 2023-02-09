@@ -36,6 +36,14 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         content4 = get_file_contents(file=self.temp_file)
         self.assertEqual(content4, content3)
 
+    def test_f_append_content_to_file(self):
+        append_content_to_file(file=self.temp_file, content='aaa')
+        append_content_to_file(file=self.temp_file, content='bbb')
+        content = get_file_contents(file=self.temp_file)
+        self.assertIsNotNone(content)
+        self.assertTrue('aaa' in content)
+        self.assertTrue('bbb' in content)
+
 
 if __name__ == '__main__':
     unittest.main()
