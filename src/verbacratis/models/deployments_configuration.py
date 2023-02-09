@@ -9,7 +9,7 @@
 import yaml
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
-from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively, copy_file, get_file_from_path
+from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively, copy_file, get_file_from_path, file_checksum
 from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_parameters_from_url
 from verbacratis.utils.http_requests_io import download_files
 
@@ -42,6 +42,7 @@ class Location:
 
     def __init__(self, reference: str, include_file_regex: str='.*\.yml|.*\.yaml'):
         self.files = list()
+        self.file_checksums = dict()
         self.location_type = None
         local_type_attempt = identify_local_path_type(path=reference)
         if local_type_attempt is not PathTypes.UNKNOWN:
@@ -64,6 +65,7 @@ class Location:
         self.cleanup_work_dir()
         self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(self.location_reference))
         self.file_list = self.get_files()
+        self._update_checksums_from_work_dir_files()
 
     def cleanup_work_dir(self):
         remove_tmp_dir_recursively(dir=self.work_dir)
@@ -106,6 +108,10 @@ class Location:
                 # TODO Copy local matching files from directory to work dir
                 pass
         return self.files
+
+    def _update_checksums_from_work_dir_files(self):
+        for file in self.files:
+            self.file_checksums[file] = file_checksum(path=file)
 
 
 class Project(Item):

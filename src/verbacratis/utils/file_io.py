@@ -13,6 +13,7 @@ import tempfile
 from pathlib import Path
 import re
 from verbacratis.models import DEFAULT_CONFIG_DIR
+import hashlib
 
 
 class PathTypes:
@@ -194,3 +195,10 @@ def init_application_dir(dir: str=DEFAULT_CONFIG_DIR)->str:
         else:
             raise Exception('Default application home directory "{}" is not a directory'.format(dir))
     os.makedirs(dir, exist_ok=True)
+
+
+def file_checksum(path: str)->str:
+    checksum = None
+    with open(path, 'r') as f:
+        checksum = hashlib.sha256(open(path,'rb').read()).hexdigest()
+    return checksum
