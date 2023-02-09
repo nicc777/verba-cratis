@@ -1,0 +1,26 @@
+| Name                                                          |    Stmts |     Miss |   Cover |
+|-------------------------------------------------------------- | -------: | -------: | ------: |
+| src/verbacratis/\_\_init\_\_.py                               |        0 |        0 |    100% |
+| src/verbacratis/functions/\_\_init\_\_.py                     |       14 |        0 |    100% |
+| src/verbacratis/infrastructure\_providers/\_\_init\_\_.py     |       12 |        2 |     83% |
+| src/verbacratis/infrastructure\_providers/aws/\_\_init\_\_.py |        6 |        2 |     67% |
+| src/verbacratis/infrastructure\_providers/aws/aws\_helpers.py |       18 |       13 |     28% |
+| src/verbacratis/models/\_\_init\_\_.py                        |       45 |        2 |     96% |
+| src/verbacratis/models/deployments\_configuration.py          |      183 |       31 |     83% |
+| src/verbacratis/models/ordering.py                            |       71 |        0 |    100% |
+| src/verbacratis/models/runtime.py                             |      214 |      178 |     17% |
+| src/verbacratis/models/runtime\_configuration.py              |       88 |        0 |    100% |
+| src/verbacratis/models/systems\_configuration.py              |      424 |        3 |     99% |
+| src/verbacratis/notification\_providers/\_\_init\_\_.py       |       21 |        0 |    100% |
+| src/verbacratis/notification\_providers/rest/\_\_init\_\_.py  |       28 |        2 |     93% |
+| src/verbacratis/utils/\_\_init\_\_.py                         |      204 |      158 |     23% |
+| src/verbacratis/utils/cli\_arguments.py                       |       60 |        6 |     90% |
+| src/verbacratis/utils/file\_io.py                             |      126 |        5 |     96% |
+| src/verbacratis/utils/function\_runner.py                     |       50 |       44 |     12% |
+| src/verbacratis/utils/git\_integration.py                     |       61 |        2 |     97% |
+| src/verbacratis/utils/http\_requests\_io.py                   |       17 |        0 |    100% |
+| src/verbacratis/utils/os\_integration.py                      |       27 |       18 |     33% |
+| src/verbacratis/utils/parser2.py                              |       19 |        0 |    100% |
+| src/verbacratis/utils/parser.py                               |      107 |       90 |     16% |
+| src/verbacratis/verbacratis.py                                |       12 |        0 |    100% |
+|                                                     **TOTAL** | **1807** |  **556** | **69%** |
