@@ -41,6 +41,7 @@ class LocationType:
 class Location:
 
     def __init__(self, reference: str, include_file_regex: str='.*\.yml|.*\.yaml'):
+        self.files = list()
         self.location_type = None
         local_type_attempt = identify_local_path_type(path=reference)
         if local_type_attempt is not PathTypes.UNKNOWN:
@@ -90,21 +91,21 @@ class Location:
         self.files = files
 
     def get_files(self)->list:
-        """Return a list of files from the location reference and parse according to the type
+        """Builds a list of files from the location reference and parse according to the type
 
         All local and remote files will be copied into the local temporary work directory in self.work_dir
         """
-        files = list()
-        if self.location_type == LocationType.GIT_URL:
-            self._get_files_from_git()
-        elif self.location_type == LocationType.FILE_URL:
-            self._get_file_from_url()
-        elif self.location_type == LocationType.LOCAL_FILE:
-            self.files = [copy_file(source_file=self.location_reference, file_name=get_file_from_path(input_path=self.location_reference), tmp_dir=self.work_dir),]
-        elif self.location_type == LocationType.LOCAL_DIRECTORY:
-            # TODO Copy local matching files from directory to work dir
-            pass
-        return files
+        if len(self.files) == 0:
+            if self.location_type == LocationType.GIT_URL:
+                self._get_files_from_git()
+            elif self.location_type == LocationType.FILE_URL:
+                self._get_file_from_url()
+            elif self.location_type == LocationType.LOCAL_FILE:
+                self.files = [copy_file(source_file=self.location_reference, file_name=get_file_from_path(input_path=self.location_reference), tmp_dir=self.work_dir),]
+            elif self.location_type == LocationType.LOCAL_DIRECTORY:
+                # TODO Copy local matching files from directory to work dir
+                pass
+        return self.files
 
 
 class Project(Item):
