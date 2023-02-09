@@ -10,7 +10,7 @@ import yaml
 import hashlib
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
-from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively, copy_file, get_file_from_path, file_checksum
+from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively, copy_file, get_file_from_path, file_checksum, find_matching_files
 from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_parameters_from_url
 from verbacratis.utils.http_requests_io import download_files
 
@@ -93,6 +93,16 @@ class Location:
         )
         self.files = files
 
+    def _get_files_from_dir(self):
+        for file in find_matching_files(start_dir=self.location_reference, pattern=self.include_file_regex):
+            self.files.append(
+                copy_file(
+                    source_file=file,
+                    file_name=hashlib.sha256(file.encode('utf-8')).hexdigest(),
+                    tmp_dir=self.work_dir
+                )
+            )
+
     def get_files(self)->list:
         """Builds a list of files from the location reference and parse according to the type
 
@@ -106,8 +116,7 @@ class Location:
             elif self.location_type == LocationType.LOCAL_FILE:
                 self.files.append(copy_file(source_file=self.location_reference, file_name=get_file_from_path(input_path=self.location_reference), tmp_dir=self.work_dir))
             elif self.location_type == LocationType.LOCAL_DIRECTORY:
-                # TODO Copy local matching files from directory to work dir
-                pass
+                self._get_files_from_dir()
         return self.files
 
     def _update_checksum_from_work_dir_files(self):
