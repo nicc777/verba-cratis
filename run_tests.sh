@@ -56,6 +56,9 @@ echo ; echo ; echo "############################################################
 coverage run -a tests/test_utils_http_requests_io.py
 
 echo ; echo ; echo "########################################################################################################################"
+coverage run -a tests/test_utils_file_io.py
+
+echo ; echo ; echo "########################################################################################################################"
 coverage report --omit="tests/test*" -m
 coverage html -d reports --omit="tests/test*"
 echo "Report available in file://$PWD/reports/index.html"
@@ -67,7 +70,6 @@ echo "Report available in file://$PWD/reports/index.html"
 # coverage run -a tests/test_aws.py
 # coverage run -a tests/test_functions.py
 # coverage run -a tests/test_functions_aws_helpers.py
-# coverage run tests/test_utils_file_io.py
 # coverage run -a tests/test_utils_parser.py
 # coverage run -a tests/test_utils.py
 
