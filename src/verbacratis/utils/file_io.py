@@ -95,12 +95,12 @@ def create_tmp_file(tmp_dir: str, file_name: str, data:str)->str:
     return target_file
 
 
-def copy_file(source_file: str, tmp_dir: str, file_name: str)->str:
+def copy_file(source_file: str, file_name: str, tmp_dir: str=None)->str:
     try:
-        data = ''
+        if tmp_dir is None:
+            tmp_dir = create_tmp_dir(sub_dir=file_name)
         with open(source_file, "r") as fr:
-            data = fr.read()
-        target_file = create_tmp_file(tmp_dir=create_tmp_dir(sub_dir=file_name), file_name=file_name, data=data)
+            target_file = create_tmp_file(tmp_dir=tmp_dir, file_name=file_name, data=fr.read())
     except:
         traceback.print_exc()
         return None

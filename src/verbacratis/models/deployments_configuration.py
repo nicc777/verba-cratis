@@ -9,7 +9,7 @@
 import yaml
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
-from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively
+from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively, copy_file, get_file_from_path
 from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_parameters_from_url
 from verbacratis.utils.http_requests_io import download_files
 
@@ -100,8 +100,7 @@ class Location:
         elif self.location_type == LocationType.FILE_URL:
             self._get_file_from_url()
         elif self.location_type == LocationType.LOCAL_FILE:
-            # TODO Copy local file to work dir
-            pass
+            self.files = [copy_file(source_file=self.location_reference, file_name=get_file_from_path(input_path=self.location_reference), tmp_dir=self.work_dir),]
         elif self.location_type == LocationType.LOCAL_DIRECTORY:
             # TODO Copy local matching files from directory to work dir
             pass
