@@ -52,6 +52,14 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         result = create_tmp_file(tmp_dir='../this_must_file', file_name='test', data='it does not matter what we put here...')
         self.assertIsNone(result)
 
+    def test_f_copy_file(self):
+        write_content_to_file(file=self.temp_file, content='aaa')
+        copy_file(source_file=self.temp_file, file_name='copied_file', tmp_dir=tempfile.gettempdir())
+        result = get_file_contents(file='{}{}copied_file'.format(tempfile.gettempdir(), os.sep))
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, 'aaa')
+
 
 if __name__ == '__main__':
     unittest.main()
