@@ -44,6 +44,11 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         self.assertTrue('aaa' in content)
         self.assertTrue('bbb' in content)
 
+    def test_f_create_tmp_dir_forced_exception_due_to_permission(self):
+        result = create_tmp_dir(sub_dir='../this_must_fail')
+        self.assertIsNone(result)
+        
+
 
 if __name__ == '__main__':
     unittest.main()
