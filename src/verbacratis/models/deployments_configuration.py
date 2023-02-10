@@ -64,6 +64,13 @@ class Location:
         self.include_file_regex = include_file_regex
         self.sync()
         
+    def as_dict(self):
+        data = dict()
+        data['reference'] = self.location_reference
+        if self.location_type != LocationType.LOCAL_FILE:
+            data['include_file_regex'] = self.include_file_regex
+        return data
+
     def sync(self):
         self.cleanup_work_dir()
         self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(hashlib.sha256(self.location_reference.encode('utf-8')).hexdigest()))
