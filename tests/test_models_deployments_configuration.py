@@ -16,6 +16,7 @@ import unittest
 
 from verbacratis.models.deployments_configuration import *
 from verbacratis.utils.file_io import *
+import copy
 
 
 class TestProject(unittest.TestCase):    # pragma: no cover
@@ -359,6 +360,12 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
         self.assertTrue(len(data) > 0)
         self.assertTrue(data.startswith('---'))
 
+    def _verify_cleanup(self, loc: Location):
+        files = copy.deepcopy(loc.files)
+        loc.cleanup_work_dir()
+        for file in files:
+            self.assertFalse(does_file_exists(data_value=file))
+
     def test_location_init_with_local_dir_of_files(self):
         loc = Location(reference=self.dir_for_test_files)
         self.assertIsNotNone(loc)
@@ -368,6 +375,7 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
         for work_file in loc.files:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_cleanup(loc=loc)
 
     def test_location_init_with_local_file(self):
         loc = Location(reference=self.file1)
@@ -378,6 +386,7 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
         for work_file in loc.files:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_cleanup(loc=loc)
 
     def test_location_init_with_http_file(self):
         loc = Location(reference=self.file_at_url)
@@ -388,6 +397,7 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
         for work_file in loc.files:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_cleanup(loc=loc)
 
     def test_location_init_with_git(self):
         loc = Location(reference=self.git_repo)
@@ -398,6 +408,7 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
         for work_file in loc.files:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_cleanup(loc=loc)
 
 
 if __name__ == '__main__':
