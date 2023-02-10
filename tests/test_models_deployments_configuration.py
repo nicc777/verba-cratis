@@ -337,10 +337,15 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
     def tearDown(self):
         remove_tmp_dir_recursively(dir=self.dir_for_test_files)
 
+    def _verify_init(self, loc: Location):
+        self.assertIsNotNone(loc.work_dir)
+        self.assertIsNotNone(loc.checksum)
+
     def test_location_init_with_local_dir_of_files(self):
         loc = Location(reference=self.dir_for_test_files)
         self.assertIsNotNone(loc)
         self.assertIsInstance(loc, Location)
+        self._verify_init(loc=loc)
 
 
 if __name__ == '__main__':
