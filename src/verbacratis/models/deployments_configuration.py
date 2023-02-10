@@ -65,12 +65,12 @@ class Location:
     def sync(self):
         self.cleanup_work_dir()
         self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(hashlib.sha256(self.location_reference.encode('utf-8')).hexdigest()))
-        self.file_list = self.get_files()
+        self.get_files()
         self._update_checksum_from_work_dir_files()
 
     def cleanup_work_dir(self):
         remove_tmp_dir_recursively(dir='Location__{}'.format(hashlib.sha256(self.location_reference.encode('utf-8')).hexdigest()))
-        self.file_list = list()
+        self.files = list()
 
     def _get_files_from_git(self):
         final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.location_reference)
