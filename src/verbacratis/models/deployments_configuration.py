@@ -43,6 +43,7 @@ class Location:
 
     def __init__(self, reference: str, include_file_regex: str='.*\.yml|.*\.yaml'):
         self.files = list()
+        self.work_dir = None
         self.checksum = None
         self.location_type = None
         local_type_attempt = identify_local_path_type(path=reference)
