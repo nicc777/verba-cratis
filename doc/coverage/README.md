@@ -6,7 +6,7 @@
 | src/verbacratis/infrastructure\_providers/aws/\_\_init\_\_.py |        6 |        2 |     67% |
 | src/verbacratis/infrastructure\_providers/aws/aws\_helpers.py |       18 |       13 |     28% |
 | src/verbacratis/models/\_\_init\_\_.py                        |       45 |        2 |     96% |
-| src/verbacratis/models/deployments\_configuration.py          |      183 |       31 |     83% |
+| src/verbacratis/models/deployments\_configuration.py          |      186 |       29 |     84% |
 | src/verbacratis/models/ordering.py                            |       71 |        0 |    100% |
 | src/verbacratis/models/runtime.py                             |      214 |      178 |     17% |
 | src/verbacratis/models/runtime\_configuration.py              |       88 |        0 |    100% |
@@ -23,4 +23,4 @@
 | src/verbacratis/utils/parser2.py                              |       19 |        0 |    100% |
 | src/verbacratis/utils/parser.py                               |      107 |       90 |     16% |
 | src/verbacratis/verbacratis.py                                |       12 |        0 |    100% |
-|                                                     **TOTAL** | **1807** |  **556** | **69%** |
+|                                                     **TOTAL** | **1810** |  **554** | **69%** |
