@@ -15,6 +15,7 @@ import unittest
 
 
 from verbacratis.models.deployments_configuration import *
+from verbacratis.utils.file_io import *
 
 
 class TestProject(unittest.TestCase):    # pragma: no cover
@@ -322,6 +323,24 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         print('# Projects YAML')
         print(projects_yaml)
         print('='*80)
+
+
+class TestLocation(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        self.dir_for_test_files = create_tmp_dir(sub_dir='test_files')
+        self.file1 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file1.yaml', data='---\ntest1: true')
+        self.file2 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file2.yaml', data='---\ntest2: true')
+        self.git_repo = 'https://github.com/nicc777/verba-cratis-test-projects.git%00branch%3Dmain'
+        self.file_at_url = 'https://raw.githubusercontent.com/nicc777/verba-cratis-test-projects/main/project-hello-world.yaml'
+
+    def tearDown(self):
+        remove_tmp_dir_recursively(dir=self.dir_for_test_files)
+
+    def test_location_init_with_local_dir_of_files(self):
+        loc = Location(reference=self.dir_for_test_files)
+        self.assertIsNotNone(loc)
+        self.assertIsInstance(loc, Location)
 
 
 if __name__ == '__main__':
