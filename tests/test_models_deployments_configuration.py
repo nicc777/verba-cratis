@@ -350,11 +350,24 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(loc.files, list)
         self.assertTrue(len(loc.files) > 0)
 
+    def _verify_file_exists_and_has_content(self, work_file: str):
+        data = ''
+        with open(work_file, 'r') as f:
+            data = f.read()
+        self.assertIsNotNone(data)
+        self.assertIsInstance(data, str)
+        self.assertTrue(len(data) > 0)
+        self.assertTrue(data.startswith('---'))
+
     def test_location_init_with_local_dir_of_files(self):
         loc = Location(reference=self.dir_for_test_files)
         self.assertIsNotNone(loc)
         self.assertIsInstance(loc, Location)
         self._verify_init(loc=loc)
+        self.assertEqual(len(loc.files),2)
+        for work_file in loc.files:
+            print('work file: {}'.format(work_file))
+            self._verify_file_exists_and_has_content(work_file=work_file)
 
 
 if __name__ == '__main__':
