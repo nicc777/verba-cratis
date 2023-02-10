@@ -339,7 +339,16 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
 
     def _verify_init(self, loc: Location):
         self.assertIsNotNone(loc.work_dir)
+        self.assertIsInstance(loc.work_dir, str)
+        self.assertTrue(len(loc.work_dir) > 0)
+
         self.assertIsNotNone(loc.checksum)
+        self.assertIsInstance(loc.checksum, str)
+        self.assertTrue(len(loc.checksum) > 0)
+        
+        self.assertIsNotNone(loc.files)
+        self.assertIsInstance(loc.files, list)
+        self.assertTrue(len(loc.files) > 0)
 
     def test_location_init_with_local_dir_of_files(self):
         loc = Location(reference=self.dir_for_test_files)
