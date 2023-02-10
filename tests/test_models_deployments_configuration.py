@@ -365,6 +365,7 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
         loc.cleanup_work_dir()
         for file in files:
             self.assertFalse(does_file_exists(data_value=file))
+        self.assertEqual(len(loc.files), 0)
 
     def test_location_init_with_local_dir_of_files(self):
         loc = Location(reference=self.dir_for_test_files)
