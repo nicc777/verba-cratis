@@ -64,12 +64,12 @@ class Location:
         
     def sync(self):
         self.cleanup_work_dir()
-        self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(self.location_reference))
+        self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(hashlib.sha256(self.location_reference.encode('utf-8')).hexdigest()))
         self.file_list = self.get_files()
         self._update_checksum_from_work_dir_files()
 
     def cleanup_work_dir(self):
-        remove_tmp_dir_recursively(dir=self.work_dir)
+        remove_tmp_dir_recursively(dir='Location__{}'.format(hashlib.sha256(self.location_reference.encode('utf-8')).hexdigest()))
         self.file_list = list()
 
     def _get_files_from_git(self):
