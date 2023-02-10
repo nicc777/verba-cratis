@@ -369,6 +369,16 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
 
+    def test_location_init_with_local_file(self):
+        loc = Location(reference=self.file1)
+        self.assertIsNotNone(loc)
+        self.assertIsInstance(loc, Location)
+        self._verify_init(loc=loc)
+        self.assertEqual(len(loc.files),1)
+        for work_file in loc.files:
+            print('work file: {}'.format(work_file))
+            self._verify_file_exists_and_has_content(work_file=work_file)
+
 
 if __name__ == '__main__':
     unittest.main()
