@@ -67,7 +67,7 @@ class Location:
     def as_dict(self):
         data = dict()
         data['reference'] = self.location_reference
-        if self.location_type != LocationType.LOCAL_FILE:
+        if self.location_type != LocationType.LOCAL_FILE and self.location_type != LocationType.FILE_URL:
             data['include_file_regex'] = self.include_file_regex
         return data
 
