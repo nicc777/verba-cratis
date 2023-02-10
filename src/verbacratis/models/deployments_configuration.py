@@ -145,14 +145,16 @@ class Project(Item):
         use_default_scope: bool = True
     ):
         super().__init__(name, logger, use_default_scope)
-        self.manifest_directories = list()  # List of dict with items "path" and "type", where type can only be YAML (for now at least)
-        self.manifest_files = list()        # List of dict with items "path" and "type", where type can only be YAML (for now at least)
         self.include_file_regex = '.*\.yml|.*\.yaml'
         self.project_effective_manifest = None      # The manifest for the particular scopes
         self.previous_project_checksum = dict()     # Checksum of the previous effective manifest, per environment (scope)
         self.current_project_checksum = None        # The current checksum of the project_effective_manifest
+        self.locations = list()                     # list of Location instances
 
         # TODO Needs to point to files/directories on the local file system ~~ OR ~~ to a Git repository, with a local work directory. Need to consider Git credentials...
+
+    def add_location(self, location: Location):
+        self.locations.append(location)
 
     def add_environment(self, environment_name: str):
         self.add_scope(scope_name=environment_name)
@@ -160,15 +162,6 @@ class Project(Item):
 
     def add_parent_project(self, parent_project_name: str):
         self.add_parent_item_name(parent_item_name=parent_project_name)
-
-    def add_manifest_directory(self, path: str, type: str='YAML'):
-        self.manifest_directories.append({'path': path, 'type': type})
-
-    def override_include_file_regex(self, include_file_regex: tuple):
-        self.include_file_regex = include_file_regex
-
-    def add_manifest_file(self, path: str, type: str='YAML'):
-        self.manifest_files.append({'path': path, 'type': type})
 
     def get_environment_names(self)->list:
         return self.scopes
@@ -184,31 +177,10 @@ class Project(Item):
             root['metadata']['environments'] = self.scopes
         root['spec'] = dict()
         data = dict()
-        if self.include_file_regex is not None:
-            if len(self.include_file_regex) > 0:
-                data['includeFileRegex'] = self.include_file_regex
-        if len(self.manifest_directories) > 0:
-            if 'locations' not in data:
-                data['locations'] = dict()
-            data['locations']['directories'] = list()
-            for directory in self.manifest_directories:
-                if 'path' in directory and 'type' in directory:
-                    directory_data = {
-                        'path': directory['path'],
-                        'type': directory['type'],
-                    }
-                    data['locations']['directories'].append(directory_data)
-        if len(self.manifest_files) > 0:
-            if 'locations' not in data:
-                data['locations'] = dict()
-            data['locations']['files'] = list()
-            for file in self.manifest_files:
-                if 'path' in file and 'type' in file:
-                    file_data = {
-                        'path': file['path'],
-                        'type': file['type'],
-                    }
-                    data['locations']['files'].append(file_data)
+        if len(self.locations) > 0:
+            data['locations'] = list()
+            for location in self.locations:
+                data['locations'].append(location.as_dict())
         if len(self.parent_item_names) > 0:
             data['parentProjects'] = list()
             for parent_name in self.parent_item_names:
@@ -262,20 +234,18 @@ class Projects(Items):
                             if 'includeFileRegex' in spec:
                                 project.include_file_regex = '{}'.format(converted_data['spec']['includeFileRegex'])
                             if 'locations' in spec:
-                                if 'directories' in spec['locations']:
-                                    for dir_data in spec['locations']['directories']:
-                                        dir_type = 'YAML'
-                                        if 'type' in dir_data:
-                                            dir_type = dir_data['type']
-                                        if 'path' in dir_data:
-                                            project.add_manifest_directory(path=dir_data['path'], type=dir_type)
-                                if 'files' in spec['locations']:
-                                    for dir_data in spec['locations']['files']:
-                                        dir_type = 'YAML'
-                                        if 'type' in dir_data:
-                                            dir_type = dir_data['type']
-                                        if 'path' in dir_data:
-                                            project.add_manifest_file(path=dir_data['path'], type=dir_type)
+                                if isinstance(spec['locations'], list):
+                                    for location_data in spec['locations']:
+                                        reference = None
+                                        include_file_regex = None
+                                        if 'reference' in location_data:
+                                            reference = location_data['reference']
+                                        if 'include_file_regex' in location_data:
+                                            include_file_regex = location_data['include_file_regex']
+                                        if include_file_regex is None:
+                                            project.add_location(location=Location(reference=reference))
+                                        else:
+                                            project.add_location(location=Location(reference=reference, include_file_regex=include_file_regex))
                             if 'parentProjects' in spec:
                                 for parent_project_data in spec['parentProjects']:
                                     project.add_parent_project(parent_project_name=parent_project_data['name'])
