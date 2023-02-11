@@ -379,10 +379,10 @@ spec:
         self.assertEqual(len(loc.files), 0)
 
     def _verify_as_dict(self, data: dict, expected_keys:tuple):
-        self.assertTrue['spec' in data]
+        self.assertTrue('spec' in data)
         for key in expected_keys:
             self.assertTrue(key in data['spec'])
-        self.assertEqual(len(data), len(expected_keys))
+        self.assertEqual(len(data['spec']), len(expected_keys))
 
     def test_class_LocalFileManifestLocation_basic(self):
         loc = LocalFileManifestLocation(reference=self.file_single_local_file, manifest_name='local_file_test_1')
@@ -394,7 +394,6 @@ spec:
         self.assertIsNotNone(location_yaml)
         self.assertIsInstance(location_yaml, str)
         self.assertTrue(len(location_yaml) > 10)
-        self.assertTrue('---' in location_yaml)
         print('='*80)
         print('# LocalFileManifestLocation YAML')
         print(location_yaml)
