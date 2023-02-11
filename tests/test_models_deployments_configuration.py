@@ -338,8 +338,7 @@ kind: LocalFileManifestLocation
 metadata:
   name: local_file_test_1
 spec:
-  location: {}{}project1_manifest_locations.yaml
-        """.format(self.dir_for_local_file_location, os.sep)
+  location: {}{}project1_manifest_locations.yaml""".format(self.dir_for_local_file_location, os.sep)
         self.file_single_local_file = create_tmp_file(tmp_dir=self.dir_for_local_file_location, file_name='project1_manifest_locations.yaml', data=local_file_data)
 
         self.file1 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file1.yaml', data='---\ntest1: true')
