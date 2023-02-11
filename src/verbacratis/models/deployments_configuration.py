@@ -182,7 +182,8 @@ class ManifestLocation:
         root['metadata'] = dict()
         root['metadata']['name'] = self.manifest_name
         if self.location_type == LocationType.LOCAL_FILE:
-            root['location'] = self.reference
+            root['spec']['location'] = self.reference
+        return root
 
     def __str__(self)->str:
         return yaml.dump(self.as_dict())

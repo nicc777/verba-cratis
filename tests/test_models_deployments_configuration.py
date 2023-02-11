@@ -390,6 +390,17 @@ spec:
         self.assertIsNotNone(loc)
         self.assertIsInstance(loc, ManifestLocation)
         self.assertIsInstance(loc, LocalFileManifestLocation)
+
+        location_yaml = str(loc)
+        self.assertIsNotNone(location_yaml)
+        self.assertIsInstance(location_yaml, str)
+        self.assertTrue(len(location_yaml) > 10)
+        self.assertTrue('---' in location_yaml)
+        print('='*80)
+        print('# LocalFileManifestLocation YAML')
+        print(location_yaml)
+        print('='*80)
+
         self.assertEqual(loc.location_type, LocationType.LOCAL_FILE)
         self._verify_init(loc=loc)
         self.assertEqual(len(loc.files),1)
