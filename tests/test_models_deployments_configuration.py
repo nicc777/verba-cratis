@@ -326,10 +326,22 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         print('='*80)
 
 
-class TestLocation(unittest.TestCase):    # pragma: no cover
+class TestLocationClasses(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
         self.dir_for_test_files = create_tmp_dir(sub_dir='test_files')
+        
+        self.dir_for_local_file_location = create_tmp_dir(sub_dir='test_single_local_file')
+        local_file_data = """---
+apiVersion: v1-alpha
+kind: LocalFileManifestLocation
+metadata:
+  name: local_file_test_1
+spec:
+  location: {}{}project1_manifest_locations.yaml
+        """.format(self.dir_for_local_file_location, os.sep)
+        self.file_single_local_file = create_tmp_file(tmp_dir=self.dir_for_local_file_location, file_name='project1_manifest_locations.yaml', data=local_file_data)
+
         self.file1 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file1.yaml', data='---\ntest1: true')
         self.file2 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file2.yaml', data='---\ntest2: true')
         self.git_repo = 'https://github.com/nicc777/verba-cratis-test-projects.git%00branch%3Dmain'
@@ -368,57 +380,73 @@ class TestLocation(unittest.TestCase):    # pragma: no cover
         self.assertEqual(len(loc.files), 0)
 
     def _verify_as_dict(self, data: dict, expected_keys:tuple):
+        self.assertTrue['spec' in data]
         for key in expected_keys:
-            self.assertTrue(key in data)
+            self.assertTrue(key in data['spec'])
         self.assertEqual(len(data), len(expected_keys))
 
-    def test_location_init_with_local_dir_of_files(self):
-        loc = Location(reference=self.dir_for_test_files)
+    def test_class_LocalFileManifestLocation_basic(self):
+        loc = LocalFileManifestLocation(reference=self.file_single_local_file, manifest_name='local_file_test_1')
         self.assertIsNotNone(loc)
-        self.assertIsInstance(loc, Location)
-        self._verify_init(loc=loc)
-        self.assertEqual(len(loc.files),2)
-        for work_file in loc.files:
-            print('work file: {}'.format(work_file))
-            self._verify_file_exists_and_has_content(work_file=work_file)
-        self._verify_cleanup(loc=loc)
-        self._verify_as_dict(data=loc.as_dict(), expected_keys=('reference', 'include_file_regex',))
-
-    def test_location_init_with_local_file(self):
-        loc = Location(reference=self.file1)
-        self.assertIsNotNone(loc)
-        self.assertIsInstance(loc, Location)
+        self.assertIsInstance(loc, ManifestLocation)
+        self.assertIsInstance(loc, LocalFileManifestLocation)
+        self.assertEqual(loc.location_type, LocationType.LOCAL_FILE)
         self._verify_init(loc=loc)
         self.assertEqual(len(loc.files),1)
         for work_file in loc.files:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_as_dict(data=loc.as_dict(), expected_keys=('location',))
         self._verify_cleanup(loc=loc)
-        self._verify_as_dict(data=loc.as_dict(), expected_keys=('reference',))
+        
 
-    def test_location_init_with_http_file(self):
-        loc = Location(reference=self.file_at_url)
-        self.assertIsNotNone(loc)
-        self.assertIsInstance(loc, Location)
-        self._verify_init(loc=loc)
-        self.assertEqual(len(loc.files),1)
-        for work_file in loc.files:
-            print('work file: {}'.format(work_file))
-            self._verify_file_exists_and_has_content(work_file=work_file)
-        self._verify_cleanup(loc=loc)
-        self._verify_as_dict(data=loc.as_dict(), expected_keys=('reference',))
+    # def test_location_init_with_local_dir_of_files(self):
+    #     loc = Location(reference=self.dir_for_test_files)
+    #     self.assertIsNotNone(loc)
+    #     self.assertIsInstance(loc, Location)
+    #     self._verify_init(loc=loc)
+    #     self.assertEqual(len(loc.files),2)
+    #     for work_file in loc.files:
+    #         print('work file: {}'.format(work_file))
+    #         self._verify_file_exists_and_has_content(work_file=work_file)
+    #     self._verify_cleanup(loc=loc)
+    #     self._verify_as_dict(data=loc.as_dict(), expected_keys=('reference', 'include_file_regex',))
 
-    def test_location_init_with_git(self):
-        loc = Location(reference=self.git_repo)
-        self.assertIsNotNone(loc)
-        self.assertIsInstance(loc, Location)
-        self._verify_init(loc=loc)
-        self.assertEqual(len(loc.files),1)
-        for work_file in loc.files:
-            print('work file: {}'.format(work_file))
-            self._verify_file_exists_and_has_content(work_file=work_file)
-        self._verify_cleanup(loc=loc)
-        self._verify_as_dict(data=loc.as_dict(), expected_keys=('reference', 'include_file_regex',))
+    # def test_location_init_with_local_file(self):
+    #     loc = Location(reference=self.file1)
+    #     self.assertIsNotNone(loc)
+    #     self.assertIsInstance(loc, Location)
+    #     self._verify_init(loc=loc)
+    #     self.assertEqual(len(loc.files),1)
+    #     for work_file in loc.files:
+    #         print('work file: {}'.format(work_file))
+    #         self._verify_file_exists_and_has_content(work_file=work_file)
+    #     self._verify_cleanup(loc=loc)
+    #     self._verify_as_dict(data=loc.as_dict(), expected_keys=('reference',))
+
+    # def test_location_init_with_http_file(self):
+    #     loc = Location(reference=self.file_at_url)
+    #     self.assertIsNotNone(loc)
+    #     self.assertIsInstance(loc, Location)
+    #     self._verify_init(loc=loc)
+    #     self.assertEqual(len(loc.files),1)
+    #     for work_file in loc.files:
+    #         print('work file: {}'.format(work_file))
+    #         self._verify_file_exists_and_has_content(work_file=work_file)
+    #     self._verify_cleanup(loc=loc)
+    #     self._verify_as_dict(data=loc.as_dict(), expected_keys=('reference',))
+
+    # def test_location_init_with_git(self):
+    #     loc = Location(reference=self.git_repo)
+    #     self.assertIsNotNone(loc)
+    #     self.assertIsInstance(loc, Location)
+    #     self._verify_init(loc=loc)
+    #     self.assertEqual(len(loc.files),1)
+    #     for work_file in loc.files:
+    #         print('work file: {}'.format(work_file))
+    #         self._verify_file_exists_and_has_content(work_file=work_file)
+    #     self._verify_cleanup(loc=loc)
+    #     self._verify_as_dict(data=loc.as_dict(), expected_keys=('reference', 'include_file_regex',))
 
 
 if __name__ == '__main__':

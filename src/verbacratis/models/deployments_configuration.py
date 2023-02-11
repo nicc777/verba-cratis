@@ -40,6 +40,14 @@ class LocationType:
         }
 
 
+LOCATION_KIND_MAP = {
+    1: '',
+    2: 'LocalFileManifestLocation',
+    3: '',
+    4: '',
+}
+
+
 class Location:
 
     def __init__(self, reference: str, include_file_regex: str='.*\.yml|.*\.yaml'):
@@ -134,6 +142,61 @@ class Location:
         for file in self.files:
             raw_string = '{}{}\n'.format(raw_string, file_checksum(path=file))
         self.checksum = hashlib.sha256(raw_string.encode('utf-8')).hexdigest()
+
+
+class ManifestLocation:
+
+    def __init__(self, reference: str, manifest_name: str):
+        self.manifest_name = manifest_name
+        self.reference = reference
+        self.files = list()
+        self.work_dir = None
+        self.checksum = None
+        self.location_type = None
+
+    def _update_checksum_from_work_dir_files(self)->str:
+        raw_string = ''
+        for file in self.files:
+            raw_string = '{}{}\n'.format(raw_string, file_checksum(path=file))
+        self.checksum = hashlib.sha256(raw_string.encode('utf-8')).hexdigest()
+
+    def cleanup_work_dir(self):
+        remove_tmp_dir_recursively(dir=self.work_dir)
+        self.files = list()
+        self.work_dir = None
+
+    def get_files(self)->list:
+        raise Exception('Implement in ManifestLocation sub-classes')
+
+    def sync(self):
+        self.cleanup_work_dir()
+        self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(hashlib.sha256(self.reference.encode('utf-8')).hexdigest()))
+        self.get_files()
+        self._update_checksum_from_work_dir_files()
+
+    def as_dict(self):
+        root = dict()
+        root['spec'] = dict()
+        root['apiVersion'] = 'v1-alpha'
+        root['kind'] = LOCATION_KIND_MAP[self.location_type]
+        root['metadata'] = dict()
+        root['metadata']['name'] = self.manifest_name
+        if self.location_type == LocationType.LOCAL_FILE:
+            root['location'] = self.reference
+
+    def __str__(self)->str:
+        return yaml.dump(self.as_dict())
+
+
+class LocalFileManifestLocation(ManifestLocation):
+
+    def __init__(self, reference: str, manifest_name: str):
+        super().__init__(reference, manifest_name)
+        self.location_type = LocationType.LOCAL_FILE
+        self.sync()
+
+    def get_files(self)->list:
+        self.files.append(copy_file(source_file=self.reference, file_name=get_file_from_path(input_path=self.reference), tmp_dir=self.work_dir))
 
 
 class Project(Item):
