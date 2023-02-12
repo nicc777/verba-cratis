@@ -44,7 +44,7 @@ LOCATION_KIND_MAP = {
     1: 'LocalDirectoryManifestLocation',
     2: 'LocalFileManifestLocation',
     3: 'FileUrlManifestLocation',
-    4: '',
+    4: 'GitManifestLocation',
 }
 
 
@@ -207,6 +207,9 @@ class ManifestLocation:
         if self.location_type == LocationType.FILE_URL:
             root['spec']['set_no_verify_ssl'] = self.set_no_verify_ssl
         if self.location_type == LocationType.GIT_URL:
+            if self.reference.lower().startswith('http'):
+                root['spec']['set_no_verify_ssl'] = self.set_no_verify_ssl
+        if self.location_type == LocationType.GIT_URL:
             root['spec']['branch'] = self.branch
             root['spec']['relative_start_directory'] = self.relative_start_directory
             if self.ssh_private_key_path is not None:
@@ -260,6 +263,25 @@ class FileUrlManifestLocation(ManifestLocation):
             set_no_verify_ssl=self.set_no_verify_ssl
         )
         self.files = files
+
+
+class GitManifestLocation(ManifestLocation):
+
+    def __init__(self, reference: str, manifest_name: str, include_file_regex: str='.*\.yml|.*\.yaml', branch: str='main', relative_start_directory: str='/', ssh_private_key_path: str=None, set_no_verify_ssl: bool=False):
+        super().__init__(reference, manifest_name, include_file_regex, set_no_verify_ssl, branch, relative_start_directory, ssh_private_key_path)
+        self.location_type = LocationType.GIT_URL
+        self.sync()
+
+    def get_files(self)->list:
+        self.files = git_clone_checkout_and_return_list_of_files(
+            git_clone_url=self.reference,
+            branch=self.branch,
+            relative_start_directory=self.relative_start_directory,
+            include_files_regex=self.include_file_regex,
+            target_dir=self.work_dir,
+            ssh_private_key_path=self.ssh_private_key_path,
+            set_no_verify_ssl=self.set_no_verify_ssl
+        )
 
 
 class Project(Item):
