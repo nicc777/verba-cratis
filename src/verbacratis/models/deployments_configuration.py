@@ -146,7 +146,7 @@ class Location:
 
 class ManifestLocation:
 
-    def __init__(self, reference: str, manifest_name: str, include_file_regex: str='.*\.yml|.*\.yaml'):
+    def __init__(self, reference: str, manifest_name: str, include_file_regex: str='.*\.yml|.*\.yaml', set_no_verify_ssl: bool=False):
         self.manifest_name = manifest_name
         self.reference = reference
         self.files = list()
@@ -154,7 +154,7 @@ class ManifestLocation:
         self.checksum = None
         self.location_type = None
         self.include_file_regex = include_file_regex
-        self.set_no_verify_ssl = False
+        self.set_no_verify_ssl = set_no_verify_ssl
 
     def _update_checksum_from_work_dir_files(self)->str:
         raw_string = ''
@@ -226,9 +226,8 @@ class LocalDirectoryManifestLocation(ManifestLocation):
 class FileUrlManifestLocation(ManifestLocation):
 
     def __init__(self, reference: str, manifest_name: str, set_no_verify_ssl: bool=False):
-        super().__init__(reference, manifest_name)
+        super().__init__(reference, manifest_name, set_no_verify_ssl)
         self.location_type = LocationType.FILE_URL
-        self.set_no_verify_ssl = set_no_verify_ssl
         self.sync()
 
     def get_files(self)->list:
