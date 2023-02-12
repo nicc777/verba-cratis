@@ -146,15 +146,33 @@ class Location:
 
 class ManifestLocation:
 
-    def __init__(self, reference: str, manifest_name: str, include_file_regex: str='.*\.yml|.*\.yaml', set_no_verify_ssl: bool=False):
+    def __init__(
+        self,
+        reference: str,
+        manifest_name: str,
+        include_file_regex: str='.*\.yml|.*\.yaml',
+        set_no_verify_ssl: bool=False,
+        branch: str='main',
+        relative_start_directory: str='/',
+        ssh_private_key_path: str=None
+    ):
         self.manifest_name = manifest_name
         self.reference = reference
         self.files = list()
         self.work_dir = None
         self.checksum = None
         self.location_type = None
+
+        # Directory and Git Specific
         self.include_file_regex = include_file_regex
+
+        # File URL Specific
         self.set_no_verify_ssl = set_no_verify_ssl
+
+        # Git Specific
+        self.branch = branch
+        self.relative_start_directory = relative_start_directory
+        self.ssh_private_key_path = ssh_private_key_path
 
     def _update_checksum_from_work_dir_files(self)->str:
         raw_string = ''
