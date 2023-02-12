@@ -354,11 +354,23 @@ metadata:
 spec:
   location: {}""".format(self.dir_for_test_files)
         self.local_dir_data_manifest = create_tmp_file(tmp_dir=self.dir_for_local_dir_location, file_name='manifest.yaml', data=local_dir_data)
+
+        self.dir_for_file_url_location = create_tmp_dir(sub_dir='test_file_url_file')
+        local_dir_data = """---
+apiVersion: v1-alpha
+kind: FileUrlManifestLocation
+metadata:
+  name: file_url_test_1
+spec:
+  location: {}
+  set_no_verify_ssl: true""".format(self.file_at_url)
+        self.local_dir_data_manifest = create_tmp_file(tmp_dir=self.dir_for_file_url_location, file_name='manifest.yaml', data=local_dir_data)
         
 
     def tearDown(self):
         remove_tmp_dir_recursively(dir=self.dir_for_test_files)
         remove_tmp_dir_recursively(dir=self.local_file_manifest_location)
+        remove_tmp_dir_recursively(dir=self.dir_for_file_url_location)
 
     def _verify_init(self, loc: Location):
         self.assertIsNotNone(loc.work_dir)
@@ -400,6 +412,8 @@ spec:
         self.assertIsNotNone(loc)
         self.assertIsInstance(loc, ManifestLocation)
         self.assertIsInstance(loc, LocalFileManifestLocation)
+        self.assertNotIsInstance(loc, LocalDirectoryManifestLocation)
+        self.assertNotIsInstance(loc, FileUrlManifestLocation)
 
         location_yaml = str(loc)
         self.assertIsNotNone(location_yaml)
@@ -424,6 +438,7 @@ spec:
         self.assertIsNotNone(loc)
         self.assertIsInstance(loc, ManifestLocation)
         self.assertIsInstance(loc, LocalDirectoryManifestLocation)
+        self.assertNotIsInstance(loc, FileUrlManifestLocation)
         self.assertNotIsInstance(loc, LocalFileManifestLocation)
 
         location_yaml = str(loc)
@@ -442,6 +457,32 @@ spec:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
         self._verify_as_dict(data=loc.as_dict(), expected_keys=('location', 'include_file_regex',))
+        self._verify_cleanup(loc=loc)
+
+    def test_class_FileUrlManifestLocation_basic(self):
+        loc = FileUrlManifestLocation(reference=self.file_at_url, manifest_name='file_url_test_1')
+        self.assertIsNotNone(loc)
+        self.assertIsInstance(loc, ManifestLocation)
+        self.assertIsInstance(loc, FileUrlManifestLocation)
+        self.assertNotIsInstance(loc, LocalDirectoryManifestLocation)
+        self.assertNotIsInstance(loc, LocalFileManifestLocation)
+
+        location_yaml = str(loc)
+        self.assertIsNotNone(location_yaml)
+        self.assertIsInstance(location_yaml, str)
+        self.assertTrue(len(location_yaml) > 10)
+        print('='*80)
+        print('# FileUrlManifestLocation YAML')
+        print(location_yaml)
+        print('='*80)
+
+        self.assertEqual(loc.location_type, LocationType.FILE_URL)
+        self._verify_init(loc=loc)
+        self.assertEqual(len(loc.files),1)
+        for work_file in loc.files:
+            print('work file: {}'.format(work_file))
+            self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_as_dict(data=loc.as_dict(), expected_keys=('location', 'set_no_verify_ssl',))
         self._verify_cleanup(loc=loc)
         
 

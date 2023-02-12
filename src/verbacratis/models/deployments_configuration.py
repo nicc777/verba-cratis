@@ -154,6 +154,7 @@ class ManifestLocation:
         self.checksum = None
         self.location_type = None
         self.include_file_regex = include_file_regex
+        self.set_no_verify_ssl = False
 
     def _update_checksum_from_work_dir_files(self)->str:
         raw_string = ''
@@ -185,6 +186,8 @@ class ManifestLocation:
         root['metadata']['name'] = self.manifest_name
         if self.location_type == LocationType.LOCAL_DIRECTORY:
             root['spec']['include_file_regex'] = self.include_file_regex
+        if self.location_type == LocationType.FILE_URL:
+            root['spec']['set_no_verify_ssl'] = self.set_no_verify_ssl
         return root
 
     def __str__(self)->str:
@@ -222,17 +225,17 @@ class LocalDirectoryManifestLocation(ManifestLocation):
 
 class FileUrlManifestLocation(ManifestLocation):
 
-    def __init__(self, reference: str, manifest_name: str):
+    def __init__(self, reference: str, manifest_name: str, set_no_verify_ssl: bool=False):
         super().__init__(reference, manifest_name)
         self.location_type = LocationType.FILE_URL
+        self.set_no_verify_ssl = set_no_verify_ssl
         self.sync()
 
     def get_files(self)->list:
-        final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.reference)
         files = download_files(
-            urls=[final_location,],
+            urls=[self.reference,],
             target_dir=self.work_dir,
-            set_no_verify_ssl=set_no_verify_ssl
+            set_no_verify_ssl=self.set_no_verify_ssl
         )
         self.files = files
 
