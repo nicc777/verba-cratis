@@ -330,6 +330,10 @@ class TestLocationClasses(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
         self.dir_for_test_files = create_tmp_dir(sub_dir='test_files')
+        self.file1 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file1.yaml', data='---\ntest1: true')
+        self.file2 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file2.yaml', data='---\ntest2: true')
+        self.git_repo = 'https://github.com/nicc777/verba-cratis-test-projects.git%00branch%3Dmain'
+        self.file_at_url = 'https://raw.githubusercontent.com/nicc777/verba-cratis-test-projects/main/project-hello-world.yaml'
         
         self.dir_for_local_file_location = create_tmp_dir(sub_dir='test_single_local_file')
         local_file_data = """---
@@ -338,16 +342,13 @@ kind: LocalFileManifestLocation
 metadata:
   name: local_file_test_1
 spec:
-  location: {}{}project1_manifest_locations.yaml""".format(self.dir_for_local_file_location, os.sep)
-        self.file_single_local_file = create_tmp_file(tmp_dir=self.dir_for_local_file_location, file_name='project1_manifest_locations.yaml', data=local_file_data)
-
-        self.file1 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file1.yaml', data='---\ntest1: true')
-        self.file2 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file2.yaml', data='---\ntest2: true')
-        self.git_repo = 'https://github.com/nicc777/verba-cratis-test-projects.git%00branch%3Dmain'
-        self.file_at_url = 'https://raw.githubusercontent.com/nicc777/verba-cratis-test-projects/main/project-hello-world.yaml'
+  location: {}""".format(self.file1)
+        self.file_single_local_file = create_tmp_file(tmp_dir=self.dir_for_local_file_location, file_name='manifest.yaml', data=local_file_data)
+        
 
     def tearDown(self):
         remove_tmp_dir_recursively(dir=self.dir_for_test_files)
+        remove_tmp_dir_recursively(dir=self.dir_for_local_file_location)
 
     def _verify_init(self, loc: Location):
         self.assertIsNotNone(loc.work_dir)
