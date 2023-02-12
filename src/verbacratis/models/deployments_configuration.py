@@ -178,12 +178,13 @@ class ManifestLocation:
     def as_dict(self):
         root = dict()
         root['spec'] = dict()
+        root['spec']['location'] = self.reference
         root['apiVersion'] = 'v1-alpha'
         root['kind'] = LOCATION_KIND_MAP[self.location_type]
         root['metadata'] = dict()
         root['metadata']['name'] = self.manifest_name
-        if self.location_type == LocationType.LOCAL_FILE:
-            root['spec']['location'] = self.reference
+        if self.location_type == LocationType.LOCAL_DIRECTORY:
+            root['spec']['include_file_regex'] = self.include_file_regex
         return root
 
     def __str__(self)->str:
