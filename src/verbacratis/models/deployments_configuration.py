@@ -146,13 +146,14 @@ class Location:
 
 class ManifestLocation:
 
-    def __init__(self, reference: str, manifest_name: str):
+    def __init__(self, reference: str, manifest_name: str, include_file_regex: str='.*\.yml|.*\.yaml'):
         self.manifest_name = manifest_name
         self.reference = reference
         self.files = list()
         self.work_dir = None
         self.checksum = None
         self.location_type = None
+        self.include_file_regex = include_file_regex
 
     def _update_checksum_from_work_dir_files(self)->str:
         raw_string = ''
@@ -198,6 +199,24 @@ class LocalFileManifestLocation(ManifestLocation):
 
     def get_files(self)->list:
         self.files.append(copy_file(source_file=self.reference, file_name=get_file_from_path(input_path=self.reference), tmp_dir=self.work_dir))
+
+
+class LocalDirectoryManifestLocation(ManifestLocation):
+
+    def __init__(self, reference: str, manifest_name: str, include_file_regex: str='.*\.yml|.*\.yaml'):
+        super().__init__(reference, manifest_name, include_file_regex)
+        self.location_type = LocationType.LOCAL_DIRECTORY
+        self.sync()
+
+    def get_files(self)->list:
+        for file in find_matching_files(start_dir=self.reference, pattern=self.include_file_regex):
+            self.files.append(
+                copy_file(
+                    source_file=file,
+                    file_name=hashlib.sha256(file.encode('utf-8')).hexdigest(),
+                    tmp_dir=self.work_dir
+                )
+            )
 
 
 class Project(Item):
