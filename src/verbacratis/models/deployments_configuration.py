@@ -43,7 +43,7 @@ class LocationType:
 LOCATION_KIND_MAP = {
     1: 'LocalDirectoryManifestLocation',
     2: 'LocalFileManifestLocation',
-    3: '',
+    3: 'FileUrlManifestLocation',
     4: '',
 }
 
@@ -218,6 +218,23 @@ class LocalDirectoryManifestLocation(ManifestLocation):
                     tmp_dir=self.work_dir
                 )
             )
+
+
+class FileUrlManifestLocation(ManifestLocation):
+
+    def __init__(self, reference: str, manifest_name: str):
+        super().__init__(reference, manifest_name)
+        self.location_type = LocationType.FILE_URL
+        self.sync()
+
+    def get_files(self)->list:
+        final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.reference)
+        files = download_files(
+            urls=[final_location,],
+            target_dir=self.work_dir,
+            set_no_verify_ssl=set_no_verify_ssl
+        )
+        self.files = files
 
 
 class Project(Item):
