@@ -386,7 +386,7 @@ spec:
         self.assertEqual(len(data['spec']), len(expected_keys))
 
     def test_class_LocalFileManifestLocation_basic(self):
-        loc = LocalFileManifestLocation(reference=self.file_single_local_file, manifest_name='local_file_test_1')
+        loc = LocalFileManifestLocation(reference=self.file1, manifest_name='local_file_test_1')
         self.assertIsNotNone(loc)
         self.assertIsInstance(loc, ManifestLocation)
         self.assertIsInstance(loc, LocalFileManifestLocation)
