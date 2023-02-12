@@ -202,10 +202,15 @@ class ManifestLocation:
         root['kind'] = LOCATION_KIND_MAP[self.location_type]
         root['metadata'] = dict()
         root['metadata']['name'] = self.manifest_name
-        if self.location_type == LocationType.LOCAL_DIRECTORY:
+        if self.location_type == LocationType.LOCAL_DIRECTORY or self.location_type == LocationType.GIT_URL:
             root['spec']['include_file_regex'] = self.include_file_regex
         if self.location_type == LocationType.FILE_URL:
             root['spec']['set_no_verify_ssl'] = self.set_no_verify_ssl
+        if self.location_type == LocationType.GIT_URL:
+            root['spec']['branch'] = self.branch
+            root['spec']['relative_start_directory'] = self.relative_start_directory
+            if self.ssh_private_key_path is not None:
+                root['spec']['ssh_private_key_path'] = self.ssh_private_key_path
         return root
 
     def __str__(self)->str:
