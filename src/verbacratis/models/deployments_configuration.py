@@ -41,7 +41,7 @@ class LocationType:
 
 
 LOCATION_KIND_MAP = {
-    1: '',
+    1: 'LocalDirectoryManifestLocation',
     2: 'LocalFileManifestLocation',
     3: '',
     4: '',

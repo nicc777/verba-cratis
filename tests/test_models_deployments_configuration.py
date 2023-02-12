@@ -335,7 +335,7 @@ class TestLocationClasses(unittest.TestCase):    # pragma: no cover
         self.git_repo = 'https://github.com/nicc777/verba-cratis-test-projects.git%00branch%3Dmain'
         self.file_at_url = 'https://raw.githubusercontent.com/nicc777/verba-cratis-test-projects/main/project-hello-world.yaml'
         
-        self.dir_for_local_file_location = create_tmp_dir(sub_dir='test_single_local_file')
+        self.local_file_manifest_location = create_tmp_dir(sub_dir='test_single_local_file')
         local_file_data = """---
 apiVersion: v1-alpha
 kind: LocalFileManifestLocation
@@ -343,12 +343,22 @@ metadata:
   name: local_file_test_1
 spec:
   location: {}""".format(self.file1)
-        self.file_single_local_file = create_tmp_file(tmp_dir=self.dir_for_local_file_location, file_name='manifest.yaml', data=local_file_data)
+        self.local_file_manifest = create_tmp_file(tmp_dir=self.local_file_manifest_location, file_name='manifest.yaml', data=local_file_data)
+
+        self.dir_for_local_dir_location = create_tmp_dir(sub_dir='test_single_local_file')
+        local_dir_data = """---
+apiVersion: v1-alpha
+kind: LocalDirectoryManifestLocation
+metadata:
+  name: local_dir_test_1
+spec:
+  location: {}""".format(self.dir_for_test_files)
+        self.local_dir_data_manifest = create_tmp_file(tmp_dir=self.dir_for_local_dir_location, file_name='manifest.yaml', data=local_dir_data)
         
 
     def tearDown(self):
         remove_tmp_dir_recursively(dir=self.dir_for_test_files)
-        remove_tmp_dir_recursively(dir=self.dir_for_local_file_location)
+        remove_tmp_dir_recursively(dir=self.local_file_manifest_location)
 
     def _verify_init(self, loc: Location):
         self.assertIsNotNone(loc.work_dir)
@@ -407,6 +417,31 @@ spec:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
         self._verify_as_dict(data=loc.as_dict(), expected_keys=('location',))
+        self._verify_cleanup(loc=loc)
+
+    def test_class_LocalDirectoryManifestLocation_basic(self):
+        loc = LocalDirectoryManifestLocation(reference=self.dir_for_test_files, manifest_name='local_dir_test_1')
+        self.assertIsNotNone(loc)
+        self.assertIsInstance(loc, ManifestLocation)
+        self.assertIsInstance(loc, LocalDirectoryManifestLocation)
+        self.assertNotIsInstance(loc, LocalFileManifestLocation)
+
+        location_yaml = str(loc)
+        self.assertIsNotNone(location_yaml)
+        self.assertIsInstance(location_yaml, str)
+        self.assertTrue(len(location_yaml) > 10)
+        print('='*80)
+        print('# LocalDirectoryManifestLocation YAML')
+        print(location_yaml)
+        print('='*80)
+
+        self.assertEqual(loc.location_type, LocationType.LOCAL_DIRECTORY)
+        self._verify_init(loc=loc)
+        self.assertEqual(len(loc.files),2)
+        for work_file in loc.files:
+            print('work file: {}'.format(work_file))
+            self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_as_dict(data=loc.as_dict(), expected_keys=('location', 'include_file_regex',))
         self._verify_cleanup(loc=loc)
         
 
