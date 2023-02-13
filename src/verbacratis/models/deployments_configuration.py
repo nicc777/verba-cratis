@@ -48,100 +48,100 @@ LOCATION_KIND_MAP = {
 }
 
 
-class Location:
+# class Location:
 
-    def __init__(self, reference: str, include_file_regex: str='.*\.yml|.*\.yaml'):
-        self.files = list()
-        self.work_dir = None
-        self.checksum = None
-        self.location_type = None
-        local_type_attempt = identify_local_path_type(path=reference)
-        if local_type_attempt is not PathTypes.UNKNOWN:
-            if local_type_attempt == PathTypes.FILE:
-                self.location_type = LocationType.LOCAL_FILE
-            elif local_type_attempt == PathTypes.DIRECTORY:
-                self.location_type = LocationType.LOCAL_DIRECTORY
-        else:
-            if is_url_a_git_repo(url=reference):
-                self.location_type = LocationType.GIT_URL
-            elif reference.lower().startswith('http') is True:
-                self.location_type = LocationType.FILE_URL
-        if self.location_type is None:
-            raise Exception('Could not identify the location type with the reference "{}"'.format(reference))
-        self.location_reference = reference
-        self.include_file_regex = include_file_regex
-        self.sync()
+#     def __init__(self, reference: str, include_file_regex: str='.*\.yml|.*\.yaml'):
+#         self.files = list()
+#         self.work_dir = None
+#         self.checksum = None
+#         self.location_type = None
+#         local_type_attempt = identify_local_path_type(path=reference)
+#         if local_type_attempt is not PathTypes.UNKNOWN:
+#             if local_type_attempt == PathTypes.FILE:
+#                 self.location_type = LocationType.LOCAL_FILE
+#             elif local_type_attempt == PathTypes.DIRECTORY:
+#                 self.location_type = LocationType.LOCAL_DIRECTORY
+#         else:
+#             if is_url_a_git_repo(url=reference):
+#                 self.location_type = LocationType.GIT_URL
+#             elif reference.lower().startswith('http') is True:
+#                 self.location_type = LocationType.FILE_URL
+#         if self.location_type is None:
+#             raise Exception('Could not identify the location type with the reference "{}"'.format(reference))
+#         self.location_reference = reference
+#         self.include_file_regex = include_file_regex
+#         self.sync()
         
-    def as_dict(self):
-        data = dict()
-        data['reference'] = self.location_reference
-        if self.location_type != LocationType.LOCAL_FILE and self.location_type != LocationType.FILE_URL:
-            data['include_file_regex'] = self.include_file_regex
-        return data
+#     def as_dict(self):
+#         data = dict()
+#         data['reference'] = self.location_reference
+#         if self.location_type != LocationType.LOCAL_FILE and self.location_type != LocationType.FILE_URL:
+#             data['include_file_regex'] = self.include_file_regex
+#         return data
 
-    def sync(self):
-        self.cleanup_work_dir()
-        self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(hashlib.sha256(self.location_reference.encode('utf-8')).hexdigest()))
-        self.get_files()
-        self._update_checksum_from_work_dir_files()
+#     def sync(self):
+#         self.cleanup_work_dir()
+#         self.work_dir = create_tmp_dir(sub_dir='Location__{}'.format(hashlib.sha256(self.location_reference.encode('utf-8')).hexdigest()))
+#         self.get_files()
+#         self._update_checksum_from_work_dir_files()
 
-    def cleanup_work_dir(self):
-        remove_tmp_dir_recursively(dir=self.work_dir)
-        self.files = list()
-        self.work_dir = None
+#     def cleanup_work_dir(self):
+#         remove_tmp_dir_recursively(dir=self.work_dir)
+#         self.files = list()
+#         self.work_dir = None
 
-    def _get_files_from_git(self):
-        final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.location_reference)
-        self.files = git_clone_checkout_and_return_list_of_files(
-            git_clone_url=final_location,
-            branch=branch,
-            relative_start_directory=relative_start_directory,
-            include_files_regex=self.include_file_regex,
-            target_dir=self.work_dir,
-            ssh_private_key_path=ssh_private_key_path,
-            set_no_verify_ssl=set_no_verify_ssl
-        )
+#     def _get_files_from_git(self):
+#         final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.location_reference)
+#         self.files = git_clone_checkout_and_return_list_of_files(
+#             git_clone_url=final_location,
+#             branch=branch,
+#             relative_start_directory=relative_start_directory,
+#             include_files_regex=self.include_file_regex,
+#             target_dir=self.work_dir,
+#             ssh_private_key_path=ssh_private_key_path,
+#             set_no_verify_ssl=set_no_verify_ssl
+#         )
 
-    def _get_file_from_url(self):
-        final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.location_reference)
-        files = download_files(
-            urls=[final_location,],
-            target_dir=self.work_dir,
-            set_no_verify_ssl=set_no_verify_ssl
-        )
-        self.files = files
+#     def _get_file_from_url(self):
+#         final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=self.location_reference)
+#         files = download_files(
+#             urls=[final_location,],
+#             target_dir=self.work_dir,
+#             set_no_verify_ssl=set_no_verify_ssl
+#         )
+#         self.files = files
 
-    def _get_files_from_dir(self):
-        for file in find_matching_files(start_dir=self.location_reference, pattern=self.include_file_regex):
-            self.files.append(
-                copy_file(
-                    source_file=file,
-                    file_name=hashlib.sha256(file.encode('utf-8')).hexdigest(),
-                    tmp_dir=self.work_dir
-                )
-            )
+#     def _get_files_from_dir(self):
+#         for file in find_matching_files(start_dir=self.location_reference, pattern=self.include_file_regex):
+#             self.files.append(
+#                 copy_file(
+#                     source_file=file,
+#                     file_name=hashlib.sha256(file.encode('utf-8')).hexdigest(),
+#                     tmp_dir=self.work_dir
+#                 )
+#             )
 
-    def get_files(self)->list:
-        """Builds a list of files from the location reference and parse according to the type
+#     def get_files(self)->list:
+#         """Builds a list of files from the location reference and parse according to the type
 
-        All local and remote files will be copied into the local temporary work directory in self.work_dir
-        """
-        if len(self.files) == 0:
-            if self.location_type == LocationType.GIT_URL:
-                self._get_files_from_git()
-            elif self.location_type == LocationType.FILE_URL:
-                self._get_file_from_url()
-            elif self.location_type == LocationType.LOCAL_FILE:
-                self.files.append(copy_file(source_file=self.location_reference, file_name=get_file_from_path(input_path=self.location_reference), tmp_dir=self.work_dir))
-            elif self.location_type == LocationType.LOCAL_DIRECTORY:
-                self._get_files_from_dir()
-        return self.files
+#         All local and remote files will be copied into the local temporary work directory in self.work_dir
+#         """
+#         if len(self.files) == 0:
+#             if self.location_type == LocationType.GIT_URL:
+#                 self._get_files_from_git()
+#             elif self.location_type == LocationType.FILE_URL:
+#                 self._get_file_from_url()
+#             elif self.location_type == LocationType.LOCAL_FILE:
+#                 self.files.append(copy_file(source_file=self.location_reference, file_name=get_file_from_path(input_path=self.location_reference), tmp_dir=self.work_dir))
+#             elif self.location_type == LocationType.LOCAL_DIRECTORY:
+#                 self._get_files_from_dir()
+#         return self.files
 
-    def _update_checksum_from_work_dir_files(self):
-        raw_string = ''
-        for file in self.files:
-            raw_string = '{}{}\n'.format(raw_string, file_checksum(path=file))
-        self.checksum = hashlib.sha256(raw_string.encode('utf-8')).hexdigest()
+#     def _update_checksum_from_work_dir_files(self):
+#         raw_string = ''
+#         for file in self.files:
+#             raw_string = '{}{}\n'.format(raw_string, file_checksum(path=file))
+#         self.checksum = hashlib.sha256(raw_string.encode('utf-8')).hexdigest()
 
 
 class ManifestLocation:
@@ -293,7 +293,6 @@ class Project(Item):
         use_default_scope: bool = True
     ):
         super().__init__(name, logger, use_default_scope)
-        self.include_file_regex = '.*\.yml|.*\.yaml'
         self.project_effective_manifest = None      # The manifest for the particular scopes
         self.previous_project_checksum = dict()     # Checksum of the previous effective manifest, per environment (scope)
         self.current_project_checksum = None        # The current checksum of the project_effective_manifest
@@ -301,7 +300,7 @@ class Project(Item):
 
         # TODO Needs to point to files/directories on the local file system ~~ OR ~~ to a Git repository, with a local work directory. Need to consider Git credentials...
 
-    def add_location(self, location: Location):
+    def add_manifest(self, location: ManifestLocation):
         self.locations.append(location)
 
     def add_environment(self, environment_name: str):
@@ -328,7 +327,7 @@ class Project(Item):
         if len(self.locations) > 0:
             data['locations'] = list()
             for location in self.locations:
-                data['locations'].append(location.as_dict())
+                data['locations'].append(location.manifest_name)
         if len(self.parent_item_names) > 0:
             data['parentProjects'] = list()
             for parent_name in self.parent_item_names:
@@ -337,7 +336,10 @@ class Project(Item):
         return root
 
     def __str__(self)->str:
-        return yaml.dump(self.as_dict())
+        yaml_str = ''
+        for loc in self.locations:
+            yaml_str = '{}---\n{}'.format(yaml_str, str(loc))
+        return '{}---\n{}'.format(yaml_str, yaml.dump(self.as_dict()))
 
 
 class Projects(Items):
@@ -379,21 +381,21 @@ class Projects(Items):
                         project = Project(name=converted_data['metadata']['name'], use_default_scope=use_default_scope)
                         if 'spec' in converted_data:
                             spec = converted_data['spec']
-                            if 'includeFileRegex' in spec:
-                                project.include_file_regex = '{}'.format(converted_data['spec']['includeFileRegex'])
-                            if 'locations' in spec:
-                                if isinstance(spec['locations'], list):
-                                    for location_data in spec['locations']:
-                                        reference = None
-                                        include_file_regex = None
-                                        if 'reference' in location_data:
-                                            reference = location_data['reference']
-                                        if 'include_file_regex' in location_data:
-                                            include_file_regex = location_data['include_file_regex']
-                                        if include_file_regex is None:
-                                            project.add_location(location=Location(reference=reference))
-                                        else:
-                                            project.add_location(location=Location(reference=reference, include_file_regex=include_file_regex))
+                            # if 'includeFileRegex' in spec:
+                            #     project.include_file_regex = '{}'.format(converted_data['spec']['includeFileRegex'])
+                            # if 'locations' in spec:
+                            #     if isinstance(spec['locations'], list):
+                            #         for location_data in spec['locations']:
+                            #             reference = None
+                            #             include_file_regex = None
+                            #             if 'reference' in location_data:
+                            #                 reference = location_data['reference']
+                            #             if 'include_file_regex' in location_data:
+                            #                 include_file_regex = location_data['include_file_regex']
+                            #             if include_file_regex is None:
+                            #                 project.add_location(location=Location(reference=reference))
+                            #             else:
+                            #                 project.add_location(location=Location(reference=reference, include_file_regex=include_file_regex))
                             if 'parentProjects' in spec:
                                 for parent_project_data in spec['parentProjects']:
                                     project.add_parent_project(parent_project_name=parent_project_data['name'])
