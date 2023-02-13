@@ -334,6 +334,8 @@ class TestLocationClasses(unittest.TestCase):    # pragma: no cover
         self.file2 = create_tmp_file(tmp_dir=self.dir_for_test_files, file_name='file2.yaml', data='---\ntest2: true')
         self.git_repo = 'https://github.com/nicc777/verba-cratis-test-projects.git%00branch%3Dmain'
         self.file_at_url = 'https://raw.githubusercontent.com/nicc777/verba-cratis-test-projects/main/project-hello-world.yaml'
+        self.git_ssh = 'git@github.com:nicc777/verba-cratis-test-projects.git'
+        self.git_http = 'https://github.com/nicc777/verba-cratis-test-projects.git'
         
         self.local_file_manifest_location = create_tmp_dir(sub_dir='test_single_local_file')
         local_file_data = """---
@@ -414,6 +416,7 @@ spec:
         self.assertIsInstance(loc, LocalFileManifestLocation)
         self.assertNotIsInstance(loc, LocalDirectoryManifestLocation)
         self.assertNotIsInstance(loc, FileUrlManifestLocation)
+        self.assertNotIsInstance(loc, GitManifestLocation)
 
         location_yaml = str(loc)
         self.assertIsNotNone(location_yaml)
@@ -440,6 +443,7 @@ spec:
         self.assertIsInstance(loc, LocalDirectoryManifestLocation)
         self.assertNotIsInstance(loc, FileUrlManifestLocation)
         self.assertNotIsInstance(loc, LocalFileManifestLocation)
+        self.assertNotIsInstance(loc, GitManifestLocation)
 
         location_yaml = str(loc)
         self.assertIsNotNone(location_yaml)
@@ -466,6 +470,7 @@ spec:
         self.assertIsInstance(loc, FileUrlManifestLocation)
         self.assertNotIsInstance(loc, LocalDirectoryManifestLocation)
         self.assertNotIsInstance(loc, LocalFileManifestLocation)
+        self.assertNotIsInstance(loc, GitManifestLocation)
 
         location_yaml = str(loc)
         self.assertIsNotNone(location_yaml)
@@ -483,6 +488,69 @@ spec:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
         self._verify_as_dict(data=loc.as_dict(), expected_keys=('location', 'set_no_verify_ssl',))
+        self._verify_cleanup(loc=loc)
+
+    def test_class_GitManifestLocation_ssh(self):
+        loc = GitManifestLocation(
+            reference=self.git_ssh,
+            manifest_name='git_ssh_test_1',
+            branch='main'
+        )
+        self.assertIsNotNone(loc)
+        self.assertIsInstance(loc, ManifestLocation)
+        self.assertIsInstance(loc, GitManifestLocation)
+        self.assertNotIsInstance(loc, FileUrlManifestLocation)
+        self.assertNotIsInstance(loc, LocalDirectoryManifestLocation)
+        self.assertNotIsInstance(loc, LocalFileManifestLocation)
+
+        location_yaml = str(loc)
+        self.assertIsNotNone(location_yaml)
+        self.assertIsInstance(location_yaml, str)
+        self.assertTrue(len(location_yaml) > 10)
+        print('='*80)
+        print('# GitManifestLocation YAML')
+        print(location_yaml)
+        print('='*80)
+
+        self.assertEqual(loc.location_type, LocationType.GIT_URL)
+        self._verify_init(loc=loc)
+        self.assertEqual(len(loc.files),1)
+        for work_file in loc.files:
+            print('work file: {}'.format(work_file))
+            self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_as_dict(data=loc.as_dict(), expected_keys=('location', 'include_file_regex', 'branch', 'relative_start_directory', ))
+        self._verify_cleanup(loc=loc)
+
+    def test_class_GitManifestLocation_http_no_ssl_verify(self):
+        loc = GitManifestLocation(
+            reference=self.git_http,
+            manifest_name='git_http_test_1',
+            branch='main',
+            set_no_verify_ssl=True
+        )
+        self.assertIsNotNone(loc)
+        self.assertIsInstance(loc, ManifestLocation)
+        self.assertIsInstance(loc, GitManifestLocation)
+        self.assertNotIsInstance(loc, FileUrlManifestLocation)
+        self.assertNotIsInstance(loc, LocalDirectoryManifestLocation)
+        self.assertNotIsInstance(loc, LocalFileManifestLocation)
+
+        location_yaml = str(loc)
+        self.assertIsNotNone(location_yaml)
+        self.assertIsInstance(location_yaml, str)
+        self.assertTrue(len(location_yaml) > 10)
+        print('='*80)
+        print('# GitManifestLocation YAML')
+        print(location_yaml)
+        print('='*80)
+
+        self.assertEqual(loc.location_type, LocationType.GIT_URL)
+        self._verify_init(loc=loc)
+        self.assertEqual(len(loc.files),1)
+        for work_file in loc.files:
+            print('work file: {}'.format(work_file))
+            self._verify_file_exists_and_has_content(work_file=work_file)
+        self._verify_as_dict(data=loc.as_dict(), expected_keys=('location', 'include_file_regex', 'branch', 'relative_start_directory', 'set_no_verify_ssl', ))
         self._verify_cleanup(loc=loc)
         
 
