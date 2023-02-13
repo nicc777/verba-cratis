@@ -132,3 +132,5 @@ dmypy.json
 *.log
 
 reports/
+doc/.$design Diagram.bkp
+doc/.$design Diagram.dtmp
