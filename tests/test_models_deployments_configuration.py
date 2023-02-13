@@ -35,15 +35,44 @@ spec:
   location: {}""".format(self.dir_for_test_files)
         self.local_dir_data_manifest = create_tmp_file(tmp_dir=self.dir_for_local_dir_location, file_name='manifest.yaml', data=local_dir_data)
         self.loc = LocalDirectoryManifestLocation(reference=self.dir_for_test_files, manifest_name='local_dir_test_1')
+        self.project_manifest_example = """---
+apiVersion: v1-alpha
+kind: LocalDirectoryManifestLocation
+metadata:
+  name: local_dir_test_1
+spec:
+  include_file_regex: .*\.yml|.*\.yaml
+  location: /tmp/test_files
+---
+apiVersion: v1-alpha
+kind: Project
+metadata:
+  environments:
+  - default
+  name: test
+spec:
+  locations:
+  - local_dir_test_1"""
+        self.projects = list()
+
+    def tearDown(self):
+        for project in self.projects:
+            for loc in project.locations:
+                loc.cleanup_work_dir()
+        remove_tmp_dir_recursively(dir=self.dir_for_test_files)
+        remove_tmp_dir_recursively(dir=self.dir_for_local_dir_location)
 
     def test_project_init_with_defaults(self):
-        result = Project(name='test')
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, Project)
-        self.assertTrue('default' in result.scopes)
+        project = Project(name='test')
+        self.assertIsNotNone(project)
+        self.assertIsInstance(project, Project)
+        self.assertTrue('default' in project.scopes)
+        self.assertEqual(len(project.locations), 0)
+        self.projects.append(project)
 
     def test_project_init_with_defaults_dump_as_yaml(self):
-        result = str(Project(name='test'))
+        project = Project(name='test')
+        result = str(project)
         print('='*80)
         print('# Project YAML')
         print(result)
@@ -53,44 +82,36 @@ spec:
         self.assertTrue('name: test' in result)
         self.assertTrue('environments:' in result)
         self.assertTrue('- default' in result)
+        self.assertFalse('locations' in result)
+        self.projects.append(project)
 
-#     def test_project_method_add_parent_project(self):
-#         project_parent = Project(name='test_parent')
-#         project_child1 = Project(name='test_child1')
-#         project_child1.add_parent_project(parent_project_name=project_parent.name)
-#         self.assertEqual(len(project_parent.parent_item_names), 0)
-#         self.assertEqual(len(project_child1.parent_item_names), 1)
-#         self.assertTrue('test_parent' in project_child1.parent_item_names)
+    def test_project_method_add_parent_project(self):
+        project_parent = Project(name='test_parent')
+        project_child1 = Project(name='test_child1')
+        project_child1.add_parent_project(parent_project_name=project_parent.name)
+        self.assertEqual(len(project_parent.parent_item_names), 0)
+        self.assertEqual(len(project_child1.parent_item_names), 1)
+        self.assertTrue('test_parent' in project_child1.parent_item_names)
+        self.projects.append(project_parent)
+        self.projects.append(project_child1)
 
-#     def test_project_method_add_manifest_directory(self):
-#         project = Project(name='test')
-#         project.add_manifest_directory(path='/tmp')
+    def test_project_method_add_manifest_directory(self):
+        project = Project(name='test')
+        project.add_manifest(location=self.loc)
+        self.assertEqual(len(project.locations), 1)
+        result = str(project)
+        print('='*80)
+        print('# Project YAML')
+        print(result)
+        print('='*80)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue('name: test' in result)
+        self.assertTrue('environments:' in result)
+        self.assertTrue('- default' in result)
+        self.assertTrue('locations' in result)
+        self.projects.append(project)
         
-#         self.assertEqual(len(project.manifest_directories), 1)
-        
-#         directory = project.manifest_directories[0]
-#         self.assertIsInstance(directory, dict)
-#         self.assertTrue('path' in directory)
-#         self.assertTrue('type' in directory)
-#         self.assertEqual('/tmp', directory['path'])
-#         self.assertEqual('YAML', directory['type'])
-
-#         project.add_manifest_directory(path='/something/else', type='ABC')
-#         self.assertEqual(len(project.manifest_directories), 2)
-
-#         directory1 = project.manifest_directories[0]
-#         self.assertIsInstance(directory1, dict)
-#         self.assertTrue('path' in directory1)
-#         self.assertTrue('type' in directory1)
-#         self.assertEqual('/tmp', directory1['path'])
-#         self.assertEqual('YAML', directory1['type'])
-
-#         directory2 = project.manifest_directories[1]
-#         self.assertIsInstance(directory2, dict)
-#         self.assertTrue('path' in directory2)
-#         self.assertTrue('type' in directory2)
-#         self.assertEqual('/something/else', directory2['path'])
-#         self.assertEqual('ABC', directory2['type'])
 
 #     def test_project_method_override_include_file_regex(self):
 #         project = Project(name='test')
