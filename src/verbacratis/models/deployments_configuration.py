@@ -278,7 +278,7 @@ class Projects(Items):
             if isinstance(data, dict):
                 converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
                 if 'kind' in converted_data:
-                    if converted_data['kind'].lower() == 'Project'.lower():
+                    if converted_data['kind'] == 'project':
                         use_default_scope = True
                         if 'environments' in converted_data['metadata']:
                             use_default_scope = False
