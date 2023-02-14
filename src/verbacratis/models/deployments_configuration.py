@@ -202,8 +202,6 @@ class Project(Item):
         self.current_project_checksum = None        # The current checksum of the project_effective_manifest
         self.locations = list()                     # list of Location instances
 
-        # TODO Needs to point to files/directories on the local file system ~~ OR ~~ to a Git repository, with a local work directory. Need to consider Git credentials...
-
     def add_manifest_location(self, location: ManifestLocation):
         self.locations.append(location)
 
@@ -288,7 +286,9 @@ class Projects(Items):
                             if 'parentProjects' in spec:
                                 for parent_project_data in spec['parentProjects']:
                                     project.add_parent_project(parent_project_name=parent_project_data['name'])
-                                
+                        self.add_project(project=project)
+
+                    # FIXME - this will not yet work, as I need to first add all locations and then create projects and link the locations in each project...              
                     elif converted_data['kind'] in ('LocalDirectoryManifestLocation', 'LocalFileManifestLocation', 'FileUrlManifestLocation', 'GitManifestLocation',):
                         parameters = converted_data['spec']
                         parameters['reference'] = parameters['location']
