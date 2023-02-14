@@ -97,7 +97,7 @@ spec:
 
     def test_project_method_add_manifest_directory(self):
         project = Project(name='test')
-        project.add_manifest(location=self.loc)
+        project.add_manifest_location(location=self.loc)
         self.assertEqual(len(project.locations), 1)
         result = str(project)
         print('='*80)

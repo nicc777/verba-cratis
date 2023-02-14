@@ -204,7 +204,7 @@ class Project(Item):
 
         # TODO Needs to point to files/directories on the local file system ~~ OR ~~ to a Git repository, with a local work directory. Need to consider Git credentials...
 
-    def add_manifest(self, location: ManifestLocation):
+    def add_manifest_location(self, location: ManifestLocation):
         self.locations.append(location)
 
     def add_environment(self, environment_name: str):
@@ -285,24 +285,24 @@ class Projects(Items):
                         project = Project(name=converted_data['metadata']['name'], use_default_scope=use_default_scope)
                         if 'spec' in converted_data:
                             spec = converted_data['spec']
-                            # if 'includeFileRegex' in spec:
-                            #     project.include_file_regex = '{}'.format(converted_data['spec']['includeFileRegex'])
-                            # if 'locations' in spec:
-                            #     if isinstance(spec['locations'], list):
-                            #         for location_data in spec['locations']:
-                            #             reference = None
-                            #             include_file_regex = None
-                            #             if 'reference' in location_data:
-                            #                 reference = location_data['reference']
-                            #             if 'include_file_regex' in location_data:
-                            #                 include_file_regex = location_data['include_file_regex']
-                            #             if include_file_regex is None:
-                            #                 project.add_location(location=Location(reference=reference))
-                            #             else:
-                            #                 project.add_location(location=Location(reference=reference, include_file_regex=include_file_regex))
                             if 'parentProjects' in spec:
                                 for parent_project_data in spec['parentProjects']:
                                     project.add_parent_project(parent_project_name=parent_project_data['name'])
+                                
+                    elif converted_data['kind'] in ('LocalDirectoryManifestLocation', 'LocalFileManifestLocation', 'FileUrlManifestLocation', 'GitManifestLocation',):
+                        parameters = converted_data['spec']
+                        parameters['reference'] = parameters['location']
+                        parameters['manifest_name'] = converted_data['metadata']['name']
+                        parameters.pop('location')
+                        if converted_data['kind'] == 'LocalDirectoryManifestLocation':
+                            project.add_manifest_location(LocalDirectoryManifestLocation(parameters))
+                        elif converted_data['kind'] == 'LocalFileManifestLocation':
+                            project.add_manifest_location(LocalFileManifestLocation(parameters))
+                        elif converted_data['kind'] == 'FileUrlManifestLocation':
+                            project.add_manifest_location(FileUrlManifestLocation(parameters))
+                        elif converted_data['kind'] == 'GitManifestLocation':
+                            project.add_manifest_location(GitManifestLocation(parameters))
+                        
 
     def __str__(self)->str:
         yaml_str = ''
