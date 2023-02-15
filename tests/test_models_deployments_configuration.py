@@ -113,117 +113,56 @@ spec:
         self.projects.append(project)
         
 
-#     def test_project_method_override_include_file_regex(self):
-#         project = Project(name='test')
-#         project.override_include_file_regex(include_file_regex=('a', 'b', 'c'))
-#         self.assertIsNotNone(project.include_file_regex)
-#         self.assertIsInstance(project.include_file_regex, tuple)
-#         self.assertEqual(len(project.include_file_regex), 3)
-#         self.assertTrue('a' in project.include_file_regex)
-#         self.assertTrue('b' in project.include_file_regex)
-#         self.assertTrue('c' in project.include_file_regex)
+    def test_project_method_get_environment_names_with_defaults(self):
+        project = Project(name='test')
+        envs = project.get_environment_names()
+        self.assertIsInstance(envs, list)
+        self.assertEqual(len(envs), 1)
+        self.assertTrue('default' in envs)
 
-#     def test_project_method_add_manifest_file(self):
-#         project = Project(name='test')
+    def test_project_method_get_environment_names_with_defaults_and_extra_environments(self):
+        project = Project(name='test')
+        project.add_environment(environment_name='dev')
+        envs = project.get_environment_names()
+        self.assertIsInstance(envs, list)
+        self.assertEqual(len(envs), 1)
+        self.assertTrue('dev' in envs)
 
-#         project.add_manifest_file(path='/tmp/file1.yaml')
-#         self.assertEqual(len(project.manifest_files), 1)
-#         file1 = project.manifest_files[0]
-#         self.assertIsInstance(file1, dict)
-#         self.assertTrue('path' in file1)
-#         self.assertTrue('type' in file1)
-#         self.assertEqual('/tmp/file1.yaml', file1['path'])
-#         self.assertEqual('YAML', file1['type'])
+        project.add_environment(environment_name='test')
+        project.add_environment(environment_name='prod')
 
-#         project.add_manifest_file(path='/file2', type='ABC')
-#         self.assertEqual(len(project.manifest_files), 2)
-#         file2 = project.manifest_files[1]
-#         self.assertIsInstance(file2, dict)
-#         self.assertTrue('path' in file2)
-#         self.assertTrue('type' in file2)
-#         self.assertEqual('/file2', file2['path'])
-#         self.assertEqual('ABC', file2['type'])
+        envs = project.get_environment_names()
+        self.assertIsInstance(envs, list)
+        self.assertEqual(len(envs), 3)
+        self.assertTrue('dev' in envs)
+        self.assertTrue('test' in envs)
+        self.assertTrue('prod' in envs)
 
-#     def test_project_method_get_environment_names_with_defaults(self):
-#         project = Project(name='test')
-#         envs = project.get_environment_names()
-#         self.assertIsInstance(envs, list)
-#         self.assertEqual(len(envs), 1)
-#         self.assertTrue('default' in envs)
+    def test_project_method_as_dict(self):
+        project = Project(name='test')
+        project.add_manifest_location(location=self.loc)
+        project_parent = Project(name='test_parent')
+        project.add_environment(environment_name='dev')
+        project.add_environment(environment_name='test')
+        project.add_parent_item_name(parent_item_name=project_parent.name)
 
-#     def test_project_method_get_environment_names_with_defaults_and_extra_environments(self):
-#         project = Project(name='test')
-#         project.add_environment(environment_name='dev')
-#         envs = project.get_environment_names()
-#         self.assertIsInstance(envs, list)
-#         self.assertEqual(len(envs), 1)
-#         self.assertTrue('dev' in envs)
+        project_as_dict = project.as_dict()['spec']
+        self.assertIsNotNone(project_as_dict)
+        self.assertIsInstance(project_as_dict, dict)
+        self.assertTrue('locations' in project_as_dict)
+        self.assertTrue('parentProjects' in project_as_dict)
 
-#         project.add_environment(environment_name='test')
-#         project.add_environment(environment_name='prod')
+    def test_project_method_as_dict_only_files_no_parent(self):
+        project = Project(name='test')
+        project.add_manifest_location(location=self.loc)
+        project.add_environment(environment_name='dev')
+        project.add_environment(environment_name='test')
 
-#         envs = project.get_environment_names()
-#         self.assertIsInstance(envs, list)
-#         self.assertEqual(len(envs), 3)
-#         self.assertTrue('dev' in envs)
-#         self.assertTrue('test' in envs)
-#         self.assertTrue('prod' in envs)
-
-#     def test_project_method_as_dict(self):
-#         project = Project(name='test')
-#         project_parent = Project(name='test_parent')
-#         project.add_environment(environment_name='dev')
-#         project.add_environment(environment_name='test')
-#         project.add_manifest_directory(path='/tmp')
-#         project.add_manifest_directory(path='/tmp2')
-#         project.add_manifest_file(path='/file')
-#         project.add_parent_item_name(parent_item_name=project_parent.name)
-
-#         project_as_dict = project.as_dict()['spec']
-#         self.assertIsNotNone(project_as_dict)
-#         self.assertIsInstance(project_as_dict, dict)
-#         self.assertTrue('includeFileRegex' in project_as_dict)
-#         self.assertTrue('locations' in project_as_dict)
-#         self.assertTrue('parentProjects' in project_as_dict)
-
-#         result = str(project)
-#         print('='*80)
-#         print('# Project YAML')
-#         print(result)
-#         print('='*80)
-#         self.assertIsNotNone(result)
-#         self.assertIsInstance(result, str)
-#         self.assertTrue('includeFileRegex:' in result)
-#         self.assertTrue('.yml' in result)
-#         self.assertTrue('.*\.yaml' in result)
-#         self.assertTrue('locations:' in result)        
-#         self.assertTrue('directories:' in result)
-#         self.assertTrue('- path: /tmp' in result)
-#         self.assertTrue('  type: YAML' in result)
-#         self.assertTrue('files:' in result)
-#         self.assertTrue('- path: /file' in result)
-#         self.assertTrue('  type: YAML' in result)
-#         self.assertTrue('parentProjects' in result)
-#         self.assertTrue('- name: test_parent' in result)
-
-
-#     def test_project_method_as_dict_only_files_no_parent(self):
-#         project = Project(name='test')
-#         project.add_environment(environment_name='dev')
-#         project.add_environment(environment_name='test')
-#         project.add_manifest_file(path='/file')
-
-#         project_as_dict = project.as_dict()['spec']
-#         self.assertIsNotNone(project_as_dict)
-#         self.assertIsInstance(project_as_dict, dict)
-#         self.assertTrue('includeFileRegex' in project_as_dict)
-#         self.assertTrue('locations' in project_as_dict)
-
-#         result = str(project)
-#         print('='*80)
-#         print('# Project YAML')
-#         print(result)
-#         print('='*80)
+        project_as_dict = project.as_dict()['spec']
+        self.assertIsNotNone(project_as_dict)
+        self.assertIsInstance(project_as_dict, dict)
+        self.assertTrue('locations' in project_as_dict)
+        self.assertFalse('parentProjects' in project_as_dict)
 
 
 # class TestProjects(unittest.TestCase):    # pragma: no cover
