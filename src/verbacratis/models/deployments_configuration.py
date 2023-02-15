@@ -249,6 +249,7 @@ class Projects(Items):
     def __init__(self, logger: GenericLogger = GenericLogger()):
         super().__init__(logger)
         self.project_names_per_environment = dict()
+        self.location_manifests = dict()
 
     def add_project(self, project: Project):
         self.add_item(item=project)
@@ -272,37 +273,49 @@ class Projects(Items):
         Use something like parse_yaml_file() from `verbacratis.utils.parser2` to obtain the dictionary value from a parsed YAML file
         """
         # Create individual class instances and add to the parsed_configuration for each type
+
+        # First extract all location manifests
+        for part, data in raw_data.items():
+            if isinstance(data, dict):
+                converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
+                if converted_data['kind'] in ('LocalDirectoryManifestLocation', 'LocalFileManifestLocation', 'FileUrlManifestLocation', 'GitManifestLocation',):
+                    parameters = converted_data['spec']
+                    parameters['reference'] = parameters['location']
+                    parameters['manifest_name'] = converted_data['metadata']['name']
+                    parameters.pop('location')
+                    if converted_data['kind'] == 'LocalDirectoryManifestLocation':
+                        self.location_manifests[converted_data['metadata']['name']] = LocalDirectoryManifestLocation(parameters)
+                    elif converted_data['kind'] == 'LocalFileManifestLocation':
+                        self.location_manifests[converted_data['metadata']['name']] = LocalFileManifestLocation(parameters)
+                    elif converted_data['kind'] == 'FileUrlManifestLocation':
+                        self.location_manifests[converted_data['metadata']['name']] = FileUrlManifestLocation(parameters)
+                    elif converted_data['kind'] == 'GitManifestLocation':
+                        self.location_manifests[converted_data['metadata']['name']] = GitManifestLocation(parameters)
+
+        # Next, extract project manifests and link the relevant location manifests to each project
         for part, data in raw_data.items():
             if isinstance(data, dict):
                 converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
                 if 'kind' in converted_data:
                     if converted_data['kind'] == 'project':
-                        use_default_scope = True
-                        if 'environments' in converted_data['metadata']:
-                            use_default_scope = False
-                        project = Project(name=converted_data['metadata']['name'], use_default_scope=use_default_scope)
+                        location_names = list()
+                        spec = dict()
                         if 'spec' in converted_data:
-                            spec = converted_data['spec']
-                            if 'parentProjects' in spec:
-                                for parent_project_data in spec['parentProjects']:
-                                    project.add_parent_project(parent_project_name=parent_project_data['name'])
-                        self.add_project(project=project)
-
-                    # FIXME - this will not yet work, as I need to first add all locations and then create projects and link the locations in each project...              
-                    elif converted_data['kind'] in ('LocalDirectoryManifestLocation', 'LocalFileManifestLocation', 'FileUrlManifestLocation', 'GitManifestLocation',):
-                        parameters = converted_data['spec']
-                        parameters['reference'] = parameters['location']
-                        parameters['manifest_name'] = converted_data['metadata']['name']
-                        parameters.pop('location')
-                        if converted_data['kind'] == 'LocalDirectoryManifestLocation':
-                            project.add_manifest_location(LocalDirectoryManifestLocation(parameters))
-                        elif converted_data['kind'] == 'LocalFileManifestLocation':
-                            project.add_manifest_location(LocalFileManifestLocation(parameters))
-                        elif converted_data['kind'] == 'FileUrlManifestLocation':
-                            project.add_manifest_location(FileUrlManifestLocation(parameters))
-                        elif converted_data['kind'] == 'GitManifestLocation':
-                            project.add_manifest_location(GitManifestLocation(parameters))
-                        
+                            spec = converted_data['spec'] 
+                            if 'locations' in spec:
+                                location_names = spec['locations']
+                                use_default_scope = True
+                                if 'environments' in converted_data['metadata']:
+                                    use_default_scope = False
+                                project = Project(name=converted_data['metadata']['name'], use_default_scope=use_default_scope)
+                                if 'parentProjects' in spec:
+                                    for parent_project_data in spec['parentProjects']:
+                                        project.add_parent_project(parent_project_name=parent_project_data['name'])
+                                for loc_name in location_names:
+                                    if loc_name in self.location_manifests:
+                                        project.add_manifest_location(location=self.location_manifests[loc_name])
+                                self.add_project(project=project)
+        self.location_manifests = None
 
     def __str__(self)->str:
         yaml_str = ''
