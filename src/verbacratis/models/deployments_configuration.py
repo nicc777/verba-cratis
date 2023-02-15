@@ -9,11 +9,13 @@
 import yaml
 import hashlib
 import os
+import traceback
 from verbacratis.models import GenericLogger
 from verbacratis.models.ordering import Item, Items
 from verbacratis.utils.file_io import PathTypes, identify_local_path_type, create_tmp_dir, remove_tmp_dir_recursively, copy_file, get_file_from_path, file_checksum, find_matching_files
-from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_parameters_from_url
+from verbacratis.utils.git_integration import is_url_a_git_repo, git_clone_checkout_and_return_list_of_files, extract_parameters_from_url, random_word
 from verbacratis.utils.http_requests_io import download_files
+from verbacratis.utils.parser2 import parse_yaml_file
 
 
 class LocationType:
@@ -323,3 +325,65 @@ class Projects(Items):
             yaml_str = '{}---\n{}'.format(yaml_str, str(project))
         return yaml_str
 
+
+def get_project_from_files(files: list, projects = Projects())->Projects:
+    try:
+        for file in files:
+            projects.parse_yaml(raw_data=parse_yaml_file(file_path=file))
+    except:
+        traceback.print_exc()
+    return projects
+
+
+def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, projects = Projects())->Projects:
+    """Parse the file specified in the URL to return a SystemConfigurations instance
+
+    Args:
+        urls: A list of strings containing the URLs to the YAML files to download and parse
+        set_no_verify_ssl: A boolean that will not check SSL certificates if set to True (default=`False`). Useful when using self-signed certificates, but use with caution!!
+
+    Returns:
+        `SystemConfigurations` instance with the parsed configuration
+    """
+    tmp_dir = create_tmp_dir(sub_dir=random_word(length=32))
+    files = download_files(urls=urls, target_dir=tmp_dir, set_no_verify_ssl=set_no_verify_ssl)
+    projects = get_project_from_files(files=files, projects=projects)
+    remove_tmp_dir_recursively(dir=tmp_dir)
+    return projects
+
+
+def get_yaml_configuration_from_git(
+    git_clone_url: str,
+    branch: str='main',
+    relative_start_directory: str='/',
+    include_files_regex: str='.*\.yaml$|.*\.yml$',
+    ssh_private_key_path: str=None,
+    set_no_verify_ssl: bool=False,
+    projects = Projects()
+)->Projects:
+    """Parse files from a Git repository matching a file pattern withing a branch and directory to return a SystemConfigurations instance
+
+    Args:
+        git_clone_url: A string containing the Git repository clone URL, for example `git@github.com:nicc777/verba-cratis-test-infrastructure.git`
+        branch: String containing the branch name to check out. Default is `main`
+        relative_start_directory: String containing the sub-directory in the cloned repository to look for file. Default is the root of the cloned repository
+        include_files_regex: A regular expression string for files to match. Default is matching YAML files.
+        ssh_private_key_path: A string containing the SSH private key to use. Optional, and if value is `None`, the default transport (HTTPS) will be used.
+        set_no_verify_ssl: A boolean that will not check SSL certificates if set to True (default=`False`). Useful when using self-signed certificates, but use with caution!!
+
+    Returns:
+        `SystemConfigurations` instance with the parsed configuration
+    """
+    tmp_dir = create_tmp_dir(sub_dir=random_word(length=32))
+    files = git_clone_checkout_and_return_list_of_files(
+        git_clone_url=git_clone_url,
+        branch=branch,
+        relative_start_directory=relative_start_directory,
+        include_files_regex=include_files_regex,
+        target_dir=tmp_dir,
+        ssh_private_key_path=ssh_private_key_path,
+        set_no_verify_ssl=set_no_verify_ssl
+    )
+    projects = get_project_from_files(files=files, projects=projects)
+    remove_tmp_dir_recursively(dir=tmp_dir)
+    return projects
