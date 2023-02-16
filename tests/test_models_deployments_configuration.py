@@ -167,10 +167,32 @@ spec:
 
 class TestProjects(unittest.TestCase):    # pragma: no cover
 
+    def setUp(self):
+        self.test_projects_git_https = 'https://raw.githubusercontent.com/nicc777/verba-cratis-test-projects/main/project-hello-world.yaml'
+        self.test_project_tmp_dir = create_tmp_dir(sub_dir='test-project')
+        self.local_docker_install_project = create_tmp_dir(sub_dir='local-docker-install')
+        self.hello_world_project = create_tmp_dir(sub_dir='sample-docker-app')
+
+    def tearDown(self):
+        remove_tmp_dir_recursively(dir=self.local_docker_install_project)
+        remove_tmp_dir_recursively(dir=self.hello_world_project)
+        remove_tmp_dir_recursively(dir=self.test_project_tmp_dir)
+
     def test_projects_init_with_defaults(self):
         result = Projects()
         self.assertIsNotNone(result)
         self.assertIsInstance(result, Projects)
+
+    def test_projects_init_with_test_projects(self):
+        result = Projects()
+        files = download_files(urls=[self.test_projects_git_https,], target_dir=self.test_project_tmp_dir)
+        self.assertIsNotNone(files)
+        self.assertIsInstance(files, list)
+        self.assertEqual(len(files), 1)
+        for file in files:
+            self.assertTrue(self.test_project_tmp_dir in file)
+            self.assertTrue(len(file) > len(self.test_project_tmp_dir))
+        
 
 #     def test_projects_add_2_projects(self):
 #         p1 = Project(name='proj01', use_default_scope=False)
