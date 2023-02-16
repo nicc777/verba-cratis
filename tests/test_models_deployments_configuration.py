@@ -194,6 +194,7 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         projects = get_project_from_files(files=files)
         self.assertIsNotNone(projects)
         self.assertIsInstance(projects, Projects)
+        # TODO add more tests to ensure everything was parsed correctly...
         
 
 #     def test_projects_add_2_projects(self):
