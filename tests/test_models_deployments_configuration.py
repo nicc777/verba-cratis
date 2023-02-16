@@ -509,7 +509,7 @@ spec:
 
         self.assertEqual(loc.location_type, LocationType.GIT_URL)
         self._verify_init(loc=loc)
-        self.assertEqual(len(loc.files),1)
+        self.assertEqual(len(loc.files),4)
         for work_file in loc.files:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
@@ -541,7 +541,7 @@ spec:
 
         self.assertEqual(loc.location_type, LocationType.GIT_URL)
         self._verify_init(loc=loc)
-        self.assertEqual(len(loc.files),1)
+        self.assertEqual(len(loc.files),4)
         for work_file in loc.files:
             print('work file: {}'.format(work_file))
             self._verify_file_exists_and_has_content(work_file=work_file)
