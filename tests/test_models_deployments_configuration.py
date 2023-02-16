@@ -184,7 +184,6 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, Projects)
 
     def test_projects_init_with_test_projects(self):
-        result = Projects()
         files = download_files(urls=[self.test_projects_git_https,], target_dir=self.test_project_tmp_dir)
         self.assertIsNotNone(files)
         self.assertIsInstance(files, list)
@@ -192,6 +191,9 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         for file in files:
             self.assertTrue(self.test_project_tmp_dir in file)
             self.assertTrue(len(file) > len(self.test_project_tmp_dir))
+        projects = get_project_from_files(files=files)
+        self.assertIsNotNone(projects)
+        self.assertIsInstance(projects, Projects)
         
 
 #     def test_projects_add_2_projects(self):
