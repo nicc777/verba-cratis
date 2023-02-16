@@ -165,12 +165,12 @@ spec:
         self.assertFalse('parentProjects' in project_as_dict)
 
 
-# class TestProjects(unittest.TestCase):    # pragma: no cover
+class TestProjects(unittest.TestCase):    # pragma: no cover
 
-#     def test_projects_init_with_defaults(self):
-#         result = Projects()
-#         self.assertIsNotNone(result)
-#         self.assertIsInstance(result, Projects)
+    def test_projects_init_with_defaults(self):
+        result = Projects()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, Projects)
 
 #     def test_projects_add_2_projects(self):
 #         p1 = Project(name='proj01', use_default_scope=False)
