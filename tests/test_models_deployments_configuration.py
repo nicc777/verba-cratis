@@ -191,7 +191,7 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         for file in files:
             self.assertTrue(self.test_project_tmp_dir in file)
             self.assertTrue(len(file) > len(self.test_project_tmp_dir))
-        projects = get_project_from_files(files=files)
+        projects = get_yaml_configuration_from_url(urls=[self.test_projects_git_https,])
         self.assertIsNotNone(projects)
         self.assertIsInstance(projects, Projects)
         # TODO add more tests to ensure everything was parsed correctly...
