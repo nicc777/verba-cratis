@@ -235,7 +235,7 @@ class Project(Item):
         if len(self.parent_item_names) > 0:
             data['parentProjects'] = list()
             for parent_name in self.parent_item_names:
-                data['parentProjects'].append({'name': parent_name,})
+                data['parentProjects'].append(parent_name)
         root['spec'] = data
         return root
 
