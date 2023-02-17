@@ -25,10 +25,10 @@ class Item:
             self.parent_item_names.append(parent_item_name)
 
     def add_scope(self, scope_name: str, replace_default_if_exists: bool=True):
-        if scope_name not in self.scopes:
-            self.scopes.append(scope_name)
         if replace_default_if_exists is True and 'default' in self.scopes:
             self.scopes.remove('default')
+        if scope_name not in self.scopes:
+            self.scopes.append(scope_name)
 
 
 class Items:
