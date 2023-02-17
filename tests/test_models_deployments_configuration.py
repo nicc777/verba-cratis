@@ -194,7 +194,8 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         projects = get_yaml_configuration_from_url(urls=[self.test_projects_git_https,])
         self.assertIsNotNone(projects)
         self.assertIsInstance(projects, Projects)
-        # TODO add more tests to ensure everything was parsed correctly...
+
+        # Test Parsing of data
         project_names = projects.get_project_names_for_named_environment(environment_name='default')
         self.assertIsNotNone(project_names)
         self.assertIsInstance(project_names, list)
@@ -202,6 +203,15 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         self.assertTrue('clone-repositories-project' in  project_names)
         self.assertTrue('local-docker-install-project' in  project_names)
         self.assertTrue('hello-world-project' in  project_names)
+
+        # Test dump as YAML
+        result = str(projects)
+        print('='*80)
+        print('# projects YAML')
+        print(result)
+        print('='*80)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
         
 
 #     def test_projects_add_2_projects(self):
