@@ -325,7 +325,7 @@ class Projects(Items):
     def __str__(self)->str:
         yaml_str = ''
         for project_name, project in self.items.items():
-            yaml_str = '{}---\n{}'.format(yaml_str, str(project))
+            yaml_str = '{}{}'.format(yaml_str, str(project))
         return yaml_str
 
 
