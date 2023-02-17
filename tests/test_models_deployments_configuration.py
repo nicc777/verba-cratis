@@ -195,6 +195,13 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         self.assertIsNotNone(projects)
         self.assertIsInstance(projects, Projects)
         # TODO add more tests to ensure everything was parsed correctly...
+        project_names = projects.get_project_names_for_named_environment(environment_name='default')
+        self.assertIsNotNone(project_names)
+        self.assertIsInstance(project_names, list)
+        self.assertEqual(len(project_names), 3)
+        self.assertTrue('clone-repositories-project' in  project_names)
+        self.assertTrue('local-docker-install-project' in  project_names)
+        self.assertTrue('hello-world-project' in  project_names)
         
 
 #     def test_projects_add_2_projects(self):

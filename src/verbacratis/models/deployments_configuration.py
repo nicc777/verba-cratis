@@ -310,6 +310,9 @@ class Projects(Items):
                                 if 'environments' in converted_data['metadata']:
                                     use_default_scope = False
                                 project = Project(name=converted_data['metadata']['name'], use_default_scope=use_default_scope)
+                                if 'environments' in converted_data['metadata']:
+                                    for env_name in converted_data['metadata']['environments']:
+                                        project.add_environment(environment_name=env_name)
                                 if 'parentProjects' in spec:
                                     for parent_project_data in spec['parentProjects']:
                                         project.add_parent_project(parent_project_name=parent_project_data['name'])
