@@ -315,7 +315,7 @@ class Projects(Items):
                                         project.add_environment(environment_name=env_name)
                                 if 'parentProjects' in spec:
                                     for parent_project_data in spec['parentProjects']:
-                                        project.add_parent_project(parent_project_name=parent_project_data['name'])
+                                        project.add_parent_project(parent_project_name=parent_project_data)
                                 for loc_name in location_names:
                                     if loc_name in self.location_manifests:
                                         project.add_manifest_location(location=self.location_manifests[loc_name])
