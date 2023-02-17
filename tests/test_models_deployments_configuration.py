@@ -212,7 +212,22 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         print('='*80)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, str)
-        
+
+    def test_projects_init_with_test_projects_function_get_project_by_name(self):
+        projects = get_yaml_configuration_from_url(urls=[self.test_projects_git_https,])
+        project_names = projects.get_project_names_for_named_environment(environment_name='default')
+        self.assertIsNotNone(project_names)
+        self.assertIsInstance(project_names, list)
+        self.assertEqual(len(project_names), 3)
+        for project_name in project_names:
+            self.assertIsNotNone(project_name)
+            self.assertIsInstance(project_name, str)
+            self.assertTrue(project_name in ('clone-repositories-project', 'local-docker-install-project', 'hello-world-project',))
+            project = projects.get_project_by_name(project_name=project_name)
+            self.assertIsNotNone(project)
+            self.assertIsInstance(project, Project)
+
+
 
 #     def test_projects_add_2_projects(self):
 #         p1 = Project(name='proj01', use_default_scope=False)
