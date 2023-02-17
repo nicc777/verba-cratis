@@ -286,13 +286,13 @@ class Projects(Items):
                     parameters['manifest_name'] = converted_data['metadata']['name']
                     parameters.pop('location')
                     if converted_data['kind'] == 'LocalDirectoryManifestLocation':
-                        self.location_manifests[converted_data['metadata']['name']] = LocalDirectoryManifestLocation(parameters)
+                        self.location_manifests[converted_data['metadata']['name']] = LocalDirectoryManifestLocation(**parameters)
                     elif converted_data['kind'] == 'LocalFileManifestLocation':
-                        self.location_manifests[converted_data['metadata']['name']] = LocalFileManifestLocation(parameters)
+                        self.location_manifests[converted_data['metadata']['name']] = LocalFileManifestLocation(**parameters)
                     elif converted_data['kind'] == 'FileUrlManifestLocation':
-                        self.location_manifests[converted_data['metadata']['name']] = FileUrlManifestLocation(parameters)
+                        self.location_manifests[converted_data['metadata']['name']] = FileUrlManifestLocation(**parameters)
                     elif converted_data['kind'] == 'GitManifestLocation':
-                        self.location_manifests[converted_data['metadata']['name']] = GitManifestLocation(parameters)
+                        self.location_manifests[converted_data['metadata']['name']] = GitManifestLocation(**parameters)
 
         # Next, extract project manifests and link the relevant location manifests to each project
         for part, data in raw_data.items():
