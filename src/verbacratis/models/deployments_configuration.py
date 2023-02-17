@@ -299,7 +299,7 @@ class Projects(Items):
             if isinstance(data, dict):
                 converted_data = dict((k.lower(),v) for k,v in data.items()) # Convert keys to lowercase
                 if 'kind' in converted_data:
-                    if converted_data['kind'] == 'project':
+                    if converted_data['kind'].lower() == 'project':
                         location_names = list()
                         spec = dict()
                         if 'spec' in converted_data:
