@@ -2,6 +2,8 @@
 
 # cd tests/
 
+sh ./clean_tmp.sh
+
 rm -frR ~/.verbacratis
 rm -frR ./verbacratis.db
 rm -frR reports
