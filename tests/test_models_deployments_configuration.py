@@ -168,7 +168,8 @@ spec:
 class TestProjects(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
-        self.test_projects_git_https = 'https://raw.githubusercontent.com/nicc777/verba-cratis-test-projects/main/project-hello-world.yaml'
+        self.test_projects_url = 'https://raw.githubusercontent.com/nicc777/verba-cratis-test-projects/main/project-hello-world.yaml'
+        self.test_projects_git_https = 'https://github.com/nicc777/verba-cratis-test-projects.git'
         self.test_project_tmp_dir = create_tmp_dir(sub_dir='test-project')
         self.local_docker_install_project = create_tmp_dir(sub_dir='local-docker-install')
         self.hello_world_project = create_tmp_dir(sub_dir='sample-docker-app')
@@ -183,15 +184,42 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         self.assertIsNotNone(result)
         self.assertIsInstance(result, Projects)
 
-    def test_projects_init_with_test_projects(self):
-        files = download_files(urls=[self.test_projects_git_https,], target_dir=self.test_project_tmp_dir)
+    def test_projects_init_with_test_projects_from_url(self):
+        files = download_files(urls=[self.test_projects_url,], target_dir=self.test_project_tmp_dir)
         self.assertIsNotNone(files)
         self.assertIsInstance(files, list)
         self.assertEqual(len(files), 1)
         for file in files:
             self.assertTrue(self.test_project_tmp_dir in file)
             self.assertTrue(len(file) > len(self.test_project_tmp_dir))
-        projects = get_yaml_configuration_from_url(urls=[self.test_projects_git_https,])
+        projects = get_yaml_configuration_from_url(urls=[self.test_projects_url,])
+        self.assertIsNotNone(projects)
+        self.assertIsInstance(projects, Projects)
+
+        # Test Parsing of data
+        project_names = projects.get_project_names_for_named_environment(environment_name='default')
+        self.assertIsNotNone(project_names)
+        self.assertIsInstance(project_names, list)
+        self.assertEqual(len(project_names), 3)
+        self.assertTrue('clone-repositories-project' in  project_names)
+        self.assertTrue('local-docker-install-project' in  project_names)
+        self.assertTrue('hello-world-project' in  project_names)
+
+        # Test dump as YAML
+        result = str(projects)
+        print('='*80)
+        print('# projects YAML')
+        print(result)
+        print('='*80)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+
+    def test_projects_init_with_test_projects_from_git(self):
+        projects = get_yaml_configuration_from_git(
+            git_clone_url=self.test_projects_git_https,
+            branch='main',
+            include_files_regex='project-hello-world\.yaml$'
+        )
         self.assertIsNotNone(projects)
         self.assertIsInstance(projects, Projects)
 
@@ -214,7 +242,7 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, str)
 
     def test_projects_init_with_test_projects_function_get_project_by_name(self):
-        projects = get_yaml_configuration_from_url(urls=[self.test_projects_git_https,])
+        projects = get_yaml_configuration_from_url(urls=[self.test_projects_url,])
         project_names = projects.get_project_names_for_named_environment(environment_name='default')
         self.assertIsNotNone(project_names)
         self.assertIsInstance(project_names, list)
