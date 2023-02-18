@@ -40,19 +40,25 @@ At the most fundamental level, this tool wraps a number of tasks (shell scripts 
 
 ## Infrastructure Accounts
 
-An infrastructure account defines something you have to log into to execute deployment commands.
+Infrastructure is classified along a base class of a `InfrastructureAccount` from which the following other classes are defined:
 
-At the moment, the following types of Infrastructure accounts are supported:
+* `UnixInfrastructureAccount`
+* `AwsInfrastructureAccount`
 
-| Type                | Class Name                   | Usage Context                                                                           |
-|---------------------|------------------------------|-----------------------------------------------------------------------------------------|
-| Local Account       | `InfrastructureAccount`      | This is the system this tool is running on                                              |
-| Unix System Account | `UnixInfrastructureAccount`  | This is a remote Unix system which needs to be logged into in order to deploy resources |
-| AWS Account         | `AwsInfrastructureAccount`   | This represents an AWS account in which you aim to deploy services                      |
+> **Note**
+> More of these target Infrastructure types are planned for the future including for Kubernetes and other public cloud providers.
 
-> _**Note**_: A Unix account is typically a host that has a SSHD service running with the user account having a BASH compatible shell. Of course (in theory), this could also be a Windows system, but that was not really the intention.
+Each Infrastructure account also needs some kind of authentication, assuming the deployment will mostly be done on remote hosts. The base class of `Authentication` will be used to extend other classes like:
 
-> _**Note**_: Even though AWS is the only supported cloud platform right now, the idea is to add more in the future.
+| Manifest `Kind` [documentation](manifests/infrastructure_accounts.md) | Class Mapping                             | Description                                                                                                                                                                                                                                                                           |
+|-----------------------------------------------------------------------|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `UnixHostAuthentication`                                              | `DefaultHostBasedAuthentication`          | A base class extending `Authentication` for use with Unix like hosts.                                                                                                                                                                                                                 |
+| `SshUsingHostConfig`                                                  | `SshHostBasedAuthenticationConfig`        | Extends `UnixHostAuthentication`. Using this kind of authentication implies that the local SSH configuration (usually in `~/.ssh/config`) already defines the keys and other aspects around authenticating against a host which does not require any additional password/passphrases. |
+| `SshUsingCredentials`                                                 | `SshCredentialsBasedAuthenticationConfig` | Extends `SshHostBasedAuthenticationConfig` but for hosts requiring a username and password (no keys).                                                                                                                                                                                 |
+| `SshUsingPrivateKey`                                                  | `SshPrivateKeyBasedAuthenticationConfig`  | Extends `SshHostBasedAuthenticationConfig` using private keys but with no entries in the SSH config file.                                                                                                                                                                             |
+
+> **Warning**
+> When using any for of authentication that require a password/passphrase, never include such a piece of sensitive information in the manifest file. Later examples will demonstrate how to use environment variables to obtain sensitive credential information from an external source like an environment variable.
 
 ## Authentication to Infrastructure
 
