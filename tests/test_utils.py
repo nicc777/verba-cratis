@@ -15,6 +15,7 @@ import unittest
 
 
 from verbacratis.utils import *
+from verbacratis.models import GenericLogger
 import logging
 import logging.handlers
 import socket
@@ -100,9 +101,9 @@ class TestFunctionGetLogger(unittest.TestCase):    # pragma: no cover
     def test_call_get_logger_with_defaults(self):
         result = get_logger()
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, logging.Logger)
+        self.assertIsInstance(result, GenericLogger)
         qty = 0
-        for h in result.handlers:
+        for h in result.logger.handlers:
             qty += 1
         self.assertEqual(qty, 1)
 
@@ -122,9 +123,9 @@ class TestFunctionGetLogger(unittest.TestCase):    # pragma: no cover
             extra_parameters=extra_parameters
         )
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, logging.Logger)
+        self.assertIsInstance(result, GenericLogger)
         qty = 0
-        for h in result.handlers:
+        for h in result.logger.handlers:
             qty += 1
         self.assertEqual(qty, 5)
 
@@ -144,9 +145,9 @@ class TestFunctionGetLogger(unittest.TestCase):    # pragma: no cover
             extra_parameters=extra_parameters
         )
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, logging.Logger)
+        self.assertIsInstance(result, GenericLogger)
         qty = 0
-        for h in result.handlers:
+        for h in result.logger.handlers:
             qty += 1
         self.assertEqual(qty, 1)
 
@@ -165,9 +166,9 @@ class TestFunctionGetLogger(unittest.TestCase):    # pragma: no cover
             extra_parameters=extra_parameters
         )
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, logging.Logger)
+        self.assertIsInstance(result, GenericLogger)
         qty = 0
-        for h in result.handlers:
+        for h in result.logger.handlers:
             qty += 1
         self.assertEqual(qty, 1)
 
@@ -180,9 +181,9 @@ class TestFunctionGetLogger(unittest.TestCase):    # pragma: no cover
             include_logging_syslog_handler=False
         )
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, logging.Logger)
+        self.assertIsInstance(result, GenericLogger)
         qty = 0
-        for h in result.handlers:
+        for h in result.logger.handlers:
             qty += 1
         self.assertEqual(qty, 1)
 

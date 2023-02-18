@@ -66,12 +66,6 @@ class StateStore:
 
 class ApplicationRuntimeConfiguration:
 
-    # TODO There is a lot to fix here in order to align with the other classes...
-    #
-    # This should only contain the logging information and the name of the StateStore to use
-    #
-    # TODO We need to be able to locate InfrastructureAccounts (collection of manifest files) and Projects which can be hosted locally in a directory or on Git. Consider how to authenticate to Git... Technically it could also just point to URLS
-
     def __init__(self, raw_global_configuration: str=DEFAULT_GLOBAL_CONFIG, logger=GenericLogger()) -> None:
         self.raw_global_configuration = raw_global_configuration
         self.parsed_configuration = dict()
@@ -79,9 +73,6 @@ class ApplicationRuntimeConfiguration:
         self.state_store = StateStore(logger=self.logger)
         self.system_configurations = SystemConfigurations()
         self.projects = Projects(logger=self.logger)
-
-    def add_infrastructure_account(self, infrastructure_account: InfrastructureAccount):
-        self.system_configurations.add_configuration(item=infrastructure_account)
 
 
 class ApplicationState:
