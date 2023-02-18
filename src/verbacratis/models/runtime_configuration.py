@@ -18,7 +18,8 @@ from urllib.parse import urlparse
 import urllib
 from verbacratis.utils.file_io import get_directory_from_path, get_file_from_path, init_application_dir
 from verbacratis.models import GenericLogger, DEFAULT_CONFIG_DIR, DEFAULT_GLOBAL_CONFIG, DEFAULT_STATE_DB
-from verbacratis.models.systems_configuration import SystemConfigurations, InfrastructureAccount, get_system_configuration_from_git, get_system_configuration_from_url, get_system_configuration_from_files
+from verbacratis.models.systems_configuration import *
+from verbacratis.models.deployments_configuration import *
 from verbacratis.utils.git_integration import is_url_a_git_repo, extract_parameters_from_url
 
 
@@ -77,7 +78,7 @@ class ApplicationRuntimeConfiguration:
         self.logger = logger
         self.state_store = StateStore(logger=self.logger)
         self.system_configurations = SystemConfigurations()
-        self.projects = None
+        self.projects = Projects(logger=self.logger)
 
     def add_infrastructure_account(self, infrastructure_account: InfrastructureAccount):
         self.system_configurations.add_configuration(item=infrastructure_account)
@@ -138,7 +139,21 @@ class ApplicationState:
 
     def load_project_manifests(self):
         for location in self.project_manifest_locations:
-            pass
+            if location.startswith('http'):
+                if is_url_a_git_repo(url=location) is True:
+                    final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=location)
+                    self.application_configuration.projects = get_project_configuration_from_git(
+                        git_clone_url=final_location,
+                        system_configurations=self.application_configuration.system_configurations,
+                        branch=branch,
+                        relative_start_directory=relative_start_directory,
+                        ssh_private_key_path=ssh_private_key_path,
+                        set_no_verify_ssl=set_no_verify_ssl
+                    )
+                else:
+                    self.application_configuration.system_configurations = get_project_configuration_from_url(urls=[location,], system_configurations=self.application_configuration.system_configurations)
+            else:
+                self.application_configuration.system_configurations = get_project_from_files(files=[location,], system_configurations=self.application_configuration.system_configurations)
         
         
 
