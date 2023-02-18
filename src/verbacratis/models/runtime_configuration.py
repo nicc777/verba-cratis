@@ -144,7 +144,7 @@ class ApplicationState:
                     final_location, branch, relative_start_directory, ssh_private_key_path, set_no_verify_ssl = extract_parameters_from_url(location=location)
                     self.application_configuration.projects = get_project_configuration_from_git(
                         git_clone_url=final_location,
-                        system_configurations=self.application_configuration.system_configurations,
+                        projects=self.application_configuration.system_configurations,
                         branch=branch,
                         relative_start_directory=relative_start_directory,
                         ssh_private_key_path=ssh_private_key_path,
