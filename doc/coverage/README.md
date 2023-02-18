@@ -22,5 +22,5 @@
 | src/verbacratis/utils/os\_integration.py                      |       27 |       18 |     33% |
 | src/verbacratis/utils/parser2.py                              |       19 |        0 |    100% |
 | src/verbacratis/utils/parser.py                               |      107 |       90 |     16% |
-| src/verbacratis/verbacratis.py                                |       13 |        2 |     85% |
-|                                                     **TOTAL** | **1862** |  **530** | **72%** |
+| src/verbacratis/verbacratis.py                                |       13 |        0 |    100% |
+|                                                     **TOTAL** | **1862** |  **528** | **72%** |
