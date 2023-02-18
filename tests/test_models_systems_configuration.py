@@ -217,6 +217,15 @@ class TextSshPrivateKeyBasedAuthenticationConfig(unittest.TestCase):    # pragma
         self.assertIsInstance(result, SshHostBasedAuthenticationConfig)
         self.assertIsInstance(result, SshPrivateKeyBasedAuthenticationConfig)
 
+        unix_yaml = str(result)
+        self.assertIsNotNone(unix_yaml)
+        self.assertIsInstance(unix_yaml, str)
+        self.assertTrue(len(unix_yaml) > 10)
+        print('='*80)
+        print('# SshPrivateKeyBasedAuthenticationConfig YAML')
+        print(unix_yaml)
+        print('='*80)
+
     def test_ssh_private_key_based_authentication_config_init_with_non_existing_key_file(self):
         with self.assertRaises(Exception) as context:
             SshPrivateKeyBasedAuthenticationConfig(hostname='example.tld', username='testuser', private_key_path='/does/not/exists')
@@ -436,6 +445,14 @@ class TestAwsInfrastructureAccount(unittest.TestCase):    # pragma: no cover
         result = acc_dict['metadata']['environments']
         self.assertEqual(len(result), 1)
         self.assertTrue('default' in result)
+        yaml_result = str(acc)
+        self.assertIsNotNone(yaml_result)
+        self.assertIsInstance(yaml_result, str)
+        self.assertTrue(len(yaml_result) > 10)
+        print('='*80)
+        print('# AwsInfrastructureAccount YAML')
+        print(yaml_result)
+        print('='*80)
 
 
 class TestSystemConfigurations(unittest.TestCase):    # pragma: no cover

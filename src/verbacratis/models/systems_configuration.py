@@ -19,19 +19,15 @@ from verbacratis.utils.http_requests_io import download_files
 class Authentication:
 
     def __init__(self, name: str='no-auth'):
-        self.authentication_type = None
         self.username = None
         self.name = name
 
     def as_dict(self):
         root = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'Authentication'
+        root['kind'] = self.__class__.__name__
         root['metadata'] = dict()
         root['metadata']['name'] = self.name
-        if self.authentication_type is not None:
-            root['spec'] = dict()
-            root['spec']['authenticationType'] = '{}'.format(self.authentication_type)
         return root
 
     def __str__(self)->str:
@@ -54,10 +50,6 @@ class UnixHostAuthentication(Authentication):
     """
     def __init__(self, hostname: str='localhost'):
         super().__init__(name=hostname)
-        self.authentication_type = 'DefaultHostBasedAuthentication'
-    
-    def __str__(self)->str:
-        return yaml.dump(self.as_dict())
 
 
 class SshHostBasedAuthenticationConfig(UnixHostAuthentication): 
@@ -78,19 +70,16 @@ class SshHostBasedAuthenticationConfig(UnixHostAuthentication):
             raise Exception('username must be a string value')
         if len(username) == 0:
             raise Exception('username is required')
-        self.authentication_type = 'SshUsingHostConfig'
-        self.username = username
+        # self.username = username
+        self.name = '{}@{}'.format(username, hostname)
 
     def as_dict(self):
         root = dict()
-        root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'SshHostBasedAuthenticationConfig'
+        root['kind'] = self.__class__.__name__
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
-        if self.authentication_type is not None:
-            root['spec'] = dict()
-            root['spec']['authenticationType'] = '{}'.format(self.authentication_type)
+        # root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
+        root['metadata']['name'] = self.name
         return root
 
 
@@ -112,18 +101,18 @@ class SshCredentialsBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         self.password_is_final = True
         if password.startswith('${') and password.endswith('}'):
             self.password_is_final = False                          # Password still needs to be resolved via Environment...
-        self.authentication_type = 'SshUsingCredentials'
+        self.name = '{}@{}'.format(username, hostname)
 
     def as_dict(self):
         root = dict()
         root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'SshCredentialsBasedAuthenticationConfig'
+        root['kind'] = self.__class__.__name__
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
+        # root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
+        root['metadata']['name'] = self.name
         root['spec'] = dict()
         data = dict()
-        data['authenticationType'] = self.authentication_type
         if len(self.password) > 0:
             data['password'] = '*'*len(self.password)
             if self.password_is_final is False:
@@ -150,20 +139,18 @@ class SshPrivateKeyBasedAuthenticationConfig(SshHostBasedAuthenticationConfig):
         if os.access(private_key_path, os.R_OK) is False:
             raise Exception('Private Key file "{}" cannot be read'.format(private_key_path))
         self.private_key_path = private_key_path
-        self.authentication_type = 'SshUsingPrivateKey'
+        self.name = '{}@{}'.format(username, hostname)
 
     def as_dict(self):
         root = dict()
         root['spec'] = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'SshPrivateKeyBasedAuthenticationConfig'
+        root['kind'] = self.__class__.__name__
         root['metadata'] = dict()
-        root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
+        # root['metadata']['name'] = '{}@{}'.format(self.username, self.name)
+        root['metadata']['name'] = self.name
         root['spec'] = dict()
-        data = dict()
-        data['authenticationType'] = self.authentication_type
-        data['privateKeyPath'] = self.private_key_path
-        root['spec'] = data
+        root['spec']['privateKeyPath'] = self.private_key_path
         return root
 
 
@@ -179,20 +166,16 @@ class AwsAuthentication(Authentication):
         if os.getenv('AWS_REGION', None) is not None:
             if os.getenv('AWS_REGION').lower() in AWS_REGIONS:
                 self.region = os.getenv('AWS_REGION').lower()
-        self.authentication_type = 'AwsDefaultAuthentication'
 
     def as_dict(self):
         root = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'AwsAuthentication'
+        root['kind'] = self.__class__.__name__
         root['metadata'] = dict()
         root['metadata']['name'] = '{}'.format(self.name)
         root['spec'] = dict()
         root['spec']['region'] = self.region
         return root
-
-    def __str__(self)->str:
-        return yaml.dump(self.as_dict())
 
 
 class AwsKeyBasedAuthentication(AwsAuthentication):
@@ -232,12 +215,11 @@ class AwsKeyBasedAuthentication(AwsAuthentication):
         self.secret_key_is_final = True
         if secret_key.startswith('${') and secret_key.endswith('}'):
             self.secret_key_is_final = False                        # Secret key still needs to be resolved via Environment...
-        self.authentication_type = 'AwsKeyBasedAuthentication'
 
     def as_dict(self):
         root = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'AwsKeyBasedAuthentication'
+        root['kind'] = self.__class__.__name__
         root['metadata'] = dict()
         root['metadata']['name'] = '{}'.format(self.name)
         root['spec'] = dict()
@@ -248,9 +230,6 @@ class AwsKeyBasedAuthentication(AwsAuthentication):
             if self.secret_key_is_final is False:
                 root['spec']['secret_key'] = self.secret_key
         return root
-
-    def __str__(self)->str:
-        return yaml.dump(self.as_dict())
 
 
 class AwsProfileBasedAuthentication(AwsAuthentication):
@@ -286,22 +265,17 @@ class AwsProfileBasedAuthentication(AwsAuthentication):
         self.profile_name = profile_name
         if len(self.profile_name) == 0:
             raise Exception('Profile name cannot have zero length')
-        self.authentication_type = 'AwsProfileBasedAuthentication'
 
     def as_dict(self):
         root = dict()
         root['apiVersion'] = 'v1-alpha'
-        root['kind'] = 'AwsProfileBasedAuthentication'
+        root['kind'] = self.__class__.__name__
         root['metadata'] = dict()
         root['metadata']['name'] = '{}'.format(self.name)
         root['spec'] = dict()
         root['spec']['region'] = self.region
         root['spec']['profile_name'] = self.profile_name
         return root
-
-    def __str__(self)->str:
-        return yaml.dump(self.as_dict())
-
 
 
 class InfrastructureAccount:
@@ -362,9 +336,7 @@ class InfrastructureAccount:
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authentication'] = dict()
-            root['spec']['authentication']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
-            root['spec']['authentication']['type'] = self.authentication_config.__class__.__name__
+            root['spec']['authentication'] = self.authentication_config.name
         if len(self.environments) == 0:
             self.environments = ['default',]
         root['metadata']['environments'] = self.environments
@@ -432,9 +404,7 @@ class UnixInfrastructureAccount(InfrastructureAccount):
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authentication'] = dict()
-            root['spec']['authentication']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
-            root['spec']['authentication']['type'] = self.authentication_config.__class__.__name__
+            root['spec']['authentication'] = self.authentication_config.name
         if len(self.environments) == 0:
             self.environments = ['default',]
         root['metadata']['environments'] = self.environments
@@ -477,9 +447,7 @@ class AwsInfrastructureAccount(InfrastructureAccount):
         root['spec'] = dict()
         root['spec']['provider'] = self.account_provider
         if self.authentication_config is not None:
-            root['spec']['authentication'] = dict()
-            root['spec']['authentication']['authenticationReference'] = self.authentication_config.as_dict()['metadata']['name']
-            root['spec']['authentication']['type'] = self.authentication_config.__class__.__name__
+            root['spec']['authentication'] = self.authentication_config.name
         if len(self.environments) == 0:
             self.environments = ['default',]
         root['metadata']['environments'] = self.environments

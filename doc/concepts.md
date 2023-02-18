@@ -4,10 +4,6 @@
 - [Accounts and Authentication](#accounts-and-authentication)
   - [Infrastructure Accounts](#infrastructure-accounts)
   - [Authentication to Infrastructure](#authentication-to-infrastructure)
-  - [Manifests](#manifests)
-    - [Local host with no need for authentication](#local-host-with-no-need-for-authentication)
-    - [Remote Unix host with username and password](#remote-unix-host-with-username-and-password)
-    - [AWS Account with Named Profile Authentication](#aws-account-with-named-profile-authentication)
 
 # Important Concepts
 
@@ -50,12 +46,12 @@ Infrastructure is classified along a base class of a `InfrastructureAccount` fro
 
 Each Infrastructure account also needs some kind of authentication, assuming the deployment will mostly be done on remote hosts. The base class of `Authentication` will be used to extend other classes like:
 
-| Manifest `Kind` [documentation](manifests/infrastructure_accounts.md) | Class Mapping                             | Description                                                                                                                                                                                                                                                                           |
-|-----------------------------------------------------------------------|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `UnixHostAuthentication`                                              | `DefaultHostBasedAuthentication`          | A base class extending `Authentication` for use with Unix like hosts.                                                                                                                                                                                                                 |
-| `SshUsingHostConfig`                                                  | `SshHostBasedAuthenticationConfig`        | Extends `UnixHostAuthentication`. Using this kind of authentication implies that the local SSH configuration (usually in `~/.ssh/config`) already defines the keys and other aspects around authenticating against a host which does not require any additional password/passphrases. |
-| `SshUsingCredentials`                                                 | `SshCredentialsBasedAuthenticationConfig` | Extends `SshHostBasedAuthenticationConfig` but for hosts requiring a username and password (no keys).                                                                                                                                                                                 |
-| `SshUsingPrivateKey`                                                  | `SshPrivateKeyBasedAuthenticationConfig`  | Extends `SshHostBasedAuthenticationConfig` using private keys but with no entries in the SSH config file.                                                                                                                                                                             |
+| Manifest `Kind` [documentation](manifests/infrastructure_accounts.md) | Description                                                                                                                                                                                                                                                                           |
+|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `UnixHostAuthentication`                                              | A base class extending `Authentication` for use with Unix like hosts.                                                                                                                                                                                                                 |
+| `SshHostBasedAuthenticationConfig`                                    | Extends `UnixHostAuthentication`. Using this kind of authentication implies that the local SSH configuration (usually in `~/.ssh/config`) already defines the keys and other aspects around authenticating against a host which does not require any additional password/passphrases. |
+| `SshCredentialsBasedAuthenticationConfig`                             | Extends `SshHostBasedAuthenticationConfig` but for hosts requiring a username and password (no keys).                                                                                                                                                                                 |
+| `SshPrivateKeyBasedAuthenticationConfig`                              | Extends `SshHostBasedAuthenticationConfig` using private keys but with no entries in the SSH config file.                                                                                                                                                                             |
 
 > **Warning**
 > When using any for of authentication that require a password/passphrase, never include such a piece of sensitive information in the manifest file. Later examples will demonstrate how to use environment variables to obtain sensitive credential information from an external source like an environment variable.
@@ -64,7 +60,7 @@ Each Infrastructure account also needs some kind of authentication, assuming the
 
 Each type on [Infrastructure Account](#infrastructure-account) also require some form of authentication. The following authentication types are supported:
 
-| Type                                          | Supporting Infrastructure Class | Authentication Class Name                 | Usage Context                                                                                                                                                                             |
+| Authentication and Target Type Mix            | Supporting Infrastructure Class | Authentication Class Name                 | Usage Context                                                                                                                                                                             |
 |-----------------------------------------------|---------------------------------|-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | No Authentication                             | `InfrastructureAccount`         | `Authentication`                          | Only really used for the local account that the tool is being run from.                                                                                                                   |
 | Unix Host Authentication                      | `UnixInfrastructureAccount`     | `SshHostBasedAuthenticationConfig`        | Supporting SSH authentication to hosts, where those hosts are defined in local SSH configuration. for example in a file in `/etc/ssh/ssh_config.d`                                        |
@@ -74,92 +70,3 @@ Each type on [Infrastructure Account](#infrastructure-account) also require some
 | AWS authentication using keys                 | `AwsInfrastructureAccount`      | `AwsKeyBasedAuthentication`               | Uses AWS access key and secret key values to authenticate.                                                                                                                                |
 | AWS authentication using profiles             | `AwsInfrastructureAccount`      | `AwsProfileBasedAuthentication`           | Uses AWS named profile to authenticate.                                                                                                                                                   |
 
-## Manifests
-
-The above classes each translates to a specific YAML manifest, comparable to Kubernetes manifest files. This makes it easy to convert to and from classes and files.
-
-The following combinations are typically possible:
-
-### Local host with no need for authentication
-
-Manifest example:
-
-```yaml
----
-apiVersion: v1-alpha
-kind: Authentication
-metadata:
-  name: no-auth
----
-apiVersion: v1-alpha
-kind: InfrastructureAccount
-metadata:
-  environments:
-  - default
-  name: deployment-host
-spec:
-  authentication:
-    authenticationReference: no-auth
-    type: Authentication
-  provider: RunOnLocalhost
-```
-
-> _**Important**_: The deployment system can only have ONE of these deployment hosts defined. All other hosts must be properly defined with their appropriate credentials. Technically you would never have to define this in a manifest as it is always generated as default internally. You can always refer to it by the name `deployment-host` in objects like a `ShellScript`.
-
-### Remote Unix host with username and password
-
-Manifest Example:
-
-```yaml
----
-apiVersion: v1-alpha
-kind: SshCredentialsBasedAuthenticationConfig
-metadata:
-  name: cd-user@host1.myorg
-spec:
-  authenticationType: SshUsingCredentials
-  password: ${{EnvironmentVariables:computed:someSecret}}
----
-apiVersion: v1-alpha
-kind: UnixInfrastructureAccount
-metadata:
-  environments:
-  - default
-  name: host1
-spec:
-  authentication:
-    authenticationReference: cd-user@host1.myorg
-    type: SshCredentialsBasedAuthenticationConfig
-  provider: ShellScript
-```
-
-> _**Note**_: Whenever a `ShellScript` will need to authenticate to this host, a call to the object's `auth_id()` method is made and the following string will then be returned: `cd-user@host1.myorg`
-
-> _**Warning**_: Never store passwords in the clear in a manifest. Technically this is possible using this solution, but best practice is to always get the password from the environment. The `EnvironmentVariables` configuration is defined later in this document.
-
-### AWS Account with Named Profile Authentication
-
-Manifest Example:
-
-```yaml
----
-apiVersion: v1-alpha
-kind: AwsProfileBasedAuthentication
-metadata:
-  name: accXYZ
-spec:
-  profile_name: profile_01
-  region: eu-central-1
----
-apiVersion: v1-alpha
-kind: AwsInfrastructureAccount
-metadata:
-  environments:
-  - sandbox-env
-  name: sandbox-account
-spec:
-  authentication:
-    authenticationReference: accXYZ
-    type: AwsProfileBasedAuthentication
-  provider: AWS
-```
