@@ -192,7 +192,7 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         for file in files:
             self.assertTrue(self.test_project_tmp_dir in file)
             self.assertTrue(len(file) > len(self.test_project_tmp_dir))
-        projects = get_yaml_configuration_from_url(urls=[self.test_projects_url,])
+        projects = get_project_configuration_from_url(urls=[self.test_projects_url,])
         self.assertIsNotNone(projects)
         self.assertIsInstance(projects, Projects)
 
@@ -215,7 +215,7 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, str)
 
     def test_projects_init_with_test_projects_from_git(self):
-        projects = get_yaml_configuration_from_git(
+        projects = get_project_configuration_from_git(
             git_clone_url=self.test_projects_git_https,
             branch='main',
             include_files_regex='project-hello-world\.yaml$'
@@ -242,7 +242,7 @@ class TestProjects(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, str)
 
     def test_projects_init_with_test_projects_function_get_project_by_name(self):
-        projects = get_yaml_configuration_from_url(urls=[self.test_projects_url,])
+        projects = get_project_configuration_from_url(urls=[self.test_projects_url,])
         project_names = projects.get_project_names_for_named_environment(environment_name='default')
         self.assertIsNotNone(project_names)
         self.assertIsInstance(project_names, list)

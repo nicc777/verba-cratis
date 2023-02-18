@@ -619,7 +619,7 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         ]
 
     def test_function_get_yaml_configuration_from_git_git_main_branch(self):
-        sc = get_yaml_configuration_from_git(git_clone_url=self.test_repo_https)
+        sc = get_system_configuration_from_git(git_clone_url=self.test_repo_https)
         self.assertIsNotNone(sc)
         self.assertIsInstance(sc, SystemConfigurations)
         test_conf = sc.get_configuration_instance(class_type_name='AwsInfrastructureAccount', instance_name='sandbox-account')
@@ -629,7 +629,7 @@ class TestAllFunctions(unittest.TestCase):  # pragma: no cover
         self.assertFalse('sandbox2' in test_conf.environments)
 
     def test_function_get_yaml_configuration_from_url(self):
-        sc = get_yaml_configuration_from_url(urls=self.urls_main_branch)
+        sc = get_system_configuration_from_url(urls=self.urls_main_branch)
         self.assertIsNotNone(sc)
         self.assertIsInstance(sc, SystemConfigurations)
         test_conf = sc.get_configuration_instance(class_type_name='AwsInfrastructureAccount', instance_name='sandbox-account')

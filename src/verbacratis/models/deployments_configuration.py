@@ -338,7 +338,7 @@ def get_project_from_files(files: list, projects = Projects())->Projects:
     return projects
 
 
-def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, projects = Projects())->Projects:
+def get_project_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, projects = Projects())->Projects:
     """Parse the file specified in the URL to return a SystemConfigurations instance
 
     Args:
@@ -355,7 +355,7 @@ def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, p
     return projects
 
 
-def get_yaml_configuration_from_git(
+def get_project_configuration_from_git(
     git_clone_url: str,
     branch: str='main',
     relative_start_directory: str='/',

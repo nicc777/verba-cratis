@@ -790,7 +790,7 @@ def get_system_configuration_from_files(files: list, system_configurations = Sys
     return system_configurations
 
 
-def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, system_configurations = SystemConfigurations())->SystemConfigurations:
+def get_system_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, system_configurations = SystemConfigurations())->SystemConfigurations:
     """Parse the file specified in the URL to return a SystemConfigurations instance
 
     Args:
@@ -807,7 +807,7 @@ def get_yaml_configuration_from_url(urls: list, set_no_verify_ssl: bool=False, s
     return system_configurations
 
 
-def get_yaml_configuration_from_git(
+def get_system_configuration_from_git(
     git_clone_url: str,
     branch: str='main',
     relative_start_directory: str='/',
