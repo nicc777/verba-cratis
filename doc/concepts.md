@@ -1,5 +1,6 @@
 
 - [Important Concepts](#important-concepts)
+- [General Overview - What does this tool actually do?](#general-overview---what-does-this-tool-actually-do)
 - [Accounts and Authentication](#accounts-and-authentication)
   - [Infrastructure Accounts](#infrastructure-accounts)
   - [Authentication to Infrastructure](#authentication-to-infrastructure)
@@ -11,6 +12,29 @@
 # Important Concepts
 
 This page will try to explain some of the concepts used in this project
+
+# General Overview - What does this tool actually do?
+
+The general idea is to orchestrate Infrastructure Deployments in complex environments that may rely of numerous different tools and technologies.
+
+Today we have several teams/individuals going by various titles such as DevOps engineers or just Infrastructure support engineers. However, their role all involves looking after some aspect of infrastructure and often their duties will include maintaining a repository with Infrastructure-as-Code artifacts. These artifacts form the definition of what needs to be provisioned and/or deployed given some additional data, like what, where etc. 
+
+Sometimes it can be "easy" and only resources in a single public cloud environment like AWS have to be maintained. In these cases, tools like CloudFormation or even Terraform works really well.
+
+But more often, it's a lot more complex and any one or more of the following may apply for which this tool aims to help out:
+
+* Maintaining multiple types of public cloud accounts (AWS, MS Azure, Google etc.)
+* Maintaining diverse technologies in one or more public cloud platform, like AWS core with Serverless (SAM) and AWS Amplify - each with their own quirks and where tools like Terraform may not be fully suited to deal with all the nuances.
+* A mix of on-premise, edge and cloud environments, each using different technologies
+* Require conditional deployment of resources in various accounts as part of a single deployment
+
+But is this not the domain of Terraform or similar tools? At it most basic, there is an argument that tools like Terraform has the same general aim, but the difference with this tool is to fill any remaining gaps that tools like Terraform may not be able to fill. Therefore, Terraform, CloudFormation and all other similar tools can still be used within this tool. 
+
+In fact, some complex or evolving organizations may very well have a mix of these tools and teams may struggle to coordinate deployments and maintenance of their infrastructure across all these tools.
+
+This tool can be used to mix and match existing tools like Terraform and CloudFormation together with existing custom scripts and other tools as a wrapper that will orchestrate the running of these tools across different cloud providers, on-site and edge infrastructure and at the same time track changes in the code base to assist keeping infrastructure up to date.
+
+At the most fundamental level, this tool wraps a number of tasks (shell scripts or other supported technologies) in a organized set of instructions with conditions and options for rollback/recovery in the case of errors.
 
 # Accounts and Authentication
 
@@ -27,6 +51,8 @@ At the moment, the following types of Infrastructure accounts are supported:
 | AWS Account         | `AwsInfrastructureAccount`   | This represents an AWS account in which you aim to deploy services                      |
 
 > _**Note**_: A Unix account is typically a host that has a SSHD service running with the user account having a BASH compatible shell. Of course (in theory), this could also be a Windows system, but that was not really the intention.
+
+> _**Note**_: Even though AWS is the only supported cloud platform right now, the idea is to add more in the future.
 
 ## Authentication to Infrastructure
 
