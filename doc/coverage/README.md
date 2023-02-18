@@ -9,11 +9,11 @@
 | src/verbacratis/models/deployments\_configuration.py          |      228 |        3 |     99% |
 | src/verbacratis/models/ordering.py                            |       71 |        0 |    100% |
 | src/verbacratis/models/runtime.py                             |      214 |      178 |     17% |
-| src/verbacratis/models/runtime\_configuration.py              |       97 |        0 |    100% |
+| src/verbacratis/models/runtime\_configuration.py              |       95 |        0 |    100% |
 | src/verbacratis/models/systems\_configuration.py              |      424 |        3 |     99% |
 | src/verbacratis/notification\_providers/\_\_init\_\_.py       |       21 |        0 |    100% |
 | src/verbacratis/notification\_providers/rest/\_\_init\_\_.py  |       28 |        2 |     93% |
-| src/verbacratis/utils/\_\_init\_\_.py                         |      204 |      158 |     23% |
+| src/verbacratis/utils/\_\_init\_\_.py                         |      204 |       46 |     77% |
 | src/verbacratis/utils/cli\_arguments.py                       |       60 |        6 |     90% |
 | src/verbacratis/utils/file\_io.py                             |      126 |        5 |     96% |
 | src/verbacratis/utils/function\_runner.py                     |       50 |       44 |     12% |
@@ -23,4 +23,4 @@
 | src/verbacratis/utils/parser2.py                              |       19 |        0 |    100% |
 | src/verbacratis/utils/parser.py                               |      107 |       90 |     16% |
 | src/verbacratis/verbacratis.py                                |       13 |        0 |    100% |
-|                                                     **TOTAL** | **1862** |  **528** | **72%** |
+|                                                     **TOTAL** | **1860** |  **416** | **78%** |
