@@ -13,7 +13,7 @@ from verbacratis.utils.cli_arguments import parse_command_line_arguments
 from verbacratis.models.runtime_configuration import ApplicationState
 
 
-def main(cli_args: list=list(), logger=get_logger())->dict:
+def main(cli_args: list=sys.argv[1:], logger=get_logger())->dict:
     result = dict()
 
     ###

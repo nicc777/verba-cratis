@@ -45,3 +45,5 @@ WORKDIR /svc
 
 RUN apt update -y && apt install git -y
 RUN pip3 install dist/*.tar.gz
+
+ENTRYPOINT [ "verbacratis" ]

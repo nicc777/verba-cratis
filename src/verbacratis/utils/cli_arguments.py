@@ -46,6 +46,7 @@ In Python, you can easily construct the final URL with the following (using exam
 
 
 def _get_arg_parser(
+    logger,
     default_config_file: str,
     default_environment: str='default',
 )->argparse.ArgumentParser:
@@ -90,6 +91,7 @@ def _get_arg_parser(
         default=default_environment,
         help='The environment name to target'
     )
+    logger.info('Returning CLI Argument Parser')
     return parser
 
 
@@ -113,10 +115,12 @@ def parse_command_line_arguments(
     args = dict()
     args['conf'] = None
     parser = _get_arg_parser(
+        logger=state.logger,
         default_config_file='{}{}verbacratis.yaml'.format(DEFAULT_CONFIG_DIR, os.sep),
         default_environment=state.environment
     )
     parsed_args, unknown_args = parser.parse_known_args(cli_args)
+    state.logger.info('Command line arguments parsed')
 
     # Parse config file
     if parsed_args.config_file is not None:
