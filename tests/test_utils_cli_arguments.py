@@ -15,10 +15,12 @@ import unittest
 
 
 from verbacratis.utils.cli_arguments import parse_command_line_arguments
+from verbacratis.models import GenericLogger
 from verbacratis.models.runtime import VariableStateStore
 from verbacratis.models.runtime_configuration import ApplicationState
 from verbacratis.utils.file_io import remove_tmp_dir_recursively
 from verbacratis.utils.file_io import remove_tmp_dir_recursively, create_tmp_dir
+from verbacratis.utils import get_logger
 
 
 class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no cover
@@ -51,18 +53,21 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
         self.assertEqual(cm.exception.code, 2)
 
     def test_basic_invocation_args_basic(self):
-        result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args_basic)
+        result = parse_command_line_arguments(state=ApplicationState(logger=get_logger()), cli_args=self.cli_args_basic)
         self.config_dir = result.config_directory
         self.assertIsNotNone(result)
         self.assertIsInstance(result, ApplicationState)
+        self.assertIsNotNone(result.logger)
+        self.assertIsInstance(result.logger, GenericLogger)
+        self.assertIsNotNone(result.logger.logger)
 
     def test_basic_invocation_invalid_overrides_fail_with_exit(self):
         with self.assertRaises(SystemExit) as cm:
-            parse_command_line_arguments(state=ApplicationState(), overrides={'config_file': None})
+            parse_command_line_arguments(state=ApplicationState(logger=get_logger()), overrides={'config_file': None})
         self.assertEqual(cm.exception.code, 2)
 
     def test_basic_invocation_args_complex_git_location(self):
-        result = parse_command_line_arguments(state=ApplicationState(), cli_args=self.cli_args_complex)
+        result = parse_command_line_arguments(state=ApplicationState(logger=get_logger()), cli_args=self.cli_args_complex)
         result.load_system_manifests()
         self.assertIsNotNone(result)
         self.assertIsInstance(result, ApplicationState)
