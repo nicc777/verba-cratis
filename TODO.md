@@ -2,6 +2,7 @@
 
 * [ ] Fix command line argument parsing when using Docker
 * [ ] Fix logging to include the actual function calling the logger function
+* [ ] Fix logging configuration
 
 # Features to Implement
 
@@ -18,4 +19,5 @@
 * [ ] Implement state DB
 * [ ] Persist results from task execution in state DB
 * [ ] Calculate difference between current deployment plan and previous persisted execution
+* [ ] Load global configs from configuration files
   
