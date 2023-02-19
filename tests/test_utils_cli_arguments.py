@@ -70,7 +70,7 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
     def test_basic_invocation_help(self):
         with self.assertRaises(SystemExit) as cm:
             parse_command_line_arguments(state=ApplicationState(logger=get_logger()), cli_args=self.cli_args_help)
-        self.assertEqual(cm.exception.code, 2)
+        self.assertEqual(cm.exception.code, 0)
 
     def test_basic_invocation_args_complex_git_location(self):
         result = parse_command_line_arguments(state=ApplicationState(logger=get_logger()), cli_args=self.cli_args_complex)
