@@ -1,7 +1,7 @@
 # Current issues to sort out
 
-* [ ] Fix command line argument parsing when using Docker
-* [ ] Fix logging to include the actual function calling the logger function
+* [X] Fix command line argument parsing when using Docker
+* [X] Fix logging to include the actual function calling the logger function
 * [ ] Fix logging configuration
 
 # Features to Implement
