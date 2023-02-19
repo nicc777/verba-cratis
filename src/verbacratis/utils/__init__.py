@@ -156,7 +156,7 @@ def get_logger(
     include_logging_datagram_handler: bool=False,
     include_logging_syslog_handler: bool=False,
     extra_parameters: dict=dict(),
-    log_format: str='%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+    log_format: str='%(asctime)s %(levelname)s - %(message)s'
 )->logging.Logger:
 
     if is_debug_set_in_environment() is True:
