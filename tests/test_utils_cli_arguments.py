@@ -36,6 +36,7 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
             '-p', 'https://github.com/nicc777/verba-cratis-test-projects.git%00branch%3Dmain',
             '-e', 'default'
         ]
+        self.cli_args_help=['-h',]
         self.config_dir = create_tmp_dir(sub_dir='TestApplicationState')
         self.cli_args_basic.append('--conf')
         self.cli_args_basic.append('{}{}test_config_file.yaml'.format(self.config_dir, os.sep))
@@ -64,6 +65,11 @@ class TestFunctionParseCommandLineArguments(unittest.TestCase):  # pragma: no co
     def test_basic_invocation_invalid_overrides_fail_with_exit(self):
         with self.assertRaises(SystemExit) as cm:
             parse_command_line_arguments(state=ApplicationState(logger=get_logger()), overrides={'config_file': None})
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_basic_invocation_help(self):
+        with self.assertRaises(SystemExit) as cm:
+            parse_command_line_arguments(state=ApplicationState(logger=get_logger()), cli_args=self.cli_args_help)
         self.assertEqual(cm.exception.code, 2)
 
     def test_basic_invocation_args_complex_git_location(self):
