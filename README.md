@@ -44,6 +44,8 @@ The idea is to eventually add this project to [PyPI](https://pypi.org/)
 
 # Testing
 
+## Unit Tests
+
 The following need to be installed:
 
 * `pip3 install coverage`
@@ -55,6 +57,8 @@ Run Tests
 ```shell
 sh run_tests.sh
 ```
+
+Open your browser and open [the report](reports/index.html)
 
 # Resources and References
 
