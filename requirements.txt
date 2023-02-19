@@ -1,8 +1,6 @@
 pyyaml
-coverage
 cerberus
 boto3
-build
 sqlalchemy
 requests
 GitPython
