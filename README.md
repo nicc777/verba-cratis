@@ -36,11 +36,37 @@ The idea is to eventually add this project to [PyPI](https://pypi.org/)
 
 | Date       | Update Description                                                                                                                                                                                    |
 |------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2023-02-19 | A big milestone today was also to start the building and running of the application via a Docker image.                                                                                               |
 | 2023-02-18 | At startup, both system and project configurations can now be loaded from a number of sources, including URL's, local files/directories and Git sources. Added a lot of documentation.                |
 | 2023-02-04 | Implemented retrieval and processing of files for deployments from URLS.                                                                                                                              |
 | 2023-02-02 | Implemented Git repository cloning functions that will be key in the retrieval and processing of files for deployments.                                                                               |
 | 2023-01-30 | I have redesigned the models from my initial attempt, and I am about half way through. I added the motivations and features list to this README.                                                      |
 | 2023-01-15 | I renamed the project from `acfop` to `verba-cratis` as the original project was purely AWS focused. I quickly realized I need something that supports more platforms.                                |
+
+# Building and Running
+
+The easiest way to build and run the application at this stage is via Docker. No pre-built images are provided yet due to the very limited functionality, but you can build and run it yourself via the following commands:
+
+Build command:
+
+```shell
+docker build --no-cache -t verba-cratis .
+```
+
+Run Command (displaying the command help)
+
+```shell
+docker run --rm verba-cratis -h
+```
+
+Here is an example for running the hello world test deployment on your local machine :
+
+> **Note**
+> This is not working yet as development is still ongoing...
+
+```shell
+docker run --rm verba-cratis -s https://github.com/nicc777/verba-cratis-test-infrastructure.git -p https://github.com/nicc777/verba-cratis-test-projects.git -e default
+```
 
 # Testing
 

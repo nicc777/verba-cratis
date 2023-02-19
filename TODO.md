@@ -3,6 +3,7 @@
 * [X] Fix command line argument parsing when using Docker
 * [X] Fix logging to include the actual function calling the logger function
 * [ ] Fix logging configuration
+* [ ] Add logging of exceptions everywhere where the app is currently printing stack traces.
 
 # Features to Implement
 
