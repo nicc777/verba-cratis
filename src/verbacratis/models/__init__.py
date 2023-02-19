@@ -8,6 +8,7 @@
 
 from pathlib import Path
 import os
+import inspect
 
 
 AWS_REGIONS = (
@@ -83,8 +84,20 @@ spec:
       parameters:
     - parameterName: format
       parameterType: str
-      parameterValue: '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s'
+      parameterValue: '%(levelname)s - %(message)s'
 """.format(DEFAULT_CONFIG_DIR, os.sep, DEFAULT_STATE_DB)
+
+
+def id_caller()->list:
+    result = list()
+    try:
+        caller_stack = inspect.stack()[2]
+        result.append(caller_stack[1].split(os.sep)[-1]) # File name
+        result.append(caller_stack[2]) # line number
+        result.append(caller_stack[3]) # function name
+    except: # pragma: no cover
+      pass
+    return result
 
 
 class GenericLogger:
@@ -96,10 +109,28 @@ class GenericLogger:
             self.logger = logger
             self.enable_logging = True
 
+    def _format_msg(self, stack_data: list, message: str)->str:
+        if message is not None:
+            message = '{}'.format(message)
+            if len(stack_data) == 3:
+                message = '[{}:{}:{}] {}'.format(
+                    stack_data[0],
+                    stack_data[1],
+                    stack_data[2],
+                    message
+                )
+            return message
+        return 'NO_INPUT_MESSAGE'
+
     def info(self, message_str):
         if self.enable_logging:
             try:
-                self.logger.info(message_str)
+                self.logger.info(
+                  self._format_msg(
+                      stack_data=id_caller(), 
+                      message=message_str
+                  )
+                )
                 return
             except:
                 self.enable_logging = False
@@ -108,7 +139,12 @@ class GenericLogger:
     def debug(self, message_str):
         if self.enable_logging:
             try:
-                self.logger.debug(message_str)
+                self.logger.debug(
+                  self._format_msg(
+                      stack_data=id_caller(), 
+                      message=message_str
+                  )
+                )
                 return
             except:
                 self.enable_logging = False
@@ -117,7 +153,12 @@ class GenericLogger:
     def warn(self, message_str):
         if self.enable_logging:
             try:
-                self.logger.warn(message_str)
+                self.logger.warn(
+                  self._format_msg(
+                      stack_data=id_caller(), 
+                      message=message_str
+                  )
+                )
                 return
             except:
                 self.enable_logging = False
@@ -126,7 +167,12 @@ class GenericLogger:
     def error(self, message_str):
         if self.enable_logging:
             try:
-                self.logger.error(message_str)
+                self.logger.error(
+                  self._format_msg(
+                      stack_data=id_caller(), 
+                      message=message_str
+                  )
+                )
                 return
             except:
                 self.enable_logging = False

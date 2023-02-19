@@ -20,12 +20,12 @@ from verbacratis.models import GenericLogger
 DEFAULT_LOGGING_HANDLER_CONFIG = {  
     'StreamHandler': {
         'level': logging.INFO,
-        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+        'format': '%(asctime)s %(levelname)s - %(message)s',
     },
     'FileHandler': {
         'filename': 'verbacratis.log',
         'level': logging.INFO,
-        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+        'format': '%(asctime)s %(levelname)s - %(message)s',
     },
     'TimedRotatingFileHandler': {
         'filename': 'verbacratis.log',
@@ -33,20 +33,20 @@ DEFAULT_LOGGING_HANDLER_CONFIG = {
         'interval': 1,
         'backupCount': 5,
         'level': logging.INFO,
-        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+        'format': '%(asctime)s %(levelname)s - %(message)s',
     },
     'DatagramHandler': {
         'host': 'localhost',
         'port': '514',
         'level': logging.INFO,
-        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+        'format': '%(asctime)s %(levelname)s - %(message)s',
     },
     'SysLogHandler': {
         'host': 'localhost',
         'port': '514',
         'socktype': socket.SOCK_DGRAM,
         'level': logging.INFO,
-        'format': '%(funcName)s:%(lineno)d -  %(levelname)s - %(message)s',
+        'format': '%(asctime)s %(levelname)s - %(message)s',
     },
 }
 
@@ -54,7 +54,7 @@ DEFAULT_LOGGING_HANDLER_CONFIG = {
 def get_logging_file_handler(
     filename: str='verbacratis.log',
     level=logging.INFO,
-    formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter: logging.Formatter=logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
 )->logging.FileHandler:
     try:
         h = logging.FileHandler(filename=filename)
@@ -72,7 +72,7 @@ def get_timed_rotating_file_handler(    # See: https://docs.python.org/3/library
     interval: int=1,
     backupCount: int= 5,
     level=logging.INFO,
-    formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter: logging.Formatter=logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
 )->logging.handlers.TimedRotatingFileHandler:
     try:
         h = logging.handlers.TimedRotatingFileHandler(filename=filename, when=when, interval=interval, backupCount=backupCount, utc=True)
@@ -86,7 +86,7 @@ def get_timed_rotating_file_handler(    # See: https://docs.python.org/3/library
 
 def get_logging_stream_handler(
     level=logging.INFO,
-    formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter: logging.Formatter=logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
 )->logging.StreamHandler:
     try:
         h = logging.StreamHandler(sys.stdout)
@@ -102,7 +102,7 @@ def get_logging_datagram_handler(
     host: str='localhost',
     port: int=514,
     level=logging.INFO,
-    formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter: logging.Formatter=logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
 )->logging.handlers.DatagramHandler:
     try:
         h = logging.handlers.DatagramHandler(host=host, port=port)
@@ -119,7 +119,7 @@ def get_logging_syslog_handler(
     port: int=514,
     socktype: object=socket.SOCK_DGRAM,
     level=logging.INFO,
-    formatter: logging.Formatter=logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter: logging.Formatter=logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
 )->logging.handlers.SysLogHandler:
     try:
         h = logging.handlers.SysLogHandler(
