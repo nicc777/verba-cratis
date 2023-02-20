@@ -18,3 +18,11 @@ Said plugins can be install by `pip` from a URL to the target directory.
 Then, through some configuration, the application must scan the plugins directory and register all the plugins.
 
 In turn, each plugin will register as a handler of some manifest `Kind` and bound to supported versions of that kind.
+
+Basic concept:
+
+```mermaid
+classDiagram
+Plugins "1" *-- "*" PluginBase : Implementations Of
+PluginBase <|-- SomeImpl : implements
+```
