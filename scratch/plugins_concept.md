@@ -27,7 +27,7 @@ Basic concept:
 
 ```mermaid
 classDiagram
-Plugins "1" *-- "*" PluginBase : Implementations Of
+Plugins "1" *-- "*" PluginBase : Collection Of
 PluginBase <|-- SomeImpl : implements
 ```
 
