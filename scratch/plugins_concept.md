@@ -2,6 +2,7 @@
 - [Field Notes for Plugins Concept](#field-notes-for-plugins-concept)
 - [Basic Thinking](#basic-thinking)
 - [Digging a little deeper](#digging-a-little-deeper)
+  - [When Infrastructure and application development develop on separate stream](#when-infrastructure-and-application-development-develop-on-separate-stream)
 
 
 # Field Notes for Plugins Concept
@@ -37,4 +38,19 @@ In the current model we have two high level concepts that ties together:
 
 There is also a concept of an environment, which does not have any real hard definition. We can also think of it as a scope. Environments loosely groups systems and projects together. Lets take a very simple example of having a staging and a production environment. We can isolate these two environments and ensure while we are in a development phase we only deploy to resources in the scope of the staging environment. Only when we are ready for pushing our changes to production can we target resources scoped for production.
 
+However, we should not forget that infrastructure development and application development may sometimes follow separate paths, while at other times be very closely tied together.
 
+## When Infrastructure and application development develop on separate stream
+
+These are situations where a team of infrastructure engineers maintains servers and services supporting the hosting of an application, where there may be very limited or almost no dependency of the application development and the infrastructure development and maintenance. 
+
+For example, a team my maintain a number of web servers, with DNS, load balancers etc. completely separate from the development team(s) developing the application being hosted on those servers.
+
+The `verba-cratis` tool can be used in this scenario in two different roles:
+
+1. The first is purely for the infrastructure engineers to maintain deploy and maintain the servers, DNS and all other infrastructure related objects.
+2. The second is where some minor updates must be made to infrastructure, like DNS or reverse proxy configuration, with certain application deployments
+
+The infrastructure and application source code repositories are completely separate in this scenario. The subtle changes required in infrastructure for application support, like DNS, reverse proxy configuration and such can still easily be maintained in separate repositories.
+
+There is also separated streams between the Infrastructure development and application development efforts. Infrastructure evolves more in a Kanban type fashion (ship it when it's ready) while application development may be more sprint or even waterfall driven. This is typically why there are two separate repositories for Infrastructure and application development and code reviews, merges and other tasks in the various development life cycles happen independent of each other and only a small amount of coordination is required between the two teams for certain infrastructure aspects as already pointed out.
