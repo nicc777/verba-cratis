@@ -4,6 +4,7 @@
 - [Digging a little deeper](#digging-a-little-deeper)
   - [When Infrastructure and Application development develop on separate stream](#when-infrastructure-and-application-development-develop-on-separate-stream)
   - [When Infrastructure and Application development become tied to the hip](#when-infrastructure-and-application-development-become-tied-to-the-hip)
+- [Tying it together](#tying-it-together)
 
 
 # Field Notes for Plugins Concept
@@ -72,4 +73,8 @@ Through a combination of `Projects` and `Environments`, there can still be a wel
 
 In the example of AWS Amplify or serverless, the `verba-cratis` tool should be more concerned about how to deploy the these application projects through their templates. Therefore, the deployment portion focus on knowing how to deploy the templates and in reality does not really care too much about what Infrastructure is deployed, but just know it is deployed on top of some base Infrastructure layer (VPC, certificates etc.) that is maintained separately.
 
+# Tying it together
 
+Therefore, there are some concept required for specific application and infrastructure on demand models, like AWS Amplify of Serverless. Each of these tools come with their own command line tools and API's. Therefore, in the context of a `Deployment`, a `Task` would need to know the context of the defined instruction and if a specific handler for that instruction is known, delegate the implementation steps to that handler.
+
+This is where the plugin model will help a great deal.
