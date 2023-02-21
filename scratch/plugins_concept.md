@@ -67,3 +67,9 @@ However, there are a lot of infrastructure components that is directly controlle
 Basically, we still have elements that look like the first scenario and follow the same life cycles, but then we also have application and infrastructure that follow the same processes and life in the same repository.
 
 At the root, there is still two roles for the `verba-cratis` tool as defined in the previous scenario, but there is a lot more release activities that need to be coordinated on a continuos basis.
+
+Through a combination of `Projects` and `Environments`, there can still be a well defined separation between what Infrastructure is purely base/common and what Infrastructure is tied to the application development. 
+
+In the example of AWS Amplify or serverless, the `verba-cratis` tool should be more concerned about how to deploy the these application projects through their templates. Therefore, the deployment portion focus on knowing how to deploy the templates and in reality does not really care too much about what Infrastructure is deployed, but just know it is deployed on top of some base Infrastructure layer (VPC, certificates etc.) that is maintained separately.
+
+
