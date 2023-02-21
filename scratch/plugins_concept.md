@@ -2,7 +2,8 @@
 - [Field Notes for Plugins Concept](#field-notes-for-plugins-concept)
 - [Basic Thinking](#basic-thinking)
 - [Digging a little deeper](#digging-a-little-deeper)
-  - [When Infrastructure and application development develop on separate stream](#when-infrastructure-and-application-development-develop-on-separate-stream)
+  - [When Infrastructure and Application development develop on separate stream](#when-infrastructure-and-application-development-develop-on-separate-stream)
+  - [When Infrastructure and Application development become tied to the hip](#when-infrastructure-and-application-development-become-tied-to-the-hip)
 
 
 # Field Notes for Plugins Concept
@@ -40,7 +41,7 @@ There is also a concept of an environment, which does not have any real hard def
 
 However, we should not forget that infrastructure development and application development may sometimes follow separate paths, while at other times be very closely tied together.
 
-## When Infrastructure and application development develop on separate stream
+## When Infrastructure and Application development develop on separate stream
 
 These are situations where a team of infrastructure engineers maintains servers and services supporting the hosting of an application, where there may be very limited or almost no dependency of the application development and the infrastructure development and maintenance. 
 
@@ -54,3 +55,15 @@ The `verba-cratis` tool can be used in this scenario in two different roles:
 The infrastructure and application source code repositories are completely separate in this scenario. The subtle changes required in infrastructure for application support, like DNS, reverse proxy configuration and such can still easily be maintained in separate repositories.
 
 There is also separated streams between the Infrastructure development and application development efforts. Infrastructure evolves more in a Kanban type fashion (ship it when it's ready) while application development may be more sprint or even waterfall driven. This is typically why there are two separate repositories for Infrastructure and application development and code reviews, merges and other tasks in the various development life cycles happen independent of each other and only a small amount of coordination is required between the two teams for certain infrastructure aspects as already pointed out.
+
+## When Infrastructure and Application development become tied to the hip
+
+Then there are other scenarios where infrastructure and application and strongly intertwined. Examples like AWS Amplify or AWS Serverless come to mind where application logic and Infrastructure evolve in parallel and are directly dependant on one another.
+
+In these scenarios I still see two separate repositories for infrastructure and application development as there is still a "base" or "common" Infrastructure layer. This includes perhaps things like AWS VPC configuration, AWS ACM etc. which can be developed and maintained separate from the application. The application may rely or even reference on these systems, but do not need to exercise any direct control over hem during their own development and deployment. 
+
+However, there are a lot of infrastructure components that is directly controlled by the application development effort and these components are typically in the application source code repository.
+
+Basically, we still have elements that look like the first scenario and follow the same life cycles, but then we also have application and infrastructure that follow the same processes and life in the same repository.
+
+At the root, there is still two roles for the `verba-cratis` tool as defined in the previous scenario, but there is a lot more release activities that need to be coordinated on a continuos basis.
