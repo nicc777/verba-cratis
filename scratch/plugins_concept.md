@@ -78,3 +78,5 @@ In the example of AWS Amplify or serverless, the `verba-cratis` tool should be m
 Therefore, there are some concept required for specific application and infrastructure on demand models, like AWS Amplify of Serverless. Each of these tools come with their own command line tools and API's. Therefore, in the context of a `Deployment`, a `Task` would need to know the context of the defined instruction and if a specific handler for that instruction is known, delegate the implementation steps to that handler.
 
 This is where the plugin model will help a great deal.
+
+Concept required: Plugable or Extensible Manifest Centric Processing System.
